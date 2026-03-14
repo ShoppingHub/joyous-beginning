@@ -1,0 +1,1 @@
+ALTER TABLE public.users ADD COLUMN extra_tab_enabled BOOLEAN NOT NULL DEFAULT false;

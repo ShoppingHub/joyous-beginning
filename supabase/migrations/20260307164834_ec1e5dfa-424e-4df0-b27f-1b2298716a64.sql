@@ -1,0 +1,1 @@
+ALTER TABLE public.users ADD COLUMN language TEXT NOT NULL DEFAULT 'en' CHECK (language IN ('it', 'en'));

@@ -1,0 +1,1 @@
+ALTER TABLE public.users ADD COLUMN menu_custom_items TEXT[] NOT NULL DEFAULT '{}';
