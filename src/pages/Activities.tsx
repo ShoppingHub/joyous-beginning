@@ -4,10 +4,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet } from "lucide-react";
+import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, MoreVertical } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
 
@@ -29,6 +45,7 @@ const Areas = () => {
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [todayQuantities, setTodayQuantities] = useState<Record<string, number>>({});
+  const [archiveTarget, setArchiveTarget] = useState<Area | null>(null);
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
@@ -44,7 +61,6 @@ const Areas = () => {
       .is("archived_at", null).order("created_at", { ascending: true });
     if (data) {
       setAreas(data);
-      // Fetch today quantities for quantity_reduce areas
       const qAreas = data.filter((a) => a.tracking_mode === "quantity_reduce");
       if (qAreas.length > 0) {
         const { data: qData } = await supabase
@@ -63,6 +79,13 @@ const Areas = () => {
   }, [user, isDemo, todayStr]);
 
   useEffect(() => { fetchAreas(); }, [fetchAreas]);
+
+  const handleArchive = async () => {
+    if (!archiveTarget) return;
+    await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", archiveTarget.id);
+    setArchiveTarget(null);
+    fetchAreas();
+  };
 
   const grouped = (type: AreaType) => areas.filter((a) => a.type === type);
 
@@ -110,18 +133,40 @@ const Areas = () => {
                 const isQuantity = area.tracking_mode === "quantity_reduce";
                 const qty = todayQuantities[area.id] ?? 0;
                 return (
-                  <button key={area.id} onClick={() => navigate(`/activities/${area.id}`)}
-                    className="w-full flex items-center justify-between rounded-lg bg-card px-4 min-h-[48px] hover:opacity-90 transition-opacity">
-                    <span className="text-base text-foreground truncate mr-3">{area.name}</span>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {isQuantity && (
-                        <span className="text-sm text-muted-foreground">
-                          {qty} {t("reduce.today")}
-                        </span>
-                      )}
-                      <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground" />
-                    </div>
-                  </button>
+                  <div key={area.id} className="flex items-center gap-1">
+                    <button onClick={() => navigate(`/activities/${area.id}`)}
+                      className="flex-1 flex items-center justify-between rounded-lg bg-card px-4 min-h-[48px] hover:opacity-90 transition-opacity">
+                      <span className="text-base text-foreground truncate mr-3">{area.name}</span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {isQuantity && (
+                          <span className="text-sm text-muted-foreground">
+                            {qty} {t("reduce.today")}
+                          </span>
+                        )}
+                        <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground" />
+                      </div>
+                    </button>
+                    {!isDemo && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground transition-colors">
+                            <MoreVertical size={18} strokeWidth={1.5} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/activities/${area.id}/edit`)}>
+                            {t("areas.edit" as any)}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setArchiveTarget(area)}
+                          >
+                            {t("areas.archive" as any)}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
                 );
               })}
               {!isDemo && (
@@ -134,6 +179,20 @@ const Areas = () => {
           );
         })}
       </div>
+
+      {/* Archive confirmation dialog */}
+      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => !open && setArchiveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("areaForm.delete.confirm.title" as any)}</AlertDialogTitle>
+            <AlertDialogDescription>{t("areaForm.delete.confirm.desc" as any)}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("areaForm.delete.confirm.no" as any)}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleArchive}>{t("areaForm.delete.confirm.yes" as any)}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 };
