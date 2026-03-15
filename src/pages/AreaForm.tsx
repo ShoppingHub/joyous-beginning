@@ -295,20 +295,21 @@ export default function AreaForm({ mode }: AreaFormProps) {
         )}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <div className="mt-auto pt-8 space-y-4">
-          <button onClick={handleSave} disabled={!isValid || saving}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
-            {saving && <Loader2 size={18} className="animate-spin" />}
-            {mode === "add" ? t("areaForm.add.button") : t("areaForm.edit.button")}
+      </div>
+      {/* Sticky bottom buttons */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3 space-y-2 z-20">
+        <button onClick={handleSave} disabled={!isValid || saving}
+          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
+          {saving && <Loader2 size={18} className="animate-spin" />}
+          {mode === "add" ? t("areaForm.add.button" as any) : t("areaForm.edit.button")}
+        </button>
+        {mode === "edit" && (
+          <button onClick={handleArchive} disabled={archiving}
+            className="w-full text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center justify-center gap-2">
+            {archiving && <Loader2 size={16} className="animate-spin" />}
+            {t("areaForm.archive")}
           </button>
-          {mode === "edit" && (
-            <button onClick={handleArchive} disabled={archiving}
-              className="w-full text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center justify-center gap-2">
-              {archiving && <Loader2 size={16} className="animate-spin" />}
-              {t("areaForm.archive")}
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </motion.div>
   );
