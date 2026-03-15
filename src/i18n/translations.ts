@@ -244,6 +244,11 @@ const translations = {
   "settings.googleTasks.disconnectCancel": { en: "Cancel", it: "Annulla" },
   "settings.googleTasks.expired": { en: "Google connection expired. Reconnect your account.", it: "Connessione Google scaduta. Ricollega il tuo account." },
   "settings.googleTasks.reconnect": { en: "Reconnect", it: "Ricollega" },
+
+  // Google Tasks sync toggle (Edit Area)
+  "areaForm.googleTasksSync": { en: "Sync with Google Tasks", it: "Sincronizza con Google Tasks" },
+  "areaForm.googleTasksSyncDesc": { en: "Create tasks in Google Tasks for this activity", it: "Crea task in Google Tasks per questa attività" },
+  "areaForm.googleTasksSyncConnect": { en: "Connect Google in Settings to enable sync", it: "Collega Google nelle Impostazioni per attivare la sincronizzazione" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
