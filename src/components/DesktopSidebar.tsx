@@ -27,8 +27,8 @@ export function DesktopSidebar() {
             to={to}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
               isActive(to)
-                ? "bg-[rgba(125,163,160,0.1)] text-[#7DA3A0]"
-                : "text-[#B9C0C1] hover:text-white hover:bg-white/5"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
             }`}
           >
             <Icon size={20} strokeWidth={1.5} />
