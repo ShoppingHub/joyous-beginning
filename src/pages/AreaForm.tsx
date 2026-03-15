@@ -301,7 +301,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
         <button onClick={handleSave} disabled={!isValid || saving}
           className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
           {saving && <Loader2 size={18} className="animate-spin" />}
-          {mode === "add" ? t("areaForm.add.button" as any) : t("areaForm.edit.button")}
+          {mode === "add" ? t("areaForm.add.button") : t("areaForm.edit.button")}
         </button>
         {mode === "edit" && (
           <button onClick={handleArchive} disabled={archiving}
