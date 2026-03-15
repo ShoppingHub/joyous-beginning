@@ -6,7 +6,7 @@ import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { Eye } from "lucide-react";
 import { motion } from "framer-motion";
-import { format, isAfter, isSameDay, getISODay } from "date-fns";
+import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek } from "date-fns";
 import { getDemoAreas, getDemoTodayCheckins } from "@/lib/demoData";
 import { WeekSelector } from "@/components/home/WeekSelector";
 import { WeekBanner } from "@/components/home/WeekBanner";
