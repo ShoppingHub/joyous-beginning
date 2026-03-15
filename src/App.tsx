@@ -74,6 +74,7 @@ const App = () => (
         </DemoProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
