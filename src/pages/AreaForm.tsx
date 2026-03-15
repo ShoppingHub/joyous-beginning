@@ -174,7 +174,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
         <button onClick={() => navigate(mode === "edit" ? `/activities/${id}` : "/")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]"><ArrowLeft size={24} strokeWidth={1.5} /></button>
         <h1 className="text-[18px] font-semibold">{mode === "add" ? t("areaForm.add.title") : t("areaForm.edit.title")}</h1>
       </div>
-      <div className="flex flex-col gap-8 mt-4 flex-1">
+      <div className="flex flex-col gap-8 mt-4 flex-1 pb-24">
         {/* Name */}
         <div className="space-y-2">
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("areaForm.namePlaceholder")}
