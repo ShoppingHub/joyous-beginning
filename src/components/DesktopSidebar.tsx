@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
 
@@ -17,7 +18,10 @@ export function DesktopSidebar() {
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[240px] bg-[hsl(var(--nav-bg))] flex-col z-50">
       <div className="px-6 pt-8 pb-6">
-        <span className="text-[20px] font-semibold"><span className="text-foreground">opad</span><span style={{ color: '#B5453A' }}>.me</span></span>
+        <span className="text-[20px] font-semibold">
+          <span className="text-foreground">opad</span>
+          <span style={{ color: '#B5453A' }}>.me</span>
+        </span>
       </div>
 
       <nav className="flex flex-col gap-1 px-3 flex-1">
@@ -38,7 +42,7 @@ export function DesktopSidebar() {
       </nav>
 
       {lastItem && (
-        <div className="px-3 pb-6">
+        <div className="px-3 pb-3">
           <div className="h-px bg-foreground/10 mb-3 mx-3" />
           <NavLink
             to={lastItem.to}
@@ -53,6 +57,13 @@ export function DesktopSidebar() {
           </NavLink>
         </div>
       )}
+
+      {/* Profile at bottom */}
+      <div className="px-4 pb-6 pt-2 border-t border-foreground/10">
+        <div className="flex items-center gap-3 px-2 py-2">
+          <ProfileAvatar size="md" />
+        </div>
+      </div>
     </aside>
   );
 }
