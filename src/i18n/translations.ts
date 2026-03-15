@@ -257,6 +257,18 @@ const translations = {
   "areas.archive": { en: "Archive", it: "Archivia" },
   "areaForm.gymTemplate": { en: "Gym", it: "Palestra" },
   "areaForm.gymTemplateDesc": { en: "Use gym template with program tracking", it: "Usa il template palestra con tracciamento scheda" },
+
+  // Profile / Theme
+  "settings.appearance": { en: "Appearance", it: "Aspetto" },
+  "settings.theme": { en: "Theme", it: "Tema" },
+  "settings.theme.dark": { en: "Dark", it: "Scuro" },
+  "settings.theme.light": { en: "Light", it: "Chiaro" },
+  "settings.theme.system": { en: "System", it: "Sistema" },
+  "settings.colors": { en: "Colors", it: "Colori" },
+  "settings.colors.teal": { en: "Teal", it: "Teal" },
+  "settings.colors.ocean": { en: "Ocean", it: "Oceano" },
+  "settings.colors.sunset": { en: "Sunset", it: "Tramonto" },
+  "settings.colors.forest": { en: "Forest", it: "Foresta" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
