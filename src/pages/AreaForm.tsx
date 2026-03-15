@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { ArrowLeft, Minus, Plus, Loader2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Loader2, Dumbbell } from "lucide-react";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import type { Database } from "@/integrations/supabase/types";
