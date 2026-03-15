@@ -9,7 +9,7 @@ export function BottomNav() {
   const { visibleItems } = useNavConfig();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 items-center bg-[#0F2F33] lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 items-center bg-[hsl(var(--nav-bg))] lg:hidden">
       {visibleItems.map(({ to, icon: Icon, labelKey }) => {
         const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
         return (
