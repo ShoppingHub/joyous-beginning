@@ -12,6 +12,16 @@ import { GymCard } from "@/components/GymCard";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type Area = Database["public"]["Tables"]["areas"]["Row"];
@@ -24,6 +34,7 @@ export default function AreaDetail() {
   const navigate = useNavigate();
   const [area, setArea] = useState<Area | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const today = format(new Date(), "yyyy-MM-dd");
 
   const fetchData = useCallback(async () => {
@@ -41,6 +52,12 @@ export default function AreaDetail() {
   }, [user, isDemo, id]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleArchive = async () => {
+    if (!id) return;
+    await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", id);
+    navigate("/activities", { replace: true });
+  };
 
   if (loading) {
     return (
@@ -94,9 +111,14 @@ export default function AreaDetail() {
           <AreaTypePill type={area.type} />
         </div>
         {!isDemo && (
-          <button onClick={() => navigate(`/activities/${id}/edit`)} className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center">
-            {locale === "it" ? "Modifica" : "Edit"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate(`/activities/${id}/edit`)} className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center">
+              {t("areas.edit" as any)}
+            </button>
+            <button onClick={() => setShowArchiveDialog(true)} className="text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center">
+              {t("areas.archive" as any)}
+            </button>
+          </div>
         )}
       </div>
 
@@ -116,6 +138,20 @@ export default function AreaDetail() {
       <div className="mt-6">
         <NotesHistorySection areaId={id!} isDemo={isDemo} />
       </div>
+
+      {/* Archive confirmation */}
+      <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("areaForm.delete.confirm.title" as any)}</AlertDialogTitle>
+            <AlertDialogDescription>{t("areaForm.delete.confirm.desc" as any)}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("areaForm.delete.confirm.no" as any)}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleArchive}>{t("areaForm.delete.confirm.yes" as any)}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }
