@@ -164,6 +164,45 @@ export type Database = {
           },
         ]
       }
+      google_oauth_tokens: {
+        Row: {
+          access_token: string
+          access_token_expires_at: string
+          connected_at: string
+          created_at: string
+          google_email: string
+          id: string
+          refresh_token: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          access_token_expires_at: string
+          connected_at?: string
+          created_at?: string
+          google_email: string
+          id?: string
+          refresh_token: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          access_token_expires_at?: string
+          connected_at?: string
+          created_at?: string
+          google_email?: string
+          id?: string
+          refresh_token?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       gym_muscle_groups: {
         Row: {
           created_at: string
