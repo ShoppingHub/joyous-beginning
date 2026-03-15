@@ -73,6 +73,26 @@ const Index = () => {
     })();
   }, [user, isDemo]);
 
+  // Pull Google Tasks completions on app load (once per session)
+  useEffect(() => {
+    if (isDemo || !user) return;
+    const sessionKey = "opad_google_pull_done";
+    if (sessionStorage.getItem(sessionKey)) return;
+    sessionStorage.setItem(sessionKey, "1");
+
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        await supabase.functions.invoke("pull-google-tasks", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+      } catch (err) {
+        console.error("Pull Google Tasks failed:", err);
+      }
+    })();
+  }, [user, isDemo]);
+
   // Filter areas by scheduled day
   const filteredAreas = useMemo(() => {
     return areas.filter(area => {
