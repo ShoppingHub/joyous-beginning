@@ -90,6 +90,7 @@ export type Database = {
           baseline_initial: number | null
           created_at: string
           frequency_per_week: number
+          google_tasks_sync: boolean
           id: string
           name: string
           show_quick_add_home: boolean
@@ -104,6 +105,7 @@ export type Database = {
           baseline_initial?: number | null
           created_at?: string
           frequency_per_week: number
+          google_tasks_sync?: boolean
           id?: string
           name: string
           show_quick_add_home?: boolean
@@ -118,6 +120,7 @@ export type Database = {
           baseline_initial?: number | null
           created_at?: string
           frequency_per_week?: number
+          google_tasks_sync?: boolean
           id?: string
           name?: string
           show_quick_add_home?: boolean

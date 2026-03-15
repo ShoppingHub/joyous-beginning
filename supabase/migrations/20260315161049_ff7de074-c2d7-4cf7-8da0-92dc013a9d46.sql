@@ -1,0 +1,1 @@
+ALTER TABLE public.areas ADD COLUMN google_tasks_sync boolean NOT NULL DEFAULT false;
