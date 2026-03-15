@@ -52,6 +52,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [unitLabelError, setUnitLabelError] = useState("");
   const [baselineError, setBaselineError] = useState("");
   const [showQuickAddHome, setShowQuickAddHome] = useState(true);
+  const [isGymTemplate, setIsGymTemplate] = useState(false);
 
   // Google Tasks sync
   const [googleTasksSync, setGoogleTasksSync] = useState(false);
