@@ -6,9 +6,10 @@ import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { Eye } from "lucide-react";
 import { motion } from "framer-motion";
-import { format, isAfter, isSameDay, getISODay } from "date-fns";
+import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek } from "date-fns";
 import { getDemoAreas, getDemoTodayCheckins } from "@/lib/demoData";
 import { WeekSelector } from "@/components/home/WeekSelector";
+import { WeekBanner } from "@/components/home/WeekBanner";
 import { ActivityCard } from "@/components/home/ActivityCard";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -308,16 +309,27 @@ const Index = () => {
         </span>
       </div>
 
-      {/* Week selector */}
-      <div className="px-2 pb-3">
-        <WeekSelector
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
+      {/* Week banner + selector */}
+      <div className="pb-3 space-y-2">
+        <WeekBanner
           weekOffset={weekOffset}
-          onChangeWeek={(d) => setWeekOffset((o) => o + d)}
+          onGoToWeek={(offset) => {
+            setWeekOffset(offset);
+            const ws = addDays(startOfWeek(today, { weekStartsOn: 1 }), offset * 7);
+            setSelectedDate(offset === 0 ? today : ws);
+          }}
           locale={locale}
-          checkedDates={checkedDates}
         />
+        <div className="px-2">
+          <WeekSelector
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            weekOffset={weekOffset}
+            onChangeWeek={(d) => setWeekOffset((o) => o + d)}
+            locale={locale}
+            checkedDates={checkedDates}
+          />
+        </div>
       </div>
 
       {loading ? (
