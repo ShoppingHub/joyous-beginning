@@ -315,8 +315,7 @@ const Index = () => {
           weekOffset={weekOffset}
           onGoToWeek={(offset) => {
             setWeekOffset(offset);
-            const { addDays, startOfWeek: sow } = require("date-fns");
-            const ws = addDays(sow(today, { weekStartsOn: 1 }), offset * 7);
+            const ws = addDays(startOfWeek(today, { weekStartsOn: 1 }), offset * 7);
             setSelectedDate(offset === 0 ? today : ws);
           }}
           locale={locale}
