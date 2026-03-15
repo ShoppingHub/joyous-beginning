@@ -10,11 +10,17 @@ export function AppLayout() {
 
       {/* Mobile layout */}
       <div className="flex flex-col flex-1 max-w-[428px] mx-auto lg:hidden overflow-x-hidden">
-        {/* Fixed profile avatar top-right */}
-        <div className="fixed top-3 right-3 z-50 lg:hidden">
-          <ProfileAvatar />
+        {/* Fixed mobile header: opad.me + profile */}
+        <div className="fixed top-0 left-0 right-0 z-50 lg:hidden">
+          <div className="max-w-[428px] mx-auto flex items-center justify-between px-4 h-12 bg-background/80 backdrop-blur-md">
+            <span className="text-[18px] font-semibold">
+              <span className="text-foreground">opad</span>
+              <span style={{ color: "#B5453A" }}>.me</span>
+            </span>
+            <ProfileAvatar />
+          </div>
         </div>
-        <main className="flex-1 pb-14">
+        <main className="flex-1 pt-12 pb-14 overflow-x-hidden">
           <Outlet />
         </main>
         <BottomNav />
@@ -22,10 +28,7 @@ export function AppLayout() {
 
       {/* Desktop layout */}
       <div className="hidden lg:flex flex-col flex-1 ml-[240px] overflow-x-hidden">
-        <div className="flex justify-end p-4">
-          <ProfileAvatar />
-        </div>
-        <main className="flex-1 px-8 pb-8 w-full max-w-[900px] mx-auto">
+        <main className="flex-1 px-8 pb-8 pt-4 w-full max-w-[900px] mx-auto">
           <Outlet />
         </main>
       </div>

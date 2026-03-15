@@ -111,7 +111,7 @@ const Areas = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeInOut" }} className="flex flex-col px-4 pt-2 pb-8">
-      <div className="flex items-center justify-between h-14">
+      <div className="flex items-center justify-between h-12">
         <h1 className="text-[18px] font-semibold">{t("areas.title")}</h1>
         {!isDemo && (
           <button onClick={() => navigate("/activities/new")}

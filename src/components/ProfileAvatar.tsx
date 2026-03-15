@@ -4,7 +4,11 @@ import { useDemo } from "@/hooks/useDemo";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 
-export function ProfileAvatar() {
+interface ProfileAvatarProps {
+  size?: "sm" | "md";
+}
+
+export function ProfileAvatar({ size = "sm" }: ProfileAvatarProps) {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const navigate = useNavigate();
@@ -18,16 +22,19 @@ export function ProfileAvatar() {
     .toUpperCase()
     .slice(0, 2) || "U";
 
+  const sizeClass = size === "md" ? "h-10 w-10" : "h-8 w-8";
+  const textClass = size === "md" ? "text-sm" : "text-xs";
+
   return (
     <button
       onClick={() => navigate("/settings")}
       className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Profile"
     >
-      <Avatar className="h-8 w-8">
+      <Avatar className={sizeClass}>
         {!isDemo && avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
-        <AvatarFallback className="bg-primary/20 text-primary text-xs font-medium">
-          {isDemo ? <User size={16} /> : initials}
+        <AvatarFallback className={`bg-primary/20 text-primary ${textClass} font-medium`}>
+          {isDemo ? <User size={size === "md" ? 20 : 16} /> : initials}
         </AvatarFallback>
       </Avatar>
     </button>

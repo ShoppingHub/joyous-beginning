@@ -3,21 +3,21 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { ArrowLeft, Minus, Plus, Loader2, Dumbbell } from "lucide-react";
+import { ArrowLeft, Loader2, Dumbbell, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
 
 type AreaType = Database["public"]["Enums"]["area_type"];
 const typeOptions: AreaType[] = ["health", "study", "reduce", "finance"];
-
-const typeStylesSelected: Record<AreaType, string> = {
-  health: "bg-[#7DA3A0]/20 text-[#7DA3A0] border-[#7DA3A0]",
-  study: "bg-[#8C9496]/20 text-[#B9C0C1] border-[#8C9496]",
-  reduce: "bg-[#BFA37A]/20 text-[#BFA37A] border-[#BFA37A]",
-  finance: "bg-[#1F4A50] text-[#EAEAEA] border-[#7DA3A0]/60",
-};
 
 const typeLabelKeys: Record<AreaType, TranslationKey> = {
   health: "areaType.health",
@@ -26,19 +26,22 @@ const typeLabelKeys: Record<AreaType, TranslationKey> = {
   finance: "areaType.finance",
 };
 
+// Day labels (1=Mon..7=Sun)
+const DAY_KEYS = [1, 2, 3, 4, 5, 6, 7] as const;
+
 interface AreaFormProps { mode: "add" | "edit"; }
 
 export default function AreaForm({ mode }: AreaFormProps) {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
 
   const preselectedType = searchParams.get("type") as AreaType | null;
   const [name, setName] = useState("");
   const [type, setType] = useState<AreaType | null>(mode === "add" && preselectedType && typeOptions.includes(preselectedType) ? preselectedType : null);
-  const [frequency, setFrequency] = useState(7);
+  const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [typeError, setTypeError] = useState("");
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
@@ -58,9 +61,12 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [googleTasksSync, setGoogleTasksSync] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
 
+  const dayLabels = locale === "it"
+    ? ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
   useEffect(() => {
     if (!user) return;
-    // Check if Google is connected
     supabase
       .from("google_oauth_tokens")
       .select("status")
@@ -72,26 +78,40 @@ export default function AreaForm({ mode }: AreaFormProps) {
   }, [user]);
 
   useEffect(() => {
-    if (mode !== "edit" || !id) return;
+    if (mode !== "edit" || !id || !user) return;
     (async () => {
-      const { data } = await supabase.from("areas").select("*").eq("id", id).single();
-      if (data) {
+      const [areaRes, daysRes] = await Promise.all([
+        supabase.from("areas").select("*").eq("id", id).single(),
+        supabase.from("area_scheduled_days").select("day_of_week").eq("area_id", id).eq("user_id", user.id),
+      ]);
+      if (areaRes.data) {
+        const data = areaRes.data;
         setName(data.name);
         setType(data.type);
-        setFrequency(data.frequency_per_week);
         setTrackingMode((data.tracking_mode as "binary" | "quantity_reduce") || "binary");
         setUnitLabel(data.unit_label || "");
         setBaselineInitial(data.baseline_initial != null ? String(data.baseline_initial) : "");
         setShowQuickAddHome(data.show_quick_add_home ?? true);
         setGoogleTasksSync(data.google_tasks_sync ?? false);
       }
+      if (daysRes.data && daysRes.data.length > 0) {
+        setSelectedDays(daysRes.data.map(d => d.day_of_week));
+      }
       setLoadingData(false);
     })();
-  }, [mode, id]);
+  }, [mode, id, user]);
 
   const isReduce = type === "reduce";
   const isQuantity = isReduce && trackingMode === "quantity_reduce";
   const isBinary = trackingMode === "binary";
+
+  const toggleDay = (day: number) => {
+    setSelectedDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const frequency = selectedDays.length > 0 ? selectedDays.length : 7;
 
   const validate = (): boolean => {
     if (!name.trim()) return false;
@@ -133,6 +153,20 @@ export default function AreaForm({ mode }: AreaFormProps) {
         savedAreaId = id;
       }
 
+      // Save scheduled days
+      if (savedAreaId) {
+        await supabase.from("area_scheduled_days").delete().eq("area_id", savedAreaId).eq("user_id", user.id);
+        if (selectedDays.length > 0) {
+          await supabase.from("area_scheduled_days").insert(
+            selectedDays.map(day => ({
+              area_id: savedAreaId!,
+              user_id: user.id,
+              day_of_week: day,
+            }))
+          );
+        }
+      }
+
       // Trigger Google Tasks sync if enabled
       const syncEnabled = isBinary ? googleTasksSync : false;
       if (syncEnabled && savedAreaId && googleConnected) {
@@ -171,30 +205,47 @@ export default function AreaForm({ mode }: AreaFormProps) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="flex flex-col min-h-full px-4 pt-2 pb-8">
-      <div className="flex items-center gap-3 h-14">
-        <button onClick={() => navigate(mode === "edit" ? `/activities/${id}` : "/")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]"><ArrowLeft size={24} strokeWidth={1.5} /></button>
-        <h1 className="text-[18px] font-semibold">{mode === "add" ? t("areaForm.add.title") : t("areaForm.edit.title")}</h1>
+      {/* Header with back + title + save */}
+      <div className="flex items-center justify-between h-14">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(mode === "edit" ? `/activities/${id}` : "/")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
+            <ArrowLeft size={24} strokeWidth={1.5} />
+          </button>
+          <h1 className="text-[18px] font-semibold">{mode === "add" ? t("areaForm.add.title") : t("areaForm.edit.title")}</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={handleSave} disabled={!isValid || saving}
+            className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[36px]">
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+            {mode === "add" ? t("areaForm.add.button") : t("areaForm.edit.button")}
+          </button>
+        </div>
       </div>
-      <div className="flex flex-col gap-8 mt-4 flex-1 pb-24">
+
+      <div className="flex flex-col gap-6 mt-4 flex-1">
         {/* Name */}
         <div className="space-y-2">
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("areaForm.namePlaceholder")}
             className="w-full h-12 rounded-xl bg-card px-4 text-base text-foreground placeholder:text-muted-foreground outline-none ring-1 ring-border focus:ring-primary transition-colors" />
         </div>
 
-        {/* Type pills */}
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {typeOptions.map((tp) => {
-              const selected = type === tp;
-              return (
-                <button key={tp} onClick={() => { setType(tp); setTypeError(""); if (tp !== "reduce") { setTrackingMode("binary"); } }}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors min-h-[36px] ${selected ? typeStylesSelected[tp] : "bg-transparent border-border text-muted-foreground"}`}>
+        {/* Type dropdown */}
+        <div className="space-y-2">
+          <Select
+            value={type || ""}
+            onValueChange={(val) => { setType(val as AreaType); setTypeError(""); if (val !== "reduce") setTrackingMode("binary"); }}
+          >
+            <SelectTrigger className="w-full h-12 rounded-xl bg-card text-base ring-1 ring-border">
+              <SelectValue placeholder={t("areaForm.typePlaceholder" as any)} />
+            </SelectTrigger>
+            <SelectContent>
+              {typeOptions.map((tp) => (
+                <SelectItem key={tp} value={tp}>
                   {t(typeLabelKeys[tp])}
-                </button>
-              );
-            })}
-          </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {typeError && <p className="text-sm text-destructive">{typeError}</p>}
 
           {/* Gym template - only for Health in add mode */}
@@ -203,16 +254,11 @@ export default function AreaForm({ mode }: AreaFormProps) {
               onClick={() => {
                 const newVal = !isGymTemplate;
                 setIsGymTemplate(newVal);
-                if (newVal) {
-                  setName(t("areaForm.gymTemplate" as any));
-                } else if (name === t("areaForm.gymTemplate" as any)) {
-                  setName("");
-                }
+                if (newVal) setName(t("areaForm.gymTemplate" as any));
+                else if (name === t("areaForm.gymTemplate" as any)) setName("");
               }}
-              className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors mt-2 ${
-                isGymTemplate
-                  ? "bg-[#7DA3A0]/20 border-[#7DA3A0] text-foreground"
-                  : "bg-transparent border-border text-muted-foreground"
+              className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors mt-2 w-full ${
+                isGymTemplate ? "bg-primary/10 border-primary text-foreground" : "bg-transparent border-border text-muted-foreground"
               }`}
             >
               <Dumbbell size={18} strokeWidth={1.5} />
@@ -232,7 +278,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
               <button
                 onClick={() => setTrackingMode("binary")}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors min-h-[36px] ${
-                  trackingMode === "binary" ? "bg-[#BFA37A]/20 text-[#BFA37A] border-[#BFA37A]" : "bg-transparent border-border text-muted-foreground"
+                  trackingMode === "binary" ? "bg-primary/20 text-primary border-primary" : "bg-transparent border-border text-muted-foreground"
                 }`}
               >
                 {t("reduce.modeBinary")}
@@ -240,7 +286,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
               <button
                 onClick={() => setTrackingMode("quantity_reduce")}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors min-h-[36px] ${
-                  trackingMode === "quantity_reduce" ? "bg-[#BFA37A]/20 text-[#BFA37A] border-[#BFA37A]" : "bg-transparent border-border text-muted-foreground"
+                  trackingMode === "quantity_reduce" ? "bg-primary/20 text-primary border-primary" : "bg-transparent border-border text-muted-foreground"
                 }`}
               >
                 {t("reduce.modeQuantity")}
@@ -252,8 +298,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
                 <div className="space-y-1">
                   <label className="text-sm text-muted-foreground">{t("reduce.unitLabelLabel")}</label>
                   <input
-                    type="text"
-                    value={unitLabel}
+                    type="text" value={unitLabel}
                     onChange={(e) => { setUnitLabel(e.target.value); setUnitLabelError(""); }}
                     placeholder={t("reduce.unitLabelPlaceholder")}
                     className="w-full h-12 rounded-xl bg-card px-4 text-base text-foreground placeholder:text-muted-foreground outline-none ring-1 ring-border focus:ring-primary transition-colors"
@@ -263,10 +308,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
                 <div className="space-y-1">
                   <label className="text-sm text-muted-foreground">{t("reduce.baselineLabel")}</label>
                   <input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    value={baselineInitial}
+                    type="number" inputMode="numeric" min={0} value={baselineInitial}
                     onChange={(e) => { setBaselineInitial(e.target.value); setBaselineError(""); }}
                     placeholder={t("reduce.baselinePlaceholder")}
                     className="w-full h-12 rounded-xl bg-card px-4 text-base text-foreground placeholder:text-muted-foreground outline-none ring-1 ring-border focus:ring-primary transition-colors"
@@ -290,15 +332,36 @@ export default function AreaForm({ mode }: AreaFormProps) {
           </div>
         )}
 
-        {/* Frequency */}
+        {/* Day of week picker */}
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">{t("areaForm.frequency")}</p>
-          <div className="flex items-center justify-center gap-6">
-            <button onClick={() => setFrequency((f) => Math.max(1, f - 1))} disabled={frequency <= 1}
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity min-h-[44px] min-w-[44px]"><Minus size={18} /></button>
-            <span className="text-[28px] font-semibold w-8 text-center leading-none">{frequency}</span>
-            <button onClick={() => setFrequency((f) => Math.min(7, f + 1))} disabled={frequency >= 7}
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity min-h-[44px] min-w-[44px]"><Plus size={18} /></button>
+          <p className="text-sm text-muted-foreground">
+            {locale === "it" ? "Giorni della settimana" : "Days of the week"}
+            {selectedDays.length > 0 && (
+              <span className="ml-1 text-foreground font-medium">({selectedDays.length}x)</span>
+            )}
+            {selectedDays.length === 0 && (
+              <span className="ml-1 text-muted-foreground/60">
+                ({locale === "it" ? "ogni giorno" : "every day"})
+              </span>
+            )}
+          </p>
+          <div className="flex gap-1.5">
+            {DAY_KEYS.map((day, i) => {
+              const selected = selectedDays.includes(day);
+              return (
+                <button
+                  key={day}
+                  onClick={() => toggleDay(day)}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+                    selected
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {dayLabels[i]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -312,27 +375,17 @@ export default function AreaForm({ mode }: AreaFormProps) {
                   {googleConnected ? t("areaForm.googleTasksSyncDesc") : t("areaForm.googleTasksSyncConnect")}
                 </p>
               </div>
-              <Switch
-                checked={googleTasksSync}
-                onCheckedChange={setGoogleTasksSync}
-                disabled={!googleConnected}
-              />
+              <Switch checked={googleTasksSync} onCheckedChange={setGoogleTasksSync} disabled={!googleConnected} />
             </div>
           </div>
         )}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
-      </div>
-      {/* Sticky bottom buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3 space-y-2 z-20">
-        <button onClick={handleSave} disabled={!isValid || saving}
-          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
-          {saving && <Loader2 size={18} className="animate-spin" />}
-          {mode === "add" ? t("areaForm.add.button") : t("areaForm.edit.button")}
-        </button>
+
+        {/* Archive button at bottom for edit mode */}
         {mode === "edit" && (
           <button onClick={handleArchive} disabled={archiving}
-            className="w-full text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center justify-center gap-2">
+            className="w-full text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center justify-center gap-2 mt-4">
             {archiving && <Loader2 size={16} className="animate-spin" />}
             {t("areaForm.archive")}
           </button>

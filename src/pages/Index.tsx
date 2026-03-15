@@ -301,14 +301,6 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 h-14">
-        <span className="text-[18px] font-semibold">
-          <span className="text-foreground">opad</span>
-          <span style={{ color: "#B5453A" }}>.me</span>
-        </span>
-      </div>
-
       {/* Week banner + selector */}
       <div className="pb-3 space-y-2 px-2">
         <div className="flex items-center">
