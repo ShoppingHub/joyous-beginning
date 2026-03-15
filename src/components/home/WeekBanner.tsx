@@ -67,9 +67,8 @@ export function WeekBanner({ weekOffset, onGoToWeek, locale }: WeekBannerProps) 
     <>
       <button
         onClick={handleOpen}
-        className="flex items-center justify-center gap-2 mx-4 py-1.5 rounded-lg bg-card text-sm font-medium text-foreground hover:bg-accent transition-colors"
+        className="flex items-center justify-center py-1.5 rounded-lg bg-card text-sm font-medium text-foreground hover:bg-accent transition-colors"
       >
-        <Calendar size={14} className="text-muted-foreground" />
         <span>{label}</span>
       </button>
 

@@ -310,26 +310,32 @@ const Index = () => {
       </div>
 
       {/* Week banner + selector */}
-      <div className="pb-3 space-y-2">
-        <WeekBanner
-          weekOffset={weekOffset}
-          onGoToWeek={(offset) => {
-            setWeekOffset(offset);
-            const ws = addDays(startOfWeek(today, { weekStartsOn: 1 }), offset * 7);
-            setSelectedDate(offset === 0 ? today : ws);
-          }}
-          locale={locale}
-        />
-        <div className="px-2">
-          <WeekSelector
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            weekOffset={weekOffset}
-            onChangeWeek={(d) => setWeekOffset((o) => o + d)}
-            locale={locale}
-            checkedDates={checkedDates}
-          />
+      <div className="pb-3 space-y-2 px-2">
+        <div className="flex items-center">
+          {/* Spacer matching left chevron button */}
+          <div className="w-8 shrink-0" />
+          <div className="flex-1 px-1">
+            <WeekBanner
+              weekOffset={weekOffset}
+              onGoToWeek={(offset) => {
+                setWeekOffset(offset);
+                const ws = addDays(startOfWeek(today, { weekStartsOn: 1 }), offset * 7);
+                setSelectedDate(offset === 0 ? today : ws);
+              }}
+              locale={locale}
+            />
+          </div>
+          {/* Spacer matching right chevron button */}
+          <div className="w-8 shrink-0" />
         </div>
+        <WeekSelector
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          weekOffset={weekOffset}
+          onChangeWeek={(d) => setWeekOffset((o) => o + d)}
+          locale={locale}
+          checkedDates={checkedDates}
+        />
       </div>
 
       {loading ? (
