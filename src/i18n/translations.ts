@@ -249,7 +249,7 @@ const translations = {
   "areaForm.googleTasksSync": { en: "Sync with Google Tasks", it: "Sincronizza con Google Tasks" },
   "areaForm.googleTasksSyncDesc": { en: "Create tasks in Google Tasks for this activity", it: "Crea task in Google Tasks per questa attività" },
   "areaForm.googleTasksSyncConnect": { en: "Connect Google in Settings to enable sync", it: "Collega Google nelle Impostazioni per attivare la sincronizzazione" },
-  "areaForm.add.button": { en: "Create activity", it: "Crea attività" },
+  "areaForm.delete.confirm.title": { en: "Archive activity?", it: "Archiviare attività?" },
   "areaForm.delete.confirm.title": { en: "Archive activity?", it: "Archiviare attività?" },
   "areaForm.delete.confirm.desc": { en: "Your history and progress will be preserved.", it: "Lo storico e i progressi verranno conservati." },
   "areaForm.delete.confirm.yes": { en: "Archive", it: "Archivia" },
