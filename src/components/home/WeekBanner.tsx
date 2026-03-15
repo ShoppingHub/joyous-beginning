@@ -1,13 +1,11 @@
 import { useState, useMemo } from "react";
-import { getISOWeek, startOfWeek, addDays, isSameWeek, format } from "date-fns";
+import { getISOWeek, startOfWeek, addDays, format } from "date-fns";
 import { it as itLocale, enUS } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DayPicker } from "react-day-picker";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Locale } from "@/i18n/translations";
 
 interface WeekBannerProps {
