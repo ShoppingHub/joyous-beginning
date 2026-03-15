@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { ArrowLeft, Minus, Plus, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Switch } from "@/components/ui/switch";
 import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
 
@@ -52,6 +53,23 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [baselineError, setBaselineError] = useState("");
   const [showQuickAddHome, setShowQuickAddHome] = useState(true);
 
+  // Google Tasks sync
+  const [googleTasksSync, setGoogleTasksSync] = useState(false);
+  const [googleConnected, setGoogleConnected] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    // Check if Google is connected
+    supabase
+      .from("google_oauth_tokens")
+      .select("status")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setGoogleConnected(data?.status === "active");
+      });
+  }, [user]);
+
   useEffect(() => {
     if (mode !== "edit" || !id) return;
     (async () => {
@@ -64,6 +82,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
         setUnitLabel(data.unit_label || "");
         setBaselineInitial(data.baseline_initial != null ? String(data.baseline_initial) : "");
         setShowQuickAddHome(data.show_quick_add_home ?? true);
+        setGoogleTasksSync(data.google_tasks_sync ?? false);
       }
       setLoadingData(false);
     })();
@@ -71,6 +90,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
 
   const isReduce = type === "reduce";
   const isQuantity = isReduce && trackingMode === "quantity_reduce";
+  const isBinary = trackingMode === "binary";
 
   const validate = (): boolean => {
     if (!name.trim()) return false;
@@ -97,6 +117,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
       unit_label: isQuantity ? unitLabel.trim() : null,
       baseline_initial: isQuantity ? parseInt(baselineInitial, 10) : null,
       show_quick_add_home: isQuantity ? showQuickAddHome : true,
+      google_tasks_sync: isBinary ? googleTasksSync : false,
     };
 
     try {
@@ -234,6 +255,25 @@ export default function AreaForm({ mode }: AreaFormProps) {
               className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity min-h-[44px] min-w-[44px]"><Plus size={18} /></button>
           </div>
         </div>
+
+        {/* Google Tasks Sync Toggle - only for binary tracking */}
+        {isBinary && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium text-foreground">{t("areaForm.googleTasksSync")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {googleConnected ? t("areaForm.googleTasksSyncDesc") : t("areaForm.googleTasksSyncConnect")}
+                </p>
+              </div>
+              <Switch
+                checked={googleTasksSync}
+                onCheckedChange={setGoogleTasksSync}
+                disabled={!googleConnected}
+              />
+            </div>
+          </div>
+        )}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="mt-auto pt-8 space-y-4">
