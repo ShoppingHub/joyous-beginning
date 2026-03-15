@@ -196,6 +196,32 @@ export default function AreaForm({ mode }: AreaFormProps) {
             })}
           </div>
           {typeError && <p className="text-sm text-destructive">{typeError}</p>}
+
+          {/* Gym template - only for Health in add mode */}
+          {mode === "add" && type === "health" && (
+            <button
+              onClick={() => {
+                const newVal = !isGymTemplate;
+                setIsGymTemplate(newVal);
+                if (newVal) {
+                  setName(t("areaForm.gymTemplate" as any));
+                } else if (name === t("areaForm.gymTemplate" as any)) {
+                  setName("");
+                }
+              }}
+              className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors mt-2 ${
+                isGymTemplate
+                  ? "bg-[#7DA3A0]/20 border-[#7DA3A0] text-foreground"
+                  : "bg-transparent border-border text-muted-foreground"
+              }`}
+            >
+              <Dumbbell size={18} strokeWidth={1.5} />
+              <div className="text-left">
+                <p className="text-sm font-medium">{t("areaForm.gymTemplate" as any)}</p>
+                <p className="text-xs text-muted-foreground">{t("areaForm.gymTemplateDesc" as any)}</p>
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Tracking mode - only for Reduce */}
