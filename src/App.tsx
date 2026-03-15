@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { DemoProvider } from "@/hooks/useDemo";
 import { I18nProvider } from "@/hooks/useI18n";
 import { NavConfigProvider } from "@/hooks/useNavConfig";
+import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
@@ -28,6 +29,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -72,6 +74,7 @@ const App = () => (
         </DemoProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

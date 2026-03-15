@@ -15,9 +15,9 @@ export function DesktopSidebar() {
   const lastItem = visibleItems.find(i => i.isLast);
 
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[240px] bg-[#0F2F33] flex-col z-50">
+    <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[240px] bg-[hsl(var(--nav-bg))] flex-col z-50">
       <div className="px-6 pt-8 pb-6">
-        <span className="text-[20px] font-semibold"><span className="text-white">opad</span><span style={{ color: '#B5453A' }}>.me</span></span>
+        <span className="text-[20px] font-semibold"><span className="text-foreground">opad</span><span style={{ color: '#B5453A' }}>.me</span></span>
       </div>
 
       <nav className="flex flex-col gap-1 px-3 flex-1">
@@ -27,8 +27,8 @@ export function DesktopSidebar() {
             to={to}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
               isActive(to)
-                ? "bg-[rgba(125,163,160,0.1)] text-[#7DA3A0]"
-                : "text-[#B9C0C1] hover:text-white hover:bg-white/5"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
             }`}
           >
             <Icon size={20} strokeWidth={1.5} />
@@ -39,13 +39,13 @@ export function DesktopSidebar() {
 
       {lastItem && (
         <div className="px-3 pb-6">
-          <div className="h-px bg-white/10 mb-3 mx-3" />
+          <div className="h-px bg-foreground/10 mb-3 mx-3" />
           <NavLink
             to={lastItem.to}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
               isActive(lastItem.to)
-                ? "bg-[rgba(125,163,160,0.1)] text-[#7DA3A0]"
-                : "text-[#B9C0C1] hover:text-white hover:bg-white/5"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
             }`}
           >
             <lastItem.icon size={20} strokeWidth={1.5} />
