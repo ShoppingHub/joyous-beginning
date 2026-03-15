@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, getISODay } from "date-fns";
 import { getDemoAreas, getDemoTodayCheckins } from "@/lib/demoData";
 import { WeekSelector } from "@/components/home/WeekSelector";
+import { WeekBanner } from "@/components/home/WeekBanner";
 import { ActivityCard } from "@/components/home/ActivityCard";
 import type { Database } from "@/integrations/supabase/types";
 
