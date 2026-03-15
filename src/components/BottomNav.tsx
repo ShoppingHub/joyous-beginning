@@ -20,7 +20,7 @@ export function BottomNav() {
           >
             <Icon
               size={24}
-              className={isActive ? "text-[#7DA3A0]" : "text-[#B9C0C1]"}
+              className={isActive ? "text-primary" : "text-muted-foreground"}
               strokeWidth={1.5}
             />
             <span
