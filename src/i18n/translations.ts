@@ -116,6 +116,7 @@ const translations = {
   "areaForm.edit.title": { en: "Edit area", it: "Modifica area" },
   "areaForm.namePlaceholder": { en: "e.g. Morning walk", it: "es. Camminata mattutina" },
   "areaForm.typeError": { en: "Please select a type", it: "Seleziona un tipo" },
+  "areaForm.typePlaceholder": { en: "Select area type", it: "Seleziona tipo area" },
   "areaForm.frequency": { en: "How many days per week?", it: "Quanti giorni a settimana?" },
   "areaForm.add.button": { en: "Create activity", it: "Crea attività" },
   "areaForm.edit.button": { en: "Save changes", it: "Salva modifiche" },
