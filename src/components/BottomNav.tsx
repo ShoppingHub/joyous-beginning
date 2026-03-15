@@ -24,7 +24,7 @@ export function BottomNav() {
               strokeWidth={1.5}
             />
             <span
-              className={`text-[10px] ${isActive ? "text-[#7DA3A0] font-medium" : "text-[#B9C0C1]"}`}
+              className={`text-[10px] ${isActive ? "text-primary font-medium" : "text-muted-foreground"}`}
             >
               {t(labelKey)}
             </span>
