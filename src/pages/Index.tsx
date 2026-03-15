@@ -212,12 +212,21 @@ const Index = () => {
         { onConflict: "area_id,date" }
       );
       if (error) throw error;
-      if (isSameDay(selectedDate, today)) {
-        const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (isSameDay(selectedDate, today) && token) {
         await supabase.functions.invoke("calculate-score", {
           body: { area_id: areaId, date: selectedDateStr },
-          headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
+      }
+      // Sync to Google Tasks if enabled (fire-and-forget)
+      const area = areas.find((a) => a.id === areaId);
+      if (area?.google_tasks_sync && token) {
+        supabase.functions.invoke("sync-google-tasks", {
+          body: { area_id: areaId },
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch((err) => console.error("Google Tasks sync failed:", err));
       }
     } catch {
       setCheckedIn((prev) => ({ ...prev, [areaId]: false }));
