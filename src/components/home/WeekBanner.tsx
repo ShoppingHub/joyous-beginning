@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { getISOWeek, startOfWeek, addDays, isSameWeek, format } from "date-fns";
 import { it as itLocale, enUS } from "date-fns/locale";
-import { Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DayPicker } from "react-day-picker";
