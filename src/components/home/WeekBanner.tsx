@@ -1,13 +1,11 @@
 import { useState, useMemo } from "react";
-import { getISOWeek, startOfWeek, addDays, isSameWeek, format } from "date-fns";
+import { getISOWeek, startOfWeek, addDays, format } from "date-fns";
 import { it as itLocale, enUS } from "date-fns/locale";
-import { Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DayPicker } from "react-day-picker";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Locale } from "@/i18n/translations";
 
 interface WeekBannerProps {
@@ -67,9 +65,8 @@ export function WeekBanner({ weekOffset, onGoToWeek, locale }: WeekBannerProps) 
     <>
       <button
         onClick={handleOpen}
-        className="flex items-center justify-center gap-2 mx-4 py-1.5 rounded-lg bg-card text-sm font-medium text-foreground hover:bg-accent transition-colors"
+        className="flex items-center justify-center py-1.5 rounded-lg bg-card text-sm font-medium text-foreground hover:bg-accent transition-colors"
       >
-        <Calendar size={14} className="text-muted-foreground" />
         <span>{label}</span>
       </button>
 
