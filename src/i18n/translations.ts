@@ -117,7 +117,7 @@ const translations = {
   "areaForm.namePlaceholder": { en: "e.g. Morning walk", it: "es. Camminata mattutina" },
   "areaForm.typeError": { en: "Please select a type", it: "Seleziona un tipo" },
   "areaForm.frequency": { en: "How many days per week?", it: "Quanti giorni a settimana?" },
-  "areaForm.add.button": { en: "Start observing", it: "Inizia a osservare" },
+  "areaForm.add.button": { en: "Create activity", it: "Crea attività" },
   "areaForm.edit.button": { en: "Save changes", it: "Salva modifiche" },
   "areaForm.archive": { en: "Archive area", it: "Archivia area" },
   "areaForm.error": { en: "Something went wrong. Please try again.", it: "Qualcosa è andato storto. Riprova." },
