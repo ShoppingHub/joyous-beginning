@@ -121,13 +121,32 @@ export default function AreaForm({ mode }: AreaFormProps) {
     };
 
     try {
+      let savedAreaId: string | null = null;
       if (mode === "add") {
-        const { error: insertError } = await supabase.from("areas").insert({ user_id: user.id, ...payload } as any);
+        const { data: inserted, error: insertError } = await supabase.from("areas").insert({ user_id: user.id, ...payload } as any).select("id").single();
         if (insertError) throw insertError;
-        navigate("/", { replace: true });
+        savedAreaId = inserted?.id ?? null;
       } else if (id) {
         const { error: updateError } = await supabase.from("areas").update(payload as any).eq("id", id);
         if (updateError) throw updateError;
+        savedAreaId = id;
+      }
+
+      // Trigger Google Tasks sync if enabled
+      const syncEnabled = isBinary ? googleTasksSync : false;
+      if (syncEnabled && savedAreaId && googleConnected) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          supabase.functions.invoke("sync-google-tasks", {
+            body: { area_id: savedAreaId },
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).catch((err) => console.error("Sync trigger failed:", err));
+        }
+      }
+
+      if (mode === "add") {
+        navigate("/", { replace: true });
+      } else {
         navigate(`/activities/${id}`, { replace: true });
       }
     } catch { setError(t("areaForm.error")); setSaving(false); }
