@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -14,32 +14,79 @@ import {
 import { motion } from "framer-motion";
 import type { Locale } from "@/i18n/translations";
 
+type GoogleStatus = "loading" | "disconnected" | "active" | "auth_error";
+
 const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const { isDemo, disableDemo } = useDemo();
   const { t, locale, setLocale } = useI18n();
   const { extraTabEnabled, setExtraTabEnabled } = useNavConfig();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [scoreVisible, setScoreVisible] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
+  // Google Tasks state
+  const [googleStatus, setGoogleStatus] = useState<GoogleStatus>("loading");
+  const [googleEmail, setGoogleEmail] = useState("");
+  const [googleConnecting, setGoogleConnecting] = useState(false);
+  const [googleDisconnecting, setGoogleDisconnecting] = useState(false);
+
+  // Load user settings + Google connection status
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("users")
-        .select("settings_score_visible, settings_notifications")
-        .eq("user_id", user.id)
-        .single();
-      if (data) {
-        setScoreVisible(data.settings_score_visible);
-        setNotifications(data.settings_notifications);
+      const [settingsRes, googleRes] = await Promise.all([
+        supabase
+          .from("users")
+          .select("settings_score_visible, settings_notifications")
+          .eq("user_id", user.id)
+          .single(),
+        supabase
+          .from("google_oauth_tokens" as any)
+          .select("google_email, status")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
+
+      if (settingsRes.data) {
+        setScoreVisible(settingsRes.data.settings_score_visible);
+        setNotifications(settingsRes.data.settings_notifications);
+      }
+
+      if (googleRes.data) {
+        const data = googleRes.data as any;
+        setGoogleEmail(data.google_email || "");
+        setGoogleStatus(data.status === "auth_error" ? "auth_error" : "active");
+      } else {
+        setGoogleStatus("disconnected");
       }
     })();
   }, [user]);
+
+  // Handle redirect after OAuth callback
+  useEffect(() => {
+    if (searchParams.get("google_connected") === "true") {
+      setGoogleStatus("active");
+      // Re-fetch to get email
+      if (user) {
+        supabase
+          .from("google_oauth_tokens" as any)
+          .select("google_email")
+          .eq("user_id", user.id)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data) setGoogleEmail((data as any).google_email || "");
+          });
+      }
+      // Clean URL
+      searchParams.delete("google_connected");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, user, setSearchParams]);
 
   const updateSetting = useCallback(
     async (field: "settings_score_visible" | "settings_notifications", value: boolean, rollback: () => void) => {
@@ -82,6 +129,46 @@ const SettingsPage = () => {
       await supabase.auth.signOut();
       navigate("/login", { replace: true });
     } catch { setDeleteError(t("settings.deleteError")); setDeleting(false); }
+  };
+
+  // Google Tasks: start OAuth flow
+  const handleGoogleConnect = async () => {
+    if (!user) return;
+    setGoogleConnecting(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      const res = await supabase.functions.invoke("google-oauth-start", {
+        headers: { Authorization: `Bearer ${token}` },
+        body: { origin: window.location.origin },
+      });
+      if (res.error || !res.data?.url) {
+        setGoogleConnecting(false);
+        return;
+      }
+      // Redirect to Google OAuth
+      window.location.href = res.data.url;
+    } catch {
+      setGoogleConnecting(false);
+    }
+  };
+
+  // Google Tasks: disconnect
+  const handleGoogleDisconnect = async () => {
+    if (!user) return;
+    setGoogleDisconnecting(true);
+    try {
+      await supabase
+        .from("google_oauth_tokens" as any)
+        .delete()
+        .eq("user_id", user.id);
+      setGoogleStatus("disconnected");
+      setGoogleEmail("");
+    } catch {
+      // ignore
+    } finally {
+      setGoogleDisconnecting(false);
+    }
   };
 
   const languageOptions: { value: Locale; label: string }[] = [
@@ -139,6 +226,84 @@ const SettingsPage = () => {
           <Switch checked={extraTabEnabled} onCheckedChange={setExtraTabEnabled} className="data-[state=checked]:bg-[#7DA3A0]" />
         </div>
       </div>
+
+      {/* Google Tasks */}
+      {!isDemo && googleStatus !== "loading" && (
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-muted-foreground font-medium">{t("settings.googleTasks")}</p>
+
+          {/* Auth error banner */}
+          {googleStatus === "auth_error" && (
+            <div className="flex items-start gap-3 rounded-xl bg-destructive/10 ring-1 ring-destructive/30 px-4 py-3">
+              <AlertTriangle size={18} className="text-destructive mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-destructive">{t("settings.googleTasks.expired")}</p>
+              </div>
+              <button
+                onClick={handleGoogleConnect}
+                disabled={googleConnecting}
+                className="text-sm font-medium text-destructive hover:opacity-80 transition-opacity shrink-0"
+              >
+                {googleConnecting ? <Loader2 size={16} className="animate-spin" /> : t("settings.googleTasks.reconnect")}
+              </button>
+            </div>
+          )}
+
+          {/* Disconnected state */}
+          {googleStatus === "disconnected" && (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-muted-foreground">{t("settings.googleTasks.description")}</p>
+              <button
+                onClick={handleGoogleConnect}
+                disabled={googleConnecting}
+                className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]"
+              >
+                {googleConnecting && <Loader2 size={18} className="animate-spin" />}
+                {googleConnecting ? t("settings.googleTasks.connecting") : t("settings.googleTasks.connect")}
+              </button>
+            </div>
+          )}
+
+          {/* Connected state */}
+          {googleStatus === "active" && (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-muted-foreground">
+                {t("settings.googleTasks.connectedAs")} <span className="text-foreground">{googleEmail}</span>
+              </p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    disabled={googleDisconnecting}
+                    className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]"
+                  >
+                    {googleDisconnecting && <Loader2 size={18} className="animate-spin" />}
+                    {t("settings.googleTasks.disconnect")}
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-[340px] bg-card border-border">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("settings.googleTasks.disconnectTitle")}</AlertDialogTitle>
+                    <AlertDialogDescription className="text-muted-foreground">
+                      {t("settings.googleTasks.disconnectDescription")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+                    <AlertDialogAction
+                      onClick={handleGoogleDisconnect}
+                      className="bg-transparent text-destructive hover:bg-destructive/10 border-0 shadow-none"
+                    >
+                      {t("settings.googleTasks.disconnectConfirm")}
+                    </AlertDialogAction>
+                    <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
+                      {t("settings.googleTasks.disconnectCancel")}
+                    </AlertDialogCancel>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Demo banner */}
       {isDemo && (

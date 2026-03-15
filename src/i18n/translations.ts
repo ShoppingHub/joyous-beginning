@@ -230,6 +230,20 @@ const translations = {
 
   // Home - no scheduled activities
   "home.noScheduled": { en: "No activities scheduled for this day.", it: "Nessuna attività programmata per questo giorno." },
+
+  // Google Tasks sync
+  "settings.googleTasks": { en: "Google Tasks", it: "Google Tasks" },
+  "settings.googleTasks.description": { en: "Sync your activities with Google Tasks", it: "Sincronizza le tue attività con Google Tasks" },
+  "settings.googleTasks.connect": { en: "Connect Google", it: "Collega Google" },
+  "settings.googleTasks.connecting": { en: "Connecting…", it: "Collegamento…" },
+  "settings.googleTasks.connectedAs": { en: "Connected as", it: "Connesso come" },
+  "settings.googleTasks.disconnect": { en: "Disconnect", it: "Scollega" },
+  "settings.googleTasks.disconnectTitle": { en: "Disconnect Google Tasks?", it: "Scollegare Google Tasks?" },
+  "settings.googleTasks.disconnectDescription": { en: "Sync will be disabled for all activities. Existing tasks in Google Tasks won't be deleted.", it: "La sincronizzazione verrà disabilitata per tutte le attività. I task esistenti in Google Tasks non verranno eliminati." },
+  "settings.googleTasks.disconnectConfirm": { en: "Disconnect", it: "Scollega" },
+  "settings.googleTasks.disconnectCancel": { en: "Cancel", it: "Annulla" },
+  "settings.googleTasks.expired": { en: "Google connection expired. Reconnect your account.", it: "Connessione Google scaduta. Ricollega il tuo account." },
+  "settings.googleTasks.reconnect": { en: "Reconnect", it: "Ricollega" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
