@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { ArrowLeft, Minus, Plus, Loader2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Loader2, Dumbbell } from "lucide-react";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import type { Database } from "@/integrations/supabase/types";
@@ -52,6 +52,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [unitLabelError, setUnitLabelError] = useState("");
   const [baselineError, setBaselineError] = useState("");
   const [showQuickAddHome, setShowQuickAddHome] = useState(true);
+  const [isGymTemplate, setIsGymTemplate] = useState(false);
 
   // Google Tasks sync
   const [googleTasksSync, setGoogleTasksSync] = useState(false);
@@ -174,7 +175,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
         <button onClick={() => navigate(mode === "edit" ? `/activities/${id}` : "/")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]"><ArrowLeft size={24} strokeWidth={1.5} /></button>
         <h1 className="text-[18px] font-semibold">{mode === "add" ? t("areaForm.add.title") : t("areaForm.edit.title")}</h1>
       </div>
-      <div className="flex flex-col gap-8 mt-4 flex-1">
+      <div className="flex flex-col gap-8 mt-4 flex-1 pb-24">
         {/* Name */}
         <div className="space-y-2">
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("areaForm.namePlaceholder")}
@@ -195,6 +196,32 @@ export default function AreaForm({ mode }: AreaFormProps) {
             })}
           </div>
           {typeError && <p className="text-sm text-destructive">{typeError}</p>}
+
+          {/* Gym template - only for Health in add mode */}
+          {mode === "add" && type === "health" && (
+            <button
+              onClick={() => {
+                const newVal = !isGymTemplate;
+                setIsGymTemplate(newVal);
+                if (newVal) {
+                  setName(t("areaForm.gymTemplate" as any));
+                } else if (name === t("areaForm.gymTemplate" as any)) {
+                  setName("");
+                }
+              }}
+              className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors mt-2 ${
+                isGymTemplate
+                  ? "bg-[#7DA3A0]/20 border-[#7DA3A0] text-foreground"
+                  : "bg-transparent border-border text-muted-foreground"
+              }`}
+            >
+              <Dumbbell size={18} strokeWidth={1.5} />
+              <div className="text-left">
+                <p className="text-sm font-medium">{t("areaForm.gymTemplate" as any)}</p>
+                <p className="text-xs text-muted-foreground">{t("areaForm.gymTemplateDesc" as any)}</p>
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Tracking mode - only for Reduce */}
@@ -295,20 +322,21 @@ export default function AreaForm({ mode }: AreaFormProps) {
         )}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <div className="mt-auto pt-8 space-y-4">
-          <button onClick={handleSave} disabled={!isValid || saving}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
-            {saving && <Loader2 size={18} className="animate-spin" />}
-            {mode === "add" ? t("areaForm.add.button") : t("areaForm.edit.button")}
+      </div>
+      {/* Sticky bottom buttons */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3 space-y-2 z-20">
+        <button onClick={handleSave} disabled={!isValid || saving}
+          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
+          {saving && <Loader2 size={18} className="animate-spin" />}
+          {mode === "add" ? t("areaForm.add.button") : t("areaForm.edit.button")}
+        </button>
+        {mode === "edit" && (
+          <button onClick={handleArchive} disabled={archiving}
+            className="w-full text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center justify-center gap-2">
+            {archiving && <Loader2 size={16} className="animate-spin" />}
+            {t("areaForm.archive")}
           </button>
-          {mode === "edit" && (
-            <button onClick={handleArchive} disabled={archiving}
-              className="w-full text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center justify-center gap-2">
-              {archiving && <Loader2 size={16} className="animate-spin" />}
-              {t("areaForm.archive")}
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </motion.div>
   );
