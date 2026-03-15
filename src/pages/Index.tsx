@@ -309,16 +309,28 @@ const Index = () => {
         </span>
       </div>
 
-      {/* Week selector */}
-      <div className="px-2 pb-3">
-        <WeekSelector
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
+      {/* Week banner + selector */}
+      <div className="pb-3 space-y-2">
+        <WeekBanner
           weekOffset={weekOffset}
-          onChangeWeek={(d) => setWeekOffset((o) => o + d)}
+          onGoToWeek={(offset) => {
+            setWeekOffset(offset);
+            const { addDays, startOfWeek: sow } = require("date-fns");
+            const ws = addDays(sow(today, { weekStartsOn: 1 }), offset * 7);
+            setSelectedDate(offset === 0 ? today : ws);
+          }}
           locale={locale}
-          checkedDates={checkedDates}
         />
+        <div className="px-2">
+          <WeekSelector
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            weekOffset={weekOffset}
+            onChangeWeek={(d) => setWeekOffset((o) => o + d)}
+            locale={locale}
+            checkedDates={checkedDates}
+          />
+        </div>
       </div>
 
       {loading ? (
