@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
-import { LayoutDashboard, Activity, TrendingUp, BarChart2, Settings } from "lucide-react";
+import { LayoutDashboard, Activity, TrendingUp, BarChart2 } from "lucide-react";
 import type { TranslationKey } from "@/i18n/translations";
 
 export interface NavItem {
