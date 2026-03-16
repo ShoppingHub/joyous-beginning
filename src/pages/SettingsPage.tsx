@@ -358,29 +358,6 @@ const SettingsPage = () => {
       <div className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground font-medium">{t("settings.account")}</p>
 
-        {/* Backfill trajectory */}
-        {!isDemo && (
-          <button
-            onClick={async () => {
-              try {
-                const { data: sessionData } = await supabase.auth.getSession();
-                const token = sessionData.session?.access_token;
-                if (!token) return;
-                const { data, error } = await supabase.functions.invoke("backfill-trajectory", {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                if (error) throw error;
-                alert(`Backfill completato: ${data?.updated ?? 0} record aggiornati`);
-              } catch (e: any) {
-                alert("Errore backfill: " + (e?.message || "Errore sconosciuto"));
-              }
-            }}
-            className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity min-h-[44px]"
-          >
-            Ricalcola traiettorie (backfill)
-          </button>
-        )}
-
         <button onClick={handleSignOut} disabled={signingOut}
           className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
           {signingOut && <Loader2 size={18} className="animate-spin" />}
