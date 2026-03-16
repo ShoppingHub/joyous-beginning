@@ -72,7 +72,7 @@ const Finance = () => {
       supabase.from("score_daily").select("*").eq("area_id", area.id).gte("date", startDate).order("date", { ascending: true }),
       supabase.from("checkins").select("id").eq("area_id", area.id).eq("user_id", user.id).limit(1),
     ]);
-    if (scoresRes.data) { setScores(scoresRes.data.map((s) => ({ date: s.date, score: s.cumulative_score }))); }
+    if (scoresRes.data) { setScores(scoresRes.data.map((s) => ({ date: s.date, score: (s as any).trajectory_state ?? s.cumulative_score }))); }
     setHasCheckins((checkinsRes.data?.length ?? 0) > 0);
     setLoading(false);
   }, [user, timeRange]);

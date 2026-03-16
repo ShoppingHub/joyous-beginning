@@ -88,7 +88,7 @@ const Progress = () => {
     if (scoresRes.data) {
       for (const s of scoresRes.data) {
         if (grouped[s.area_id]) {
-          grouped[s.area_id].push({ date: s.date, score: s.cumulative_score });
+          grouped[s.area_id].push({ date: s.date, score: (s as any).trajectory_state ?? s.cumulative_score });
         }
       }
     }
