@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "authorization, x-client-info, apikey, content-type",
 };
 
 const ALPHA = 0.08;
@@ -15,36 +15,14 @@ serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    // Verify user
-    const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: authError } = await userClient.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const admin = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all areas for this user
+    // Get ALL areas across all users
     const { data: areas, error: areasError } = await admin
       .from("areas")
-      .select("id")
-      .eq("user_id", user.id);
+      .select("id, user_id");
 
     if (areasError || !areas?.length) {
       return new Response(JSON.stringify({ message: "No areas found", updated: 0 }), {
@@ -54,9 +32,11 @@ serve(async (req) => {
     }
 
     let totalUpdated = 0;
+    const usersProcessed = new Set<string>();
 
     for (const area of areas) {
-      // Get all score_daily for this area ordered by date
+      usersProcessed.add(area.user_id);
+
       const { data: scores } = await admin
         .from("score_daily")
         .select("id, date, daily_score, consecutive_missed")
@@ -65,7 +45,6 @@ serve(async (req) => {
 
       if (!scores?.length) continue;
 
-      // Also get checkins to recalculate daily_score properly
       const { data: checkins } = await admin
         .from("checkins")
         .select("date, completed")
@@ -78,7 +57,6 @@ serve(async (req) => {
         }
       }
 
-      // Recalculate trajectory_state sequentially
       let prevTrajectory = 0;
       let prevConsecutiveMissed = 0;
 
@@ -120,11 +98,13 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ message: "Backfill complete", updated: totalUpdated }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({
+        message: "Backfill complete",
+        updated: totalUpdated,
+        users: usersProcessed.size,
+        areas: areas.length,
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     return new Response(JSON.stringify({ error: "Internal server error", details: String(error) }), {
