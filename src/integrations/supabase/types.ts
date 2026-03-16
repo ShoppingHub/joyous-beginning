@@ -480,6 +480,7 @@ export type Database = {
           daily_score: number
           date: string
           id: string
+          trajectory_state: number
         }
         Insert: {
           area_id: string
@@ -489,6 +490,7 @@ export type Database = {
           daily_score?: number
           date: string
           id?: string
+          trajectory_state?: number
         }
         Update: {
           area_id?: string
@@ -498,6 +500,7 @@ export type Database = {
           daily_score?: number
           date?: string
           id?: string
+          trajectory_state?: number
         }
         Relationships: [
           {
