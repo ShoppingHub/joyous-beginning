@@ -7,6 +7,8 @@ import { useI18n } from "@/hooks/useI18n";
 import { Eye, TrendingUp } from "lucide-react";
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
+import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
+import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel } from "@/components/progress/useAdaptiveChart";
 import { motion } from "framer-motion";
 import { subDays, format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, ReferenceDot, Tooltip } from "recharts";
@@ -26,28 +28,10 @@ const filterOptions: { value: Filter; labelKey: TranslationKey }[] = [
   { value: "finance", labelKey: "areaType.finance" },
 ];
 
-function computeSlope(data: { score: number }[]): number {
-  if (data.length < 2) return 0;
-  const last7 = data.slice(-7);
-  if (last7.length < 2) return 0;
-  const n = last7.length;
-  const sumX = last7.reduce((s, _, i) => s + i, 0);
-  const sumY = last7.reduce((s, d) => s + d.score, 0);
-  const sumXY = last7.reduce((s, d, i) => s + i * d.score, 0);
-  const sumX2 = last7.reduce((s, _, i) => s + i * i, 0);
-  return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-}
-
-function getLineColor(slope: number): string {
-  if (slope > 0.1) return "hsl(174, 16%, 56%)";
-  if (slope < -0.1) return "hsl(0, 72%, 59%)";
-  return "hsl(195, 5%, 56%)";
-}
-
 const Progress = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState<TimeRange>("1m");
   const [filter, setFilter] = useState<Filter>("all");
@@ -107,9 +91,10 @@ const Progress = () => {
 
   useEffect(() => { setActiveDate(null); fetchData(); }, [fetchData]);
 
-  const { chartData, lineColor, firstScore, lastScore, minScore, maxScore } = useMemo(() => {
+  // Build raw averaged data per date
+  const rawAveraged = useMemo(() => {
     const filteredAreas = filter === "all" ? areas : areas.filter((a) => a.type === filter);
-    if (filteredAreas.length === 0) return { chartData: [], lineColor: "hsl(195, 5%, 56%)", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
+    if (filteredAreas.length === 0) return [];
 
     const dateMap: Record<string, number[]> = {};
     for (const area of filteredAreas) {
@@ -120,30 +105,34 @@ const Progress = () => {
       }
     }
 
-    const averaged = Object.entries(dateMap)
+    return Object.entries(dateMap)
       .map(([date, values]) => ({ date, score: values.reduce((a, b) => a + b, 0) / values.length }))
       .sort((a, b) => a.date.localeCompare(b.date));
-
-    const slope = computeSlope(averaged);
-    const arr = averaged.map(d => d.score);
-    const min = arr.length > 0 ? Math.min(...arr) : 0;
-    const max = arr.length > 0 ? Math.max(...arr) : 0;
-    return {
-      chartData: averaged,
-      lineColor: getLineColor(slope),
-      firstScore: averaged.length > 0 ? averaged[0].score : 0,
-      lastScore: averaged.length > 0 ? averaged[averaged.length - 1].score : 0,
-      minScore: min,
-      maxScore: max,
-    };
   }, [areas, scores, filter]);
 
+  const { chartData, granularity } = useAdaptiveChart(rawAveraged);
+
+  const { lineColor, firstScore, lastScore, minScore, maxScore } = useMemo(() => {
+    if (chartData.length === 0) return { lineColor: "#8C9496", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
+    const slopeWindow = getSlopeWindow(granularity);
+    const slope = computeSlope(chartData, slopeWindow);
+    const arr = chartData.map(d => d.score);
+    return {
+      lineColor: getLineColor(slope),
+      firstScore: chartData[0].score,
+      lastScore: chartData[chartData.length - 1].score,
+      minScore: Math.min(...arr),
+      maxScore: Math.max(...arr),
+    };
+  }, [chartData, granularity]);
+
   const hasData = chartData.length > 0 && chartData.some((d) => d.score !== 0);
-  const isLargeRange = timeRange === "6m" || timeRange === "1y" || timeRange === "all";
+  const isLargeRange = granularity !== "daily";
+  const tickInterval = getTickInterval(granularity, chartData.length);
 
   const fmt = (n: number) => {
     if (Math.abs(n) >= 1000) return n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return n.toFixed(1);
+    return n.toFixed(2);
   };
 
   const displayScore = activeDate
@@ -242,9 +231,21 @@ const Progress = () => {
                   onMouseLeave={() => setActiveDate(null)}
                 >
                   <ReferenceLine y={firstScore} stroke="hsl(190, 5%, 75%)" strokeDasharray="3 3" strokeOpacity={0.4} />
-                  <XAxis dataKey="date" tick={false} axisLine={false} tickLine={false} />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    interval={tickInterval}
+                    tick={{ fontSize: 10, fill: "hsl(195, 5%, 56%)" }}
+                    tickFormatter={(val: string) => formatTickLabel(val, granularity, locale)}
+                  />
                   <YAxis hide domain={[yDomainMin, yDomainMax]} />
-                  <Tooltip content={() => null} cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }} />
+                  <Tooltip
+                    content={(props: any) => (
+                      <ProgressTooltip {...props} granularity={granularity} locale={locale} />
+                    )}
+                    cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                  />
                   <Line type="monotone" dataKey="score" stroke={lineColor} strokeWidth={2.5} dot={false}
                     isAnimationActive animationDuration={400} animationEasing="ease-in-out"
                     activeDot={{ r: 5, fill: lineColor, stroke: "none" }}
