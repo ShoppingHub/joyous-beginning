@@ -7,6 +7,8 @@ import { useI18n } from "@/hooks/useI18n";
 import { Eye, TrendingUp } from "lucide-react";
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
+import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
+import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel } from "@/components/progress/useAdaptiveChart";
 import { motion } from "framer-motion";
 import { subDays, format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, ReferenceDot, Tooltip } from "recharts";
@@ -25,24 +27,6 @@ const filterOptions: { value: Filter; labelKey: TranslationKey }[] = [
   { value: "reduce", labelKey: "areaType.reduce" },
   { value: "finance", labelKey: "areaType.finance" },
 ];
-
-function computeSlope(data: { score: number }[]): number {
-  if (data.length < 2) return 0;
-  const last7 = data.slice(-7);
-  if (last7.length < 2) return 0;
-  const n = last7.length;
-  const sumX = last7.reduce((s, _, i) => s + i, 0);
-  const sumY = last7.reduce((s, d) => s + d.score, 0);
-  const sumXY = last7.reduce((s, d, i) => s + i * d.score, 0);
-  const sumX2 = last7.reduce((s, _, i) => s + i * i, 0);
-  return (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-}
-
-function getLineColor(slope: number): string {
-  if (slope > 0.1) return "hsl(174, 16%, 56%)";
-  if (slope < -0.1) return "hsl(0, 72%, 59%)";
-  return "hsl(195, 5%, 56%)";
-}
 
 const Progress = () => {
   const { user } = useAuth();
