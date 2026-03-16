@@ -31,7 +31,7 @@ const filterOptions: { value: Filter; labelKey: TranslationKey }[] = [
 const Progress = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState<TimeRange>("1m");
   const [filter, setFilter] = useState<Filter>("all");
