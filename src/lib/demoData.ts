@@ -36,9 +36,10 @@ function generateScores(area: Area, days: number): { scores: DemoScore[]; checki
   const today = new Date();
   const scores: DemoScore[] = [];
   const checkins: DemoCheckin[] = [];
-  let cumulative = 0;
+  let trajectoryState = 0;
   let consecutiveMissed = 0;
   const freq = area.frequency_per_week;
+  const ALPHA = 0.08;
 
   for (let i = days - 1; i >= 0; i--) {
     const d = subDays(today, i);
@@ -46,25 +47,27 @@ function generateScores(area: Area, days: number): { scores: DemoScore[]; checki
     const dayOfWeek = d.getDay();
 
     let prob = freq / 7;
-    // Improving over time
     const progress = 1 - (i / days) * 0.3;
     prob *= progress;
-    // Weekend dip for health
     if (area.type === "health" && (dayOfWeek === 0 || dayOfWeek === 6)) prob *= 0.6;
-    // Streaks
     if (checkins.length > 0 && checkins[checkins.length - 1].completed) prob = Math.min(prob * 1.2, 0.95);
 
     const completed = rand() < prob;
     checkins.push({ date: dateStr, completed, area_id: area.id });
 
+    let dailyScore: number;
     if (completed) {
       consecutiveMissed = 0;
-      cumulative += 1;
+      dailyScore = 1.0;
     } else {
       consecutiveMissed++;
-      cumulative += -1 * (1 + consecutiveMissed * 0.5);
+      if (consecutiveMissed === 1) dailyScore = 0.0;
+      else if (consecutiveMissed === 2) dailyScore = -0.5;
+      else dailyScore = -1.0;
     }
-    scores.push({ date: dateStr, score: cumulative });
+
+    trajectoryState = trajectoryState + ALPHA * (dailyScore - trajectoryState);
+    scores.push({ date: dateStr, score: trajectoryState });
   }
 
   return { scores, checkins };

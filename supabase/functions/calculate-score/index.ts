@@ -7,6 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const ALPHA = 0.08;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -70,20 +72,21 @@ serve(async (req) => {
 
     const completed = checkin?.completed ?? false;
 
-    // Get yesterday's score record to compute cumulative
+    // Get yesterday's score record
     const yesterday = new Date(date);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split("T")[0];
 
     const { data: yesterdayScore } = await admin
       .from("score_daily")
-      .select("cumulative_score, consecutive_missed")
+      .select("cumulative_score, consecutive_missed, trajectory_state")
       .eq("area_id", area_id)
       .eq("date", yesterdayStr)
       .single();
 
     const prevCumulative = yesterdayScore?.cumulative_score ?? 0;
     const prevMissed = yesterdayScore?.consecutive_missed ?? 0;
+    const prevTrajectory = yesterdayScore?.trajectory_state ?? 0;
 
     let dailyScore: number;
     let consecutiveMissed: number;
@@ -92,7 +95,6 @@ serve(async (req) => {
       dailyScore = 1.0;
       consecutiveMissed = 0;
     } else {
-      // Not completed — compute based on consecutive missed
       consecutiveMissed = prevMissed + 1;
       if (consecutiveMissed === 1) {
         dailyScore = 0.0;
@@ -104,6 +106,7 @@ serve(async (req) => {
     }
 
     const cumulativeScore = prevCumulative + dailyScore;
+    const trajectoryState = prevTrajectory + ALPHA * (dailyScore - prevTrajectory);
 
     // Upsert score_daily
     const { error: upsertError } = await admin
@@ -115,12 +118,12 @@ serve(async (req) => {
           daily_score: dailyScore,
           cumulative_score: cumulativeScore,
           consecutive_missed: consecutiveMissed,
+          trajectory_state: trajectoryState,
         },
         { onConflict: "area_id,date", ignoreDuplicates: false }
       );
 
     if (upsertError) {
-      // If unique constraint doesn't exist on (area_id, date), try insert then update
       const { data: existing } = await admin
         .from("score_daily")
         .select("id")
@@ -135,6 +138,7 @@ serve(async (req) => {
             daily_score: dailyScore,
             cumulative_score: cumulativeScore,
             consecutive_missed: consecutiveMissed,
+            trajectory_state: trajectoryState,
           })
           .eq("id", existing.id);
       } else {
@@ -144,6 +148,7 @@ serve(async (req) => {
           daily_score: dailyScore,
           cumulative_score: cumulativeScore,
           consecutive_missed: consecutiveMissed,
+          trajectory_state: trajectoryState,
         });
       }
     }
@@ -153,6 +158,7 @@ serve(async (req) => {
         daily_score: dailyScore,
         cumulative_score: cumulativeScore,
         consecutive_missed: consecutiveMissed,
+        trajectory_state: trajectoryState,
       }),
       {
         status: 200,

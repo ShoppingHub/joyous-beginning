@@ -1,0 +1,1 @@
+ALTER TABLE public.score_daily ADD COLUMN IF NOT EXISTS trajectory_state double precision NOT NULL DEFAULT 0.0;
