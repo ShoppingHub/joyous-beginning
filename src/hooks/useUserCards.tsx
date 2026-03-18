@@ -45,7 +45,14 @@ export function UserCardsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchCards = useCallback(async () => {
-    if (isDemo) { setLoading(false); return; }
+    if (isDemo) {
+      setUserCards([
+        { id: "demo-card-gym", user_id: "demo", card_type: "gym", area_id: "demo-health-1", enabled: true, created_at: "" },
+        { id: "demo-card-finance", user_id: "demo", card_type: "finance_projection", area_id: "demo-finance-1", enabled: true, created_at: "" },
+      ]);
+      setLoading(false);
+      return;
+    }
     if (!user) return;
     const { data } = await supabase
       .from("user_cards" as any)
