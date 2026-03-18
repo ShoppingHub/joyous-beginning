@@ -39,6 +39,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const { user } = useAuth();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const { isCardEnabled, toggleCard, refetch: refetchCards } = useUserCards();
 
   const preselectedType = searchParams.get("type") as AreaType | null;
   const [name, setName] = useState("");
