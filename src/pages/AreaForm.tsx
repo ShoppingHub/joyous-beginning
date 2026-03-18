@@ -194,6 +194,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
       } else {
         navigate(`/activities/${id}`, { replace: true });
       }
+    } catch { setError(t("areaForm.error")); setSaving(false); }
   };
 
   const handleArchive = async () => {
