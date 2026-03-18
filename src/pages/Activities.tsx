@@ -8,6 +8,7 @@ import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, MoreVertical
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
+import { CardEntryPoints } from "@/components/CardEntryPoints";
 import {
   DropdownMenu,
   DropdownMenuContent,
