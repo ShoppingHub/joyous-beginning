@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Pencil } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
+import { useUserCards } from "@/hooks/useUserCards";
 import { QuantityCounter } from "./QuantityCounter";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -44,6 +45,7 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { isCardEnabled } = useUserCards();
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);
@@ -62,8 +64,12 @@ export function ActivityCard({
     }
 
     if (isGym && hasGymProgram) {
-      onCheckIn(area.id);
-      navigate(`/activities/${area.id}`);
+      if (isCardEnabled("gym")) {
+        navigate("/cards/gym");
+      } else {
+        onCheckIn(area.id);
+        navigate(`/activities/${area.id}`);
+      }
       return;
     }
 

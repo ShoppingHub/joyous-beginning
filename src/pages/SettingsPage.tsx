@@ -3,11 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { useNavConfig } from "@/hooks/useNavConfig";
+import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, AlertTriangle, Sun, Moon, Monitor } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { AVAILABLE_CARDS, getCardName } from "@/lib/cards";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -29,7 +30,7 @@ const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale, setLocale } = useI18n();
-  const { extraTabEnabled, setExtraTabEnabled } = useNavConfig();
+  const { enabledCards, allUserCards, toggleCard, isCardEnabled } = useUserCards();
   const { mode, setMode, palette, setPalette } = useTheme();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -269,13 +270,33 @@ const SettingsPage = () => {
           <Switch checked={notifications} onCheckedChange={handleNotificationsToggle} className="data-[state=checked]:bg-primary" />
         </div>
 
-        <div className="flex items-center justify-between min-h-[44px]">
-          <div className="flex flex-col">
-            <span className="text-base">{t("settings.financeTab")}</span>
-            <span className="text-xs text-muted-foreground">{t("settings.financeTabSub")}</span>
-          </div>
-          <Switch checked={extraTabEnabled} onCheckedChange={setExtraTabEnabled} className="data-[state=checked]:bg-primary" />
+      </div>
+
+      {/* Cards section */}
+      <div className="flex flex-col gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground font-medium">{t("settings.cards")}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("settings.cardsSub")}</p>
         </div>
+        {AVAILABLE_CARDS.map((card) => {
+          const Icon = card.icon;
+          const enabled = isCardEnabled(card.id);
+          const sectionLabel = locale === "it"
+            ? { health: "Salute", study: "Studio", reduce: "Riduci", finance: "Finanze" }[card.section]
+            : { health: "Health", study: "Study", reduce: "Reduce", finance: "Finance" }[card.section];
+          return (
+            <div key={card.id} className="flex items-center justify-between min-h-[44px]">
+              <div className="flex items-center gap-3">
+                <Icon size={20} strokeWidth={1.5} className="text-primary" />
+                <div>
+                  <span className="text-base">{getCardName(card, locale)}</span>
+                  <p className="text-xs text-muted-foreground">{sectionLabel}</p>
+                </div>
+              </div>
+              <Switch checked={enabled} onCheckedChange={(checked) => toggleCard(card.id, checked)} className="data-[state=checked]:bg-primary" />
+            </div>
+          );
+        })}
       </div>
 
       {/* Google Tasks */}

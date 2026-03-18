@@ -512,10 +512,44 @@ export type Database = {
           },
         ]
       }
+      user_cards: {
+        Row: {
+          area_id: string | null
+          card_type: string
+          created_at: string
+          enabled: boolean
+          id: string
+          user_id: string
+        }
+        Insert: {
+          area_id?: string | null
+          card_type: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string | null
+          card_type?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cards_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
-          extra_tab_enabled: boolean
           id: string
           language: string
           menu_custom_items: string[]
@@ -526,7 +560,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          extra_tab_enabled?: boolean
           id?: string
           language?: string
           menu_custom_items?: string[]
@@ -537,7 +570,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          extra_tab_enabled?: boolean
           id?: string
           language?: string
           menu_custom_items?: string[]
