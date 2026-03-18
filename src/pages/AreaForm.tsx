@@ -402,5 +402,50 @@ export default function AreaForm({ mode }: AreaFormProps) {
         )}
       </div>
     </motion.div>
+
+    {/* Card suggestion overlay */}
+    <AnimatePresence>
+      {cardSuggestion && (
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 60 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-x-0 bottom-0 z-50 p-4 pb-8"
+        >
+          <div className="rounded-2xl bg-card ring-1 ring-border p-5 shadow-lg flex flex-col gap-3">
+            <p className="text-base font-medium text-foreground text-center">
+              {t("cards.suggest")} {cardSuggestion.cardName}?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  toggleCard(cardSuggestion.cardType, true);
+                  // Also link area_id
+                  if (user) {
+                    supabase.from("user_cards" as any)
+                      .update({ area_id: cardSuggestion.areaId } as any)
+                      .eq("user_id", user.id)
+                      .eq("card_type", cardSuggestion.cardType)
+                      .then(() => refetchCards());
+                  }
+                  navigate(cardSuggestion.route, { replace: true });
+                }}
+                className="flex-1 h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
+              >
+                {t("cards.suggestSetup")}
+              </button>
+              <button
+                onClick={() => { setCardSuggestion(null); navigate("/", { replace: true }); }}
+                className="flex-1 h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
+              >
+                {t("cards.suggestNotNow")}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   );
 }
