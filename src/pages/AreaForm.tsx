@@ -3,8 +3,9 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
+import { useUserCards } from "@/hooks/useUserCards";
 import { ArrowLeft, Loader2, Dumbbell, Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -13,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { matchCardForArea, getCardName } from "@/lib/cards";
 import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
 
