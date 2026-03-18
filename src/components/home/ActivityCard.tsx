@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Pencil } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
+import { useUserCards } from "@/hooks/useUserCards";
 import { QuantityCounter } from "./QuantityCounter";
 import type { Database } from "@/integrations/supabase/types";
 
