@@ -9,8 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, AlertTriangle, Sun, Moon, Monitor } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { AVAILABLE_CARDS, getCardName } from "@/lib/cards";
-import { Loader2, AlertTriangle, Sun, Moon, Monitor } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
