@@ -64,8 +64,12 @@ export function ActivityCard({
     }
 
     if (isGym && hasGymProgram) {
-      onCheckIn(area.id);
-      navigate(`/activities/${area.id}`);
+      if (isCardEnabled("gym")) {
+        navigate("/cards/gym");
+      } else {
+        onCheckIn(area.id);
+        navigate(`/activities/${area.id}`);
+      }
       return;
     }
 
