@@ -8,6 +8,7 @@ import { DemoProvider } from "@/hooks/useDemo";
 import { I18nProvider } from "@/hooks/useI18n";
 import { NavConfigProvider } from "@/hooks/useNavConfig";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { UserCardsProvider } from "@/hooks/useUserCards";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
@@ -23,6 +24,8 @@ import OnboardingAreas from "./pages/OnboardingAreas";
 import OnboardingFrequency from "./pages/OnboardingFrequency";
 import AreaForm from "./pages/AreaForm";
 import AreaDetail from "./pages/AreaDetail";
+import GymCardPage from "./pages/GymCardPage";
+import FinanceCardPage from "./pages/FinanceCardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,7 @@ const App = () => (
         <AuthProvider>
         <I18nProvider>
         <NavConfigProvider>
+        <UserCardsProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
@@ -59,6 +63,8 @@ const App = () => (
               <Route path="/activities/new" element={<AreaForm mode="add" />} />
               <Route path="/activities/:id" element={<AreaDetail />} />
               <Route path="/activities/:id/edit" element={<AreaForm mode="edit" />} />
+              <Route path="/cards/gym" element={<GymCardPage />} />
+              <Route path="/cards/finance" element={<FinanceCardPage />} />
               {/* Legacy redirects */}
               <Route path="/progress" element={<Progress />} />
               <Route path="/areas" element={<Navigate to="/activities" replace />} />
@@ -68,6 +74,7 @@ const App = () => (
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </UserCardsProvider>
         </NavConfigProvider>
         </I18nProvider>
         </AuthProvider>

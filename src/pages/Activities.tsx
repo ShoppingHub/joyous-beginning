@@ -170,6 +170,8 @@ const Areas = () => {
                   </div>
                 );
               })}
+              {/* Card entry points for this section */}
+              <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />
               {!isDemo && (
                 <button onClick={() => navigate(`/activities/new?type=${type}`)}
                   className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] flex items-center">
