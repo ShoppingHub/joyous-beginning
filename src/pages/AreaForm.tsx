@@ -183,12 +183,17 @@ export default function AreaForm({ mode }: AreaFormProps) {
         }
       }
 
-      if (mode === "add") {
+      if (mode === "add" && savedAreaId && type) {
+        const matchedCard = matchCardForArea(type, name.trim());
+        if (matchedCard && !isCardEnabled(matchedCard.id)) {
+          setCardSuggestion({ cardType: matchedCard.id, cardName: getCardName(matchedCard, locale), route: matchedCard.route, areaId: savedAreaId });
+          setSaving(false);
+          return;
+        }
         navigate("/", { replace: true });
       } else {
         navigate(`/activities/${id}`, { replace: true });
       }
-    } catch { setError(t("areaForm.error")); setSaving(false); }
   };
 
   const handleArchive = async () => {
