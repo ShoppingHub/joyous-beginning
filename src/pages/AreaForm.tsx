@@ -59,6 +59,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [baselineError, setBaselineError] = useState("");
   const [showQuickAddHome, setShowQuickAddHome] = useState(true);
   const [isGymTemplate, setIsGymTemplate] = useState(false);
+  const [cardSuggestion, setCardSuggestion] = useState<{ cardType: string; cardName: string; route: string; areaId: string } | null>(null);
 
   // Google Tasks sync
   const [googleTasksSync, setGoogleTasksSync] = useState(false);
