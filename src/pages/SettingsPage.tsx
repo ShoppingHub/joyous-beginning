@@ -272,13 +272,33 @@ const SettingsPage = () => {
           <Switch checked={notifications} onCheckedChange={handleNotificationsToggle} className="data-[state=checked]:bg-primary" />
         </div>
 
-        <div className="flex items-center justify-between min-h-[44px]">
-          <div className="flex flex-col">
-            <span className="text-base">{t("settings.financeTab")}</span>
-            <span className="text-xs text-muted-foreground">{t("settings.financeTabSub")}</span>
-          </div>
-          <Switch checked={extraTabEnabled} onCheckedChange={setExtraTabEnabled} className="data-[state=checked]:bg-primary" />
+      </div>
+
+      {/* Cards section */}
+      <div className="flex flex-col gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground font-medium">{t("settings.cards")}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("settings.cardsSub")}</p>
         </div>
+        {AVAILABLE_CARDS.map((card) => {
+          const Icon = card.icon;
+          const enabled = isCardEnabled(card.id);
+          const sectionLabel = locale === "it"
+            ? { health: "Salute", study: "Studio", reduce: "Riduci", finance: "Finanze" }[card.section]
+            : { health: "Health", study: "Study", reduce: "Reduce", finance: "Finance" }[card.section];
+          return (
+            <div key={card.id} className="flex items-center justify-between min-h-[44px]">
+              <div className="flex items-center gap-3">
+                <Icon size={20} strokeWidth={1.5} className="text-primary" />
+                <div>
+                  <span className="text-base">{getCardName(card, locale)}</span>
+                  <p className="text-xs text-muted-foreground">{sectionLabel}</p>
+                </div>
+              </div>
+              <Switch checked={enabled} onCheckedChange={(checked) => toggleCard(card.id, checked)} className="data-[state=checked]:bg-primary" />
+            </div>
+          );
+        })}
       </div>
 
       {/* Google Tasks */}
