@@ -32,7 +32,7 @@ const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale, setLocale } = useI18n();
-  const { extraTabEnabled, setExtraTabEnabled } = useNavConfig();
+  const { enabledCards, allUserCards, toggleCard, isCardEnabled } = useUserCards();
   const { mode, setMode, palette, setPalette } = useTheme();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
