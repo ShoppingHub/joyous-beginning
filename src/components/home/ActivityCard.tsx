@@ -45,6 +45,7 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { isCardEnabled } = useUserCards();
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);
