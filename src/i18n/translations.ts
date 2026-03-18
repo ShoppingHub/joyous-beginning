@@ -164,9 +164,21 @@ const translations = {
   "areas.section.finance": { en: "Finance", it: "Finanze" },
   "areas.add": { en: "+ Add", it: "+ Aggiungi" },
 
-  // Finance toggle
-  "settings.financeTab": { en: "Show Finance tab", it: "Mostra sezione Finanze" },
-  "settings.financeTabSub": { en: "Adds quick access to the finance projection.", it: "Aggiunge un accesso rapido alla proiezione finanziaria." },
+  // Cards (Epic 14)
+  "settings.cards": { en: "Cards", it: "Schede" },
+  "settings.cardsSub": { en: "Specialized modules for your areas.", it: "Moduli specialistici per le tue aree." },
+  "cards.configured": { en: "Set up", it: "Configurata" },
+  "cards.notConfigured": { en: "Not set up", it: "Da configurare" },
+  "cards.open": { en: "Open", it: "Apri" },
+  "cards.gym.empty": { en: "No gym area found.", it: "Nessuna area palestra trovata." },
+  "cards.gym.emptySub": { en: "Create a Health area named 'Gym' to get started.", it: "Crea un'area Salute con nome 'Palestra' per iniziare." },
+  "cards.gym.createArea": { en: "Create area", it: "Crea area" },
+  "cards.finance.empty": { en: "Log your first finance check-in to see your trend.", it: "Registra il primo check-in finanziario per vedere il tuo trend." },
+  "cards.finance.createArea": { en: "Add Finance area", it: "Aggiungi area Finanza" },
+  "cards.finance.projectionLabel": { en: "30-day estimate based on your current trend.", it: "Stima a 30 giorni basata sulla tua traiettoria attuale." },
+  "cards.suggest": { en: "Would you also like to set up the", it: "Vuoi configurare anche la" },
+  "cards.suggestSetup": { en: "Set up", it: "Configura" },
+  "cards.suggestNotNow": { en: "Not now", it: "Non ora" },
 
   // Progress
   "progress.empty.title": { en: "No data yet.", it: "Nessun dato ancora." },
