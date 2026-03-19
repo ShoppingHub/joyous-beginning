@@ -41,8 +41,8 @@ const App = () => (
         <DemoProvider>
         <AuthProvider>
         <I18nProvider>
-        <NavConfigProvider>
         <UserCardsProvider>
+        <NavConfigProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
@@ -76,8 +76,8 @@ const App = () => (
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </UserCardsProvider>
         </NavConfigProvider>
+        </UserCardsProvider>
         </I18nProvider>
         </AuthProvider>
         </DemoProvider>
