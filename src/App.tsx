@@ -26,6 +26,7 @@ import AreaForm from "./pages/AreaForm";
 import AreaDetail from "./pages/AreaDetail";
 import GymCardPage from "./pages/GymCardPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
+import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
