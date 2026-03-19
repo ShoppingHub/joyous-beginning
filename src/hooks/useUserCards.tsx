@@ -20,6 +20,7 @@ interface UserCardsContextType {
   enabledCards: (CardDefinition & { userCard: UserCard })[];
   allUserCards: UserCard[];
   toggleCard: (cardType: string, enabled: boolean) => void;
+  toggleAllCards: (enabled: boolean) => void;
   getCardsForSection: (section: AreaType) => (CardDefinition & { userCard?: UserCard })[];
   isCardEnabled: (cardType: string) => boolean;
   getUserCard: (cardType: string) => UserCard | undefined;
