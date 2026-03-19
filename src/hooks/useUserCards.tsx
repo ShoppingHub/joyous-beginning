@@ -100,6 +100,12 @@ export function UserCardsProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isDemo, userCards, fetchCards]);
 
+  const toggleAllCards = useCallback(async (enabled: boolean) => {
+    for (const card of AVAILABLE_CARDS) {
+      toggleCard(card.id, enabled);
+    }
+  }, [toggleCard]);
+
   const enabledCards = AVAILABLE_CARDS
     .filter((c) => userCards.some((uc) => uc.card_type === c.id && uc.enabled))
     .map((c) => ({ ...c, userCard: userCards.find((uc) => uc.card_type === c.id)! }));
@@ -120,7 +126,7 @@ export function UserCardsProvider({ children }: { children: ReactNode }) {
   }, [userCards]);
 
   return (
-    <UserCardsContext.Provider value={{ enabledCards, allUserCards: userCards, toggleCard, getCardsForSection, isCardEnabled, getUserCard, loading, refetch: fetchCards }}>
+    <UserCardsContext.Provider value={{ enabledCards, allUserCards: userCards, toggleCard, toggleAllCards, getCardsForSection, isCardEnabled, getUserCard, loading, refetch: fetchCards }}>
       {children}
     </UserCardsContext.Provider>
   );
