@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useUserCards } from "@/hooks/useUserCards";
-import { LayoutDashboard, Activity, TrendingUp, BarChart2, LayoutGrid } from "lucide-react";
+import { LayoutDashboard, Activity, TrendingUp, LayoutGrid } from "lucide-react";
 import type { TranslationKey } from "@/i18n/translations";
 
 export interface NavItem {
@@ -33,14 +33,13 @@ export function NavConfigProvider({ children }: { children: ReactNode }) {
   const { isCardEnabled, loading: cardsLoading } = useUserCards();
 
   const financeEnabled = isCardEnabled("finance_projection");
-  const anyCardEnabled = isCardEnabled("gym") || isCardEnabled("finance_projection");
+  const anyCardEnabled = isCardEnabled("gym") || financeEnabled;
 
   const items: NavItem[] = [
     { key: "home", to: "/", icon: LayoutDashboard, labelKey: "nav.home", visible: true },
     { key: "activities", to: "/activities", icon: Activity, labelKey: "nav.activities", visible: true },
     { key: "cards", to: "/cards", icon: LayoutGrid, labelKey: "nav.cards", visible: anyCardEnabled },
     { key: "progress", to: "/progress", icon: TrendingUp, labelKey: "nav.progress", visible: true },
-    { key: "finance", to: "/finance", icon: BarChart2, labelKey: "nav.finance", visible: financeEnabled },
   ];
 
   const visibleItems = items.filter(i => i.visible);
