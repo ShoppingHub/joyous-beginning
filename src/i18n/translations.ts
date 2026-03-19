@@ -166,7 +166,8 @@ const translations = {
 
   // Cards (Epic 14)
   "settings.cards": { en: "Cards", it: "Schede" },
-  "settings.cardsSub": { en: "Specialized modules for your areas.", it: "Moduli specialistici per le tue aree." },
+  "settings.cardsSub": { en: "Enable specialized modules for your areas.", it: "Attiva i moduli specialistici per le tue aree." },
+  "settings.cardsToggle": { en: "Enable cards", it: "Attiva schede" },
   "cards.configured": { en: "Set up", it: "Configurata" },
   "cards.notConfigured": { en: "Not set up", it: "Da configurare" },
   "cards.open": { en: "Open", it: "Apri" },
