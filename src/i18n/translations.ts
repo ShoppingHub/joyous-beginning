@@ -8,6 +8,7 @@ const translations = {
   "nav.home": { en: "Home", it: "Home" },
   "nav.areas": { en: "Areas", it: "Aree" },
   "nav.activities": { en: "Activities", it: "Attività" },
+  "nav.cards": { en: "Cards", it: "Schede" },
   "nav.progress": { en: "Progress", it: "Progress" },
   "nav.finance": { en: "Finance", it: "Finanze" },
   "nav.settings": { en: "Settings", it: "Impostazioni" },

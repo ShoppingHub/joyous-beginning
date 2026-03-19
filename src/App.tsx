@@ -26,6 +26,7 @@ import AreaForm from "./pages/AreaForm";
 import AreaDetail from "./pages/AreaDetail";
 import GymCardPage from "./pages/GymCardPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
+import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="/activities/new" element={<AreaForm mode="add" />} />
               <Route path="/activities/:id" element={<AreaDetail />} />
               <Route path="/activities/:id/edit" element={<AreaForm mode="edit" />} />
+              <Route path="/cards" element={<CardsHub />} />
               <Route path="/cards/gym" element={<GymCardPage />} />
               <Route path="/cards/finance" element={<FinanceCardPage />} />
               {/* Legacy redirects */}
