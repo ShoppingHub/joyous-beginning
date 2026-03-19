@@ -6,9 +6,8 @@ import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertTriangle, Sun, Moon, Monitor } from "lucide-react";
+import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { AVAILABLE_CARDS, getCardName } from "@/lib/cards";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
