@@ -40,7 +40,6 @@ export function NavConfigProvider({ children }: { children: ReactNode }) {
     { key: "activities", to: "/activities", icon: Activity, labelKey: "nav.activities", visible: true },
     { key: "cards", to: "/cards", icon: LayoutGrid, labelKey: "nav.cards", visible: anyCardEnabled },
     { key: "progress", to: "/progress", icon: TrendingUp, labelKey: "nav.progress", visible: true },
-    { key: "finance", to: "/finance", icon: BarChart2, labelKey: "nav.finance", visible: financeEnabled },
   ];
 
   const visibleItems = items.filter(i => i.visible);
