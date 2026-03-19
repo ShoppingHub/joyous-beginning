@@ -29,7 +29,9 @@ const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale, setLocale } = useI18n();
-  const { enabledCards, allUserCards, toggleCard, isCardEnabled } = useUserCards();
+  const { enabledCards, allUserCards, toggleAllCards, isCardEnabled } = useUserCards();
+  const anyCardEnabled = enabledCards.length > 0;
+  const handleCardsToggle = (checked: boolean) => toggleAllCards(checked);
   const { mode, setMode, palette, setPalette } = useTheme();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();

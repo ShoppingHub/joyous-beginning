@@ -32,6 +32,7 @@ const UserCardsContext = createContext<UserCardsContextType>({
   enabledCards: [],
   allUserCards: [],
   toggleCard: () => {},
+  toggleAllCards: () => {},
   getCardsForSection: () => [],
   isCardEnabled: () => false,
   getUserCard: () => undefined,
