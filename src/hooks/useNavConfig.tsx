@@ -33,7 +33,7 @@ export function NavConfigProvider({ children }: { children: ReactNode }) {
   const { isCardEnabled, loading: cardsLoading } = useUserCards();
 
   const financeEnabled = isCardEnabled("finance_projection");
-  const anyCardEnabled = isCardEnabled("gym") || isCardEnabled("finance_projection");
+  const anyCardEnabled = isCardEnabled("gym") || financeEnabled;
 
   const items: NavItem[] = [
     { key: "home", to: "/", icon: LayoutDashboard, labelKey: "nav.home", visible: true },
