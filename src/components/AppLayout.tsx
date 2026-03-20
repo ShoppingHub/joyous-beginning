@@ -32,7 +32,7 @@ export function AppLayout() {
             <ProfileAvatar />
           </div>
         </div>
-        <main className="flex-1 pt-12 pb-14 overflow-x-hidden">
+        <main className="flex-1 pt-14 pb-14 overflow-x-hidden">
           <Outlet />
         </main>
         <BottomNav />
