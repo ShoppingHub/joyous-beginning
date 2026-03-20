@@ -46,9 +46,9 @@ const GymCardPage = () => {
   const [exForm, setExForm] = useState({ name: "", sets: "", reps: "", weight: "", daily: false, exerciseType: "strength" as "strength" | "cardio", duration: "", intensity: "" });
   const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<string | null>(null);
 
-  // Drag state
-  const [dragExerciseId, setDragExerciseId] = useState<string | null>(null);
-  const [dragGroupId, setDragGroupId] = useState<string | null>(null);
+  // Weekly summary
+  const [weekSessions, setWeekSessions] = useState<number>(0);
+  const [weekTotal, setWeekTotal] = useState<number>(0);
 
   // Auto-save debounce refs
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
