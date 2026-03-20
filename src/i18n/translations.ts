@@ -342,6 +342,13 @@ const translations = {
   "plus.promoPlaceholder": { en: "Promo code (optional)", it: "Codice sconto (opzionale)" },
   "plus.price": { en: "€2.50/month", it: "2,50 €/mese" },
   "plus.manage": { en: "Manage subscription", it: "Gestisci abbonamento" },
+  "plus.settings.disableLabel": { en: "Disable Plus", it: "Disabilita Plus" },
+  "plus.settings.disableDesc": { en: "For testing. Re-enable by restoring subscription.", it: "Per test. Riattiva ripristinando l'abbonamento." },
+  "plus.settings.disableBtn": { en: "Disable", it: "Disabilita" },
+  "plus.settings.disableConfirmTitle": { en: "Disable Plus?", it: "Disabilita Plus?" },
+  "plus.settings.disableConfirmDesc": { en: "Plus features will be deactivated. You can re-enable by checking your subscription status or paying again.", it: "Le funzionalità Plus verranno disattivate. Puoi riattivare verificando lo stato dell'abbonamento o pagando di nuovo." },
+  "plus.required.title": { en: "Plus required", it: "Necessario versione Plus" },
+  "plus.required.desc": { en: "This feature requires an active Plus subscription.", it: "Questa funzionalità richiede un abbonamento Plus attivo." },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
