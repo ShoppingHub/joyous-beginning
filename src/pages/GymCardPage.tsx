@@ -527,12 +527,13 @@ const GymCardPage = () => {
               <p className="text-xs text-muted-foreground font-medium mb-2">{t("gym.weekday.assign")}</p>
               <div className="flex gap-1 flex-wrap">
                 {WEEKDAY_KEYS.map((key, i) => {
+                  const isoDay = i + 1; // 1=Mon ... 7=Sun
                   const selectedDay = days.find(d => d.id === selectedDayId);
-                  const isAssigned = selectedDay?.day_of_week === i;
-                  const usedByOther = days.some(d => d.id !== selectedDayId && d.day_of_week === i);
+                  const isAssigned = selectedDay?.day_of_week === isoDay;
+                  const usedByOther = days.some(d => d.id !== selectedDayId && d.day_of_week === isoDay);
                   return (
-                    <button key={i}
-                      onClick={() => handleSetDayOfWeek(selectedDayId, isAssigned ? null : i)}
+                    <button key={isoDay}
+                      onClick={() => handleSetDayOfWeek(selectedDayId, isAssigned ? null : isoDay)}
                       disabled={usedByOther}
                       className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                         isAssigned ? "bg-primary text-primary-foreground" : usedByOther ? "bg-muted text-muted-foreground/40" : "bg-background text-muted-foreground hover:text-foreground ring-1 ring-border"
