@@ -134,7 +134,7 @@ const Areas = () => {
                 <span className="text-sm font-medium text-muted-foreground">{t(labelKey)}</span>
               </div>
               {items.map((area) => {
-                const isQuantity = area.tracking_mode === "quantity_reduce";
+                const isQuantity = anyCardEnabled && area.tracking_mode === "quantity_reduce";
                 const qty = todayQuantities[area.id] ?? 0;
                 return (
                   <div key={area.id} className="flex items-center gap-1">
