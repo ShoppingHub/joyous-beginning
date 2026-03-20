@@ -8,6 +8,7 @@ import { DemoProvider } from "@/hooks/useDemo";
 import { I18nProvider } from "@/hooks/useI18n";
 import { NavConfigProvider } from "@/hooks/useNavConfig";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { PlusProvider } from "@/hooks/usePlusStatus";
 import { UserCardsProvider } from "@/hooks/useUserCards";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
