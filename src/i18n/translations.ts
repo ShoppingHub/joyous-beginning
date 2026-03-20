@@ -228,6 +228,17 @@ const translations = {
   "gym.session.noExercises": { en: "No active exercises for this day", it: "Nessun esercizio attivo per questo giorno" },
   "gym.session.noExercisesSub": { en: "Add exercises from Edit plan", it: "Aggiungi esercizi dalla modifica scheda" },
   "gym.session.selectDay": { en: "Select day", it: "Seleziona giorno" },
+  "gym.exerciseType.strength": { en: "Strength", it: "Forza" },
+  "gym.exerciseType.cardio": { en: "Cardio", it: "Cardio" },
+  "gym.form.duration": { en: "Time (min)", it: "Tempo (min)" },
+  "gym.form.intensity": { en: "Intensity", it: "Intensità" },
+  "gym.plan.editGroup": { en: "Edit group", it: "Modifica gruppo" },
+  "gym.plan.deleteGroup": { en: "Delete group", it: "Elimina gruppo" },
+  "gym.plan.deleteGroupConfirm": { en: "Delete group and all exercises?", it: "Eliminare il gruppo e tutti gli esercizi?" },
+  "gym.plan.deleteGroupKeep": { en: "Keep exercises", it: "Mantieni esercizi" },
+  "gym.plan.deleteGroupAll": { en: "Delete all", it: "Elimina tutto" },
+  "gym.edit": { en: "Edit", it: "Modifica" },
+  "gym.done": { en: "Done", it: "Fatto" },
 
   // Reduce tracking
   "reduce.trackingLabel": { en: "How do you want to track this?", it: "Come vuoi tracciare?" },

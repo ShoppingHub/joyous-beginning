@@ -275,8 +275,11 @@ export type Database = {
           active: boolean
           created_at: string
           default_weight: number | null
+          duration_minutes: number | null
+          exercise_type: string
           group_id: string
           id: string
+          intensity: number | null
           is_daily: boolean
           name: string
           order: number
@@ -287,8 +290,11 @@ export type Database = {
           active?: boolean
           created_at?: string
           default_weight?: number | null
+          duration_minutes?: number | null
+          exercise_type?: string
           group_id: string
           id?: string
+          intensity?: number | null
           is_daily?: boolean
           name: string
           order?: number
@@ -299,8 +305,11 @@ export type Database = {
           active?: boolean
           created_at?: string
           default_weight?: number | null
+          duration_minutes?: number | null
+          exercise_type?: string
           group_id?: string
           id?: string
+          intensity?: number | null
           is_daily?: boolean
           name?: string
           order?: number
@@ -353,24 +362,30 @@ export type Database = {
         Row: {
           completed: boolean
           created_at: string
+          duration_used: number | null
           exercise_id: string
           id: string
+          intensity_used: number | null
           session_id: string
           weight_used: number | null
         }
         Insert: {
           completed?: boolean
           created_at?: string
+          duration_used?: number | null
           exercise_id: string
           id?: string
+          intensity_used?: number | null
           session_id: string
           weight_used?: number | null
         }
         Update: {
           completed?: boolean
           created_at?: string
+          duration_used?: number | null
           exercise_id?: string
           id?: string
+          intensity_used?: number | null
           session_id?: string
           weight_used?: number | null
         }

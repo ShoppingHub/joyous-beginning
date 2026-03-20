@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, BarChart2 } from "lucide-react";
+import { ArrowLeft, TrendingUp } from "lucide-react";
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { motion } from "framer-motion";
 import { subDays, addDays, format } from "date-fns";
@@ -65,7 +65,6 @@ const FinanceCardPage = () => {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const title = locale === "it" ? "Proiezione Finanze" : "Finance Projection";
-
   const regression = scores.length >= 3 ? linearRegression(scores) : null;
   const slope = regression?.m ?? 0;
   const lineColor = getLineColor(slope);
@@ -83,19 +82,24 @@ const FinanceCardPage = () => {
     return [...historic, ...projectionPoints];
   })();
 
-  // No area linked
+  const PageHeader = () => (
+    <div className="relative flex items-center justify-center h-14">
+      <button onClick={() => navigate("/cards")} className="absolute left-0 flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
+        <ArrowLeft size={22} strokeWidth={1.5} />
+      </button>
+      <div className="flex items-center gap-2">
+        <TrendingUp size={20} strokeWidth={1.5} className="text-primary" />
+        <h1 className="text-[17px] font-semibold">{title}</h1>
+      </div>
+    </div>
+  );
+
   if (!loading && !areaId) {
     return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-        className="flex flex-col px-4 pt-2 pb-8">
-        <div className="flex items-center gap-3 h-14">
-          <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
-            <ArrowLeft size={24} strokeWidth={1.5} />
-          </button>
-          <h1 className="text-[18px] font-semibold">{title}</h1>
-        </div>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="flex flex-col px-4 pt-2 pb-8">
+        <PageHeader />
         <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-16">
-          <BarChart2 size={48} className="text-muted-foreground" strokeWidth={1.5} />
+          <TrendingUp size={48} className="text-muted-foreground" strokeWidth={1.5} />
           <p className="text-sm text-muted-foreground text-center">{t("cards.finance.empty")}</p>
           <button onClick={() => navigate("/activities/new?type=finance")}
             className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]">
@@ -109,12 +113,7 @@ const FinanceCardPage = () => {
   if (loading) {
     return (
       <div className="flex flex-col px-4 pt-2 pb-8">
-        <div className="flex items-center gap-3 h-14">
-          <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
-            <ArrowLeft size={24} strokeWidth={1.5} />
-          </button>
-          <div className="h-5 w-32 rounded bg-card animate-pulse" />
-        </div>
+        <PageHeader />
         <div className="rounded-xl bg-card animate-pulse mt-4" style={{ height: "55vh" }} />
       </div>
     );
@@ -122,16 +121,10 @@ const FinanceCardPage = () => {
 
   if (!hasCheckins) {
     return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-        className="flex flex-col px-4 pt-2 pb-8">
-        <div className="flex items-center gap-3 h-14">
-          <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
-            <ArrowLeft size={24} strokeWidth={1.5} />
-          </button>
-          <h1 className="text-[18px] font-semibold">{title}</h1>
-        </div>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="flex flex-col px-4 pt-2 pb-8">
+        <PageHeader />
         <div className="flex flex-1 flex-col items-center justify-center gap-6 py-16">
-          <BarChart2 size={48} className="text-muted-foreground" strokeWidth={1.5} />
+          <TrendingUp size={48} className="text-muted-foreground" strokeWidth={1.5} />
           <p className="text-sm text-muted-foreground text-center">{t("cards.finance.empty")}</p>
         </div>
       </motion.div>
@@ -139,14 +132,8 @@ const FinanceCardPage = () => {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-      className="flex flex-col px-4 pt-2 pb-8">
-      <div className="flex items-center gap-3 h-14">
-        <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
-          <ArrowLeft size={24} strokeWidth={1.5} />
-        </button>
-        <h1 className="text-[18px] font-semibold">{title}</h1>
-      </div>
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="flex flex-col px-4 pt-2 pb-8">
+      <PageHeader />
       <div className="flex justify-center pb-3">
         <TimeRangeSelector value={timeRange} onChange={setTimeRange} ranges={financeRanges} />
       </div>
