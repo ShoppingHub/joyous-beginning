@@ -129,6 +129,7 @@ const translations = {
   "areaType.study": { en: "Study", it: "Studio" },
   "areaType.reduce": { en: "Reduce", it: "Ridurre" },
   "areaType.finance": { en: "Finance", it: "Finanza" },
+  "areaType.career": { en: "Career", it: "Carriera" },
 
   // Finance
   "finance.title": { en: "Finance", it: "Finanza" },
