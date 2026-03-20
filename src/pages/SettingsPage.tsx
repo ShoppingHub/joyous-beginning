@@ -314,7 +314,7 @@ const SettingsPage = () => {
               <span className="text-base text-muted-foreground">{t("settings.cardsToggle")}</span>
               <span className="text-xs text-primary font-medium">{t("plus.badge" as any)}</span>
             </div>
-            <Switch checked={false} disabled className="opacity-40" />
+            <Switch checked={false} onCheckedChange={() => setShowCardsAlert(true)} className="opacity-40" />
           </div>
         )}
         {!isPlusActive && (
@@ -322,6 +322,25 @@ const SettingsPage = () => {
             {t("plus.discoverPlus" as any)}
           </button>
         )}
+
+        {/* Alert: cards require Plus */}
+        <AlertDialog open={showCardsAlert} onOpenChange={setShowCardsAlert}>
+          <AlertDialogContent className="max-w-[340px] bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("plus.required.title" as any)}</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground">{t("plus.required.desc" as any)}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+              <AlertDialogAction onClick={() => { setShowCardsAlert(false); navigate("/plus"); }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90">
+                {t("plus.discoverPlus" as any)}
+              </AlertDialogAction>
+              <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
+                {t("areaForm.delete.confirm.no" as any)}
+              </AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Google Tasks */}
