@@ -51,7 +51,8 @@ export default function PlusPage() {
       });
       if (error) throw error;
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, '_blank');
+        setLoading(false);
       }
     } catch (err) {
       console.error("Checkout error:", err);
@@ -65,7 +66,7 @@ export default function PlusPage() {
       const { data, error } = await supabase.functions.invoke("customer-portal");
       if (error) throw error;
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, '_blank');
       }
     } catch (err) {
       console.error("Portal error:", err);
