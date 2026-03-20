@@ -457,12 +457,27 @@ const GymCardPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
           {days.map(day => (
             <button key={day.id} onClick={() => handleSelectDay(day.id)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] ${
+              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] flex items-center gap-1 ${
                 day.id === selectedDayId ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground ring-1 ring-border"
               }`}>
               {day.name}
+              {day.day_of_week !== null && day.day_of_week !== undefined && (
+                <span className={`text-[10px] font-normal ${day.id === selectedDayId ? "text-primary-foreground/70" : "text-muted-foreground/60"}`}>
+                  {getWeekdayLabel(day.day_of_week)}
+                </span>
+              )}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Weekly summary */}
+      {!isEditing && weekTotal > 0 && (
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <Calendar size={14} className="text-muted-foreground" strokeWidth={1.5} />
+          <span className="text-xs text-muted-foreground">
+            {t("gym.weeklySummary")}: <span className="font-semibold text-foreground">{weekSessions}/{weekTotal}</span> {t("gym.weeklySessions")}
+          </span>
         </div>
       )}
 
