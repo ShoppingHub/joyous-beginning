@@ -2,8 +2,12 @@ import { Outlet } from "react-router-dom";
 import { BottomNav } from "@/components/BottomNav";
 import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
+import { Sparkles } from "lucide-react";
 
 export function AppLayout() {
+  const { isPlusActive } = usePlusStatus();
+
   return (
     <div className="flex min-h-screen overflow-x-hidden">
       <DesktopSidebar />
@@ -12,11 +16,19 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 max-w-[428px] mx-auto lg:hidden overflow-x-hidden">
         {/* Fixed mobile header: opad.me + profile */}
         <div className="fixed top-0 left-0 right-0 z-50 lg:hidden">
-          <div className="max-w-[428px] mx-auto flex items-center justify-between px-4 h-12 bg-background/80 backdrop-blur-md">
-            <span className="text-[18px] font-semibold">
-              <span className="text-foreground">opad</span>
-              <span style={{ color: "#B5453A" }}>.me</span>
-            </span>
+          <div className="max-w-[428px] mx-auto flex items-center justify-between px-4 h-14 bg-background/80 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <span className="text-[18px] font-semibold">
+                <span className="text-foreground">opad</span>
+                <span style={{ color: "#B5453A" }}>.me</span>
+              </span>
+              {isPlusActive && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent/15 text-accent text-[11px] font-medium">
+                  <Sparkles className="w-3 h-3" />
+                  Plus
+                </span>
+              )}
+            </div>
             <ProfileAvatar />
           </div>
         </div>
