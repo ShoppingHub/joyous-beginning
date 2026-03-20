@@ -68,7 +68,13 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      const endTimestamp = subscription.current_period_end;
+      if (endTimestamp) {
+        const endMs = typeof endTimestamp === 'number' && endTimestamp < 1e12
+          ? endTimestamp * 1000
+          : endTimestamp;
+        subscriptionEnd = new Date(endMs).toISOString();
+      }
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
 
       await supabaseClient
