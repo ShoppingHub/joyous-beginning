@@ -1,0 +1,1 @@
+UPDATE public.gym_program_days SET day_of_week = day_of_week + 1 WHERE day_of_week IS NOT NULL;
