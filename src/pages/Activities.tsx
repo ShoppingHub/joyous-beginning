@@ -6,7 +6,8 @@ import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
-import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, MoreVertical } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, Briefcase, MoreVertical, Sparkles, LayoutGrid } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
@@ -38,6 +39,7 @@ const sections: { type: AreaType; labelKey: TranslationKey; icon: typeof Heart }
   { type: "study", labelKey: "areas.section.study", icon: BookOpen },
   { type: "reduce", labelKey: "areas.section.reduce", icon: TrendingDown },
   { type: "finance", labelKey: "areas.section.finance", icon: Wallet },
+  { type: "career", labelKey: "areas.section.career" as TranslationKey, icon: Briefcase },
 ];
 
 const Areas = () => {
@@ -46,6 +48,7 @@ const Areas = () => {
   const { t } = useI18n();
   const { enabledCards } = useUserCards();
   const { isPlusActive } = usePlusStatus();
+  const isMobile = useIsMobile();
   const anyCardEnabled = isPlusActive && enabledCards.length > 0;
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
@@ -95,6 +98,10 @@ const Areas = () => {
 
   const grouped = (type: AreaType) => areas.filter((a) => a.type === type);
 
+  // Find the last visible section (has items)
+  const visibleSections = sections.filter(({ type }) => grouped(type).length > 0);
+  const lastVisibleType = visibleSections.length > 0 ? visibleSections[visibleSections.length - 1].type : null;
+
   if (loading) {
     return (
       <div className="flex flex-col px-4 pt-2 pb-8">
@@ -129,6 +136,8 @@ const Areas = () => {
       <div className="flex flex-col gap-8 mt-2">
         {sections.map(({ type, labelKey, icon: Icon }) => {
           const items = grouped(type);
+          if (items.length === 0) return null;
+          const isLastVisible = type === lastVisibleType;
           return (
             <div key={type} className="space-y-3">
               <div className="flex items-center gap-2">
@@ -175,20 +184,39 @@ const Areas = () => {
                   </div>
                 );
               })}
-              {/* Card entry points for this section */}
               {anyCardEnabled && <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />}
-              {!isDemo && (
+              {!isDemo && !isMobile && (
                 <button onClick={() => navigate(`/activities/new?type=${type}`)}
                   className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] flex items-center">
                   {t("areas.add")}
                 </button>
+              )}
+              {isLastVisible && !isDemo && (
+                isPlusActive ? (
+                  <button
+                    onClick={() => navigate("/cards")}
+                    className="flex items-center gap-3 rounded-lg border border-dashed border-primary/20 bg-primary/5 px-4 min-h-[48px] hover:opacity-90 transition-opacity mt-2"
+                  >
+                    <LayoutGrid size={20} strokeWidth={1.5} className="text-primary flex-shrink-0" />
+                    <span className="text-base text-foreground flex-1 text-left">{t("areas.discoverCards" as any)}</span>
+                    <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground flex-shrink-0" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate("/plus")}
+                    className="flex items-center gap-3 rounded-lg border border-dashed border-accent/30 bg-accent/5 px-4 min-h-[48px] hover:opacity-90 transition-opacity mt-2"
+                  >
+                    <Sparkles size={20} strokeWidth={1.5} className="text-accent flex-shrink-0" />
+                    <span className="text-base text-foreground flex-1 text-left">{t("areas.activatePlus" as any)}</span>
+                    <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground flex-shrink-0" />
+                  </button>
+                )
               )}
             </div>
           );
         })}
       </div>
 
-      {/* Archive confirmation dialog */}
       <AlertDialog open={!!archiveTarget} onOpenChange={(open) => !open && setArchiveTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
