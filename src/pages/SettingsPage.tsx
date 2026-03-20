@@ -221,22 +221,38 @@ const SettingsPage = () => {
         <div className="flex flex-col gap-2">
           <span className="text-base">{t("settings.colors")}</span>
           <div className="flex gap-3">
-            {paletteOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setPalette(opt.value)}
-                className={`flex flex-col items-center gap-1.5 flex-1 py-2 rounded-xl transition-all min-h-[44px] ${
-                  palette === opt.value ? "ring-2 ring-primary bg-card" : "hover:bg-card/50"
-                }`}
-              >
-                <div
-                  className="w-8 h-8 rounded-full ring-1 ring-border"
-                  style={{ backgroundColor: PALETTE_COLORS[opt.value] }}
-                />
-                <span className="text-xs font-medium text-muted-foreground">{opt.label}</span>
-              </button>
-            ))}
+            {paletteOptions.map((opt) => {
+              const isExtra = opt.value !== "teal";
+              const locked = isExtra && !isPlusActive;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => {
+                    if (locked) return;
+                    setPalette(opt.value);
+                  }}
+                  className={`flex flex-col items-center gap-1.5 flex-1 py-2 rounded-xl transition-all min-h-[44px] ${
+                    palette === opt.value ? "ring-2 ring-primary bg-card" : "hover:bg-card/50"
+                  } ${locked ? "opacity-50" : ""}`}
+                >
+                  <div
+                    className="w-8 h-8 rounded-full ring-1 ring-border"
+                    style={{ backgroundColor: PALETTE_COLORS[opt.value] }}
+                  />
+                  <span className="text-xs font-medium text-muted-foreground">{opt.label}</span>
+                  {locked && <span className="text-[10px] text-primary">Plus</span>}
+                </button>
+              );
+            })}
           </div>
+          {!isPlusActive && palette !== "teal" && (
+            <p className="text-xs text-muted-foreground mt-1">{t("plus.themeLocked" as any)}</p>
+          )}
+          {!isPlusActive && (
+            <button onClick={() => navigate("/plus")} className="text-xs text-primary hover:opacity-80 transition-opacity">
+              {t("plus.discoverPlus" as any)}
+            </button>
+          )}
         </div>
       </div>
 
