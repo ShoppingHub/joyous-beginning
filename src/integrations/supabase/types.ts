@@ -618,7 +618,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      area_type: "health" | "study" | "reduce" | "finance"
+      area_type: "health" | "study" | "reduce" | "finance" | "career"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -746,7 +746,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      area_type: ["health", "study", "reduce", "finance"],
+      area_type: ["health", "study", "reduce", "finance", "career"],
     },
   },
 } as const
