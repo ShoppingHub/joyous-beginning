@@ -58,8 +58,8 @@ export function ActivityCard({
   const [undoConfirm, setUndoConfirm] = useState(false);
 
   const hasNote = note.length > 0;
-  const isQuantityReduce = area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
-  const isQuantityNoQuickAdd = area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
+  const isQuantityReduce = anyCardEnabled && area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
+  const isQuantityNoQuickAdd = anyCardEnabled && area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
 
   const todayDow = getISODay(new Date());
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
