@@ -216,7 +216,7 @@ const Index = () => {
         const dayNumber = nextDay.order + 1;
         const dayLabel = locale === "it" ? `Giorno ${dayNumber}` : `Day ${dayNumber}`;
 
-        setGymDayInfo({ areaId: gymArea.id, dayLabel, dayName: groupNames, hasProgram: true });
+        setGymDayInfo({ areaId: gymArea.id, dayLabel, dayName: groupNames, hasProgram: true, dayOfWeek: (nextDay as any).day_of_week ?? null });
       } catch {
         setGymDayInfo(null);
       }
