@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Sparkles, LayoutGrid, TrendingDown, Palette } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Sparkles, LayoutGrid, TrendingDown, Palette, Loader2, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const features = [
   { icon: LayoutGrid, titleKey: "plus.feature.cards" as const, descKey: "plus.feature.cards.desc" as const },
@@ -13,9 +15,64 @@ const features = [
 
 export default function PlusPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useI18n();
-  const { isPlusActive } = usePlusStatus();
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const { isPlusActive, refreshPlusStatus } = usePlusStatus();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [successMsg, setSuccessMsg] = useState(false);
+  const [cancelMsg, setCancelMsg] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  // Handle return from Stripe
+  useEffect(() => {
+    if (searchParams.get("success") === "true") {
+      setSuccessMsg(true);
+      refreshPlusStatus();
+      setSearchParams({}, { replace: true });
+      const timer = setTimeout(() => setSuccessMsg(false), 5000);
+      return () => clearTimeout(timer);
+    }
+    if (searchParams.get("canceled") === "true") {
+      setCancelMsg(true);
+      setSearchParams({}, { replace: true });
+      const timer = setTimeout(() => setCancelMsg(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, setSearchParams, refreshPlusStatus]);
+
+  const handleCheckout = async () => {
+    if (!user?.email) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { promoCode: promoCode.trim() || undefined },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Portal error:", err);
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   return (
     <motion.div
@@ -34,6 +91,18 @@ export default function PlusPage() {
         </button>
         <h1 className="text-[18px] font-semibold">Plus</h1>
       </div>
+
+      {/* Success / Cancel messages */}
+      {successMsg && (
+        <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 mb-4 text-center">
+          <p className="text-sm font-medium text-primary">{t("plus.success" as any)}</p>
+        </div>
+      )}
+      {cancelMsg && (
+        <div className="rounded-xl bg-muted p-4 mb-4 text-center">
+          <p className="text-sm text-muted-foreground">{t("plus.canceled" as any)}</p>
+        </div>
+      )}
 
       {/* Hero */}
       <div className="flex flex-col items-center gap-3 mt-6 mb-8">
@@ -62,22 +131,54 @@ export default function PlusPage() {
 
       {/* CTA */}
       {isPlusActive ? (
-        <div className="flex justify-center">
-          <span className="text-sm font-medium text-primary">{t("plus.active" as any)}</span>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-primary" />
+            <span className="text-sm font-medium text-primary">{t("plus.active" as any)}</span>
+          </div>
+          <button
+            onClick={handleManageSubscription}
+            disabled={portalLoading}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
+          >
+            {portalLoading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <CreditCard size={16} />
+            )}
+            {t("plus.manage" as any)}
+          </button>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
+          {/* Promo code */}
+          <input
+            type="text"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            placeholder={t("plus.promoPlaceholder" as any)}
+            className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+
           <button
-            onClick={() => setShowComingSoon(true)}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
+            onClick={handleCheckout}
+            disabled={loading}
+            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px] flex items-center justify-center gap-2"
           >
-            {t("plus.cta" as any)}
+            {loading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                {t("plus.redirecting" as any)}
+              </>
+            ) : (
+              t("plus.cta" as any)
+            )}
           </button>
-          {showComingSoon && (
-            <p className="text-sm text-muted-foreground">{t("plus.comingSoon" as any)}</p>
-          )}
+
+          <p className="text-xs text-muted-foreground">{t("plus.price" as any)}</p>
+
           <button
-            onClick={() => setShowComingSoon(true)}
+            onClick={handleCheckout}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {t("plus.restore" as any)}
