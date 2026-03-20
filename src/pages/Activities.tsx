@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
+import { useUserCards } from "@/hooks/useUserCards";
 import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, MoreVertical } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -42,6 +43,8 @@ const Areas = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t } = useI18n();
+  const { enabledCards } = useUserCards();
+  const anyCardEnabled = enabledCards.length > 0;
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +134,7 @@ const Areas = () => {
                 <span className="text-sm font-medium text-muted-foreground">{t(labelKey)}</span>
               </div>
               {items.map((area) => {
-                const isQuantity = area.tracking_mode === "quantity_reduce";
+                const isQuantity = anyCardEnabled && area.tracking_mode === "quantity_reduce";
                 const qty = todayQuantities[area.id] ?? 0;
                 return (
                   <div key={area.id} className="flex items-center gap-1">
@@ -171,7 +174,7 @@ const Areas = () => {
                 );
               })}
               {/* Card entry points for this section */}
-              <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />
+              {anyCardEnabled && <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />}
               {!isDemo && (
                 <button onClick={() => navigate(`/activities/new?type=${type}`)}
                   className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] flex items-center">

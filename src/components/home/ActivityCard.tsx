@@ -51,14 +51,15 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
-  const { isCardEnabled } = useUserCards();
+  const { isCardEnabled, enabledCards } = useUserCards();
+  const anyCardEnabled = enabledCards.length > 0;
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);
 
   const hasNote = note.length > 0;
-  const isQuantityReduce = area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
-  const isQuantityNoQuickAdd = area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
+  const isQuantityReduce = anyCardEnabled && area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
+  const isQuantityNoQuickAdd = anyCardEnabled && area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
 
   const todayDow = getISODay(new Date());
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
