@@ -402,6 +402,20 @@ const SettingsPage = () => {
       <div className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground font-medium">{t("settings.account")}</p>
 
+        {/* Plus entry */}
+        <button
+          onClick={() => navigate("/plus")}
+          className="w-full flex items-center justify-between rounded-xl bg-card ring-1 ring-border px-4 min-h-[48px] hover:opacity-90 transition-opacity"
+        >
+          <span className="text-base">{t("plus.settings.label" as any)}</span>
+          <div className="flex items-center gap-2">
+            <span className={`text-sm ${isPlusActive ? "text-primary" : "text-muted-foreground"}`}>
+              {isPlusActive ? t("plus.settings.active" as any) : t("plus.settings.notActive" as any)}
+            </span>
+            <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground" />
+          </div>
+        </button>
+
         <button onClick={handleSignOut} disabled={signingOut}
           className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
           {signingOut && <Loader2 size={18} className="animate-spin" />}
