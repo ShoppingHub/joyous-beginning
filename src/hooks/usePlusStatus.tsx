@@ -11,6 +11,7 @@ interface PlusContextType {
   loading: boolean;
   isFeatureLocked: (feature: PlusFeature) => boolean;
   refreshPlusStatus: () => Promise<void>;
+  disablePlus: () => Promise<void>;
 }
 
 const PlusContext = createContext<PlusContextType>({
@@ -18,6 +19,7 @@ const PlusContext = createContext<PlusContextType>({
   loading: true,
   isFeatureLocked: () => true,
   refreshPlusStatus: async () => {},
+  disablePlus: async () => {},
 });
 
 export function PlusProvider({ children }: { children: ReactNode }) {
