@@ -34,7 +34,9 @@ const SettingsPage = () => {
   const anyCardEnabled = enabledCards.length > 0;
   const handleCardsToggle = (checked: boolean) => toggleAllCards(checked);
   const { mode, setMode, palette, setPalette } = useTheme();
-  const { isPlusActive } = usePlusStatus();
+  const { isPlusActive, disablePlus, refreshPlusStatus } = usePlusStatus();
+  const [disablingPlus, setDisablingPlus] = useState(false);
+  const [showCardsAlert, setShowCardsAlert] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [scoreVisible, setScoreVisible] = useState(false);
@@ -312,7 +314,7 @@ const SettingsPage = () => {
               <span className="text-base text-muted-foreground">{t("settings.cardsToggle")}</span>
               <span className="text-xs text-primary font-medium">{t("plus.badge" as any)}</span>
             </div>
-            <Switch checked={false} disabled className="opacity-40" />
+            <Switch checked={false} onCheckedChange={() => setShowCardsAlert(true)} className="opacity-40" />
           </div>
         )}
         {!isPlusActive && (
@@ -320,6 +322,25 @@ const SettingsPage = () => {
             {t("plus.discoverPlus" as any)}
           </button>
         )}
+
+        {/* Alert: cards require Plus */}
+        <AlertDialog open={showCardsAlert} onOpenChange={setShowCardsAlert}>
+          <AlertDialogContent className="max-w-[340px] bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("plus.required.title" as any)}</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground">{t("plus.required.desc" as any)}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+              <AlertDialogAction onClick={() => { setShowCardsAlert(false); navigate("/plus"); }}
+                className="bg-primary text-primary-foreground hover:bg-primary/90">
+                {t("plus.discoverPlus" as any)}
+              </AlertDialogAction>
+              <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
+                {t("areaForm.delete.confirm.no" as any)}
+              </AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Google Tasks */}
@@ -415,6 +436,44 @@ const SettingsPage = () => {
             <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground" />
           </div>
         </button>
+
+        {/* Disable Plus toggle (test mode) */}
+        {isPlusActive && (
+          <div className="flex items-center justify-between rounded-xl bg-card ring-1 ring-border px-4 min-h-[48px]">
+            <div className="flex flex-col">
+              <span className="text-base">{t("plus.settings.disableLabel" as any)}</span>
+              <span className="text-xs text-muted-foreground">{t("plus.settings.disableDesc" as any)}</span>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] px-2">
+                  {disablingPlus ? <Loader2 size={16} className="animate-spin" /> : t("plus.settings.disableBtn" as any)}
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-[340px] bg-card border-border">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("plus.settings.disableConfirmTitle" as any)}</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">{t("plus.settings.disableConfirmDesc" as any)}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+                  <AlertDialogAction
+                    onClick={async () => {
+                      setDisablingPlus(true);
+                      await disablePlus();
+                      setDisablingPlus(false);
+                    }}
+                    className="bg-transparent text-destructive hover:bg-destructive/10 border-0 shadow-none"
+                  >
+                    {t("plus.settings.disableBtn" as any)}
+                  </AlertDialogAction>
+                  <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
+                    {t("areaForm.delete.confirm.no" as any)}
+                  </AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
 
         <button onClick={handleSignOut} disabled={signingOut}
           className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">

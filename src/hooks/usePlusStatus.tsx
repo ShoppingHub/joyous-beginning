@@ -11,6 +11,7 @@ interface PlusContextType {
   loading: boolean;
   isFeatureLocked: (feature: PlusFeature) => boolean;
   refreshPlusStatus: () => Promise<void>;
+  disablePlus: () => Promise<void>;
 }
 
 const PlusContext = createContext<PlusContextType>({
@@ -18,6 +19,7 @@ const PlusContext = createContext<PlusContextType>({
   loading: true,
   isFeatureLocked: () => true,
   refreshPlusStatus: async () => {},
+  disablePlus: async () => {},
 });
 
 export function PlusProvider({ children }: { children: ReactNode }) {
@@ -79,10 +81,17 @@ export function PlusProvider({ children }: { children: ReactNode }) {
     await checkSubscription();
   }, [checkSubscription]);
 
+  const disablePlus = useCallback(async () => {
+    if (!user) return;
+    await supabase.from("users").update({ plus_active: false } as any).eq("user_id", user.id);
+    setIsPlusActive(false);
+    resetIfLocked(false);
+  }, [user, resetIfLocked]);
+
   const isFeatureLocked = (feature: PlusFeature) => !isPlusActive;
 
   return (
-    <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus }}>
+    <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus, disablePlus }}>
       {children}
     </PlusContext.Provider>
   );
