@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useUserCards } from "@/hooks/useUserCards";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { LayoutDashboard, Activity, TrendingUp, LayoutGrid } from "lucide-react";
 import type { TranslationKey } from "@/i18n/translations";
 
