@@ -241,6 +241,7 @@ export type Database = {
       gym_program_days: {
         Row: {
           created_at: string
+          day_of_week: number | null
           id: string
           name: string
           order: number
@@ -248,6 +249,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          day_of_week?: number | null
           id?: string
           name: string
           order?: number
@@ -255,6 +257,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          day_of_week?: number | null
           id?: string
           name?: string
           order?: number

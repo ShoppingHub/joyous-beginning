@@ -1,18 +1,20 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check, GripVertical } from "lucide-react";
+import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { GymProgram, GymProgramDay, GymMuscleGroup, GymProgramExercise, GymSession, GymSessionExercise } from "@/components/gym/types";
 import { GymWizard } from "@/components/gym/GymWizard";
 import { GymHistory } from "@/components/gym/GymHistory";
+
+const WEEKDAY_KEYS = ["gym.weekday.mon", "gym.weekday.tue", "gym.weekday.wed", "gym.weekday.thu", "gym.weekday.fri", "gym.weekday.sat", "gym.weekday.sun"] as const;
 
 const GymCardPage = () => {
   const { user } = useAuth();
@@ -44,9 +46,9 @@ const GymCardPage = () => {
   const [exForm, setExForm] = useState({ name: "", sets: "", reps: "", weight: "", daily: false, exerciseType: "strength" as "strength" | "cardio", duration: "", intensity: "" });
   const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<string | null>(null);
 
-  // Drag state
-  const [dragExerciseId, setDragExerciseId] = useState<string | null>(null);
-  const [dragGroupId, setDragGroupId] = useState<string | null>(null);
+  // Weekly summary
+  const [weekSessions, setWeekSessions] = useState<number>(0);
+  const [weekTotal, setWeekTotal] = useState<number>(0);
 
   // Auto-save debounce refs
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -120,6 +122,23 @@ const GymCardPage = () => {
 
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
   useEffect(() => { if (program) fetchSession(); }, [program, fetchSession]);
+
+  // ─── Weekly summary ───
+  const fetchWeeklySummary = useCallback(async () => {
+    if (!user || !areaId || !program) return;
+    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+    const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+    const { data, count } = await supabase.from("gym_sessions" as any)
+      .select("id", { count: "exact" })
+      .eq("area_id", areaId)
+      .eq("user_id", user.id)
+      .gte("date", weekStart)
+      .lte("date", weekEnd);
+    setWeekSessions(count ?? 0);
+    setWeekTotal(days.length || 0);
+  }, [user, areaId, program, days.length]);
+
+  useEffect(() => { fetchWeeklySummary(); }, [fetchWeeklySummary]);
 
   // ─── Session actions ───
   const ensureSession = async (dayId: string): Promise<string | null> => {
@@ -334,6 +353,17 @@ const GymCardPage = () => {
     ));
   };
 
+  // ─── Weekday assignment ───
+  const handleSetDayOfWeek = async (dayId: string, dayOfWeek: number | null) => {
+    await supabase.from("gym_program_days" as any).update({ day_of_week: dayOfWeek } as any).eq("id", dayId);
+    setDays(prev => prev.map(d => d.id === dayId ? { ...d, day_of_week: dayOfWeek } : d));
+  };
+
+  const getWeekdayLabel = (dow: number | null): string => {
+    if (dow === null || dow === undefined) return "";
+    return t(WEEKDAY_KEYS[dow] as any);
+  };
+
   // ─── Formatters ───
   const formatExView = (ex: GymProgramExercise) => {
     if (ex.exercise_type === "cardio") {
@@ -427,12 +457,27 @@ const GymCardPage = () => {
         <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
           {days.map(day => (
             <button key={day.id} onClick={() => handleSelectDay(day.id)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] ${
+              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] flex items-center gap-1 ${
                 day.id === selectedDayId ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground ring-1 ring-border"
               }`}>
               {day.name}
+              {day.day_of_week !== null && day.day_of_week !== undefined && (
+                <span className={`text-[10px] font-normal ${day.id === selectedDayId ? "text-primary-foreground/70" : "text-muted-foreground/60"}`}>
+                  {getWeekdayLabel(day.day_of_week)}
+                </span>
+              )}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Weekly summary */}
+      {!isEditing && weekTotal > 0 && (
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <Calendar size={14} className="text-muted-foreground" strokeWidth={1.5} />
+          <span className="text-xs text-muted-foreground">
+            {t("gym.weeklySummary")}: <span className="font-semibold text-foreground">{weekSessions}/{weekTotal}</span> {t("gym.weeklySessions")}
+          </span>
         </div>
       )}
 
@@ -476,14 +521,46 @@ const GymCardPage = () => {
       {/* ═══ EDIT MODE ═══ */}
       {isEditing && (
         <div className="flex flex-col gap-3">
-          {/* Daily exercises */}
+          {/* Weekday assignment for selected day */}
+          {selectedDayId && (
+            <div className="rounded-xl bg-card p-3">
+              <p className="text-xs text-muted-foreground font-medium mb-2">{t("gym.weekday.assign")}</p>
+              <div className="flex gap-1 flex-wrap">
+                {WEEKDAY_KEYS.map((key, i) => {
+                  const selectedDay = days.find(d => d.id === selectedDayId);
+                  const isAssigned = selectedDay?.day_of_week === i;
+                  const usedByOther = days.some(d => d.id !== selectedDayId && d.day_of_week === i);
+                  return (
+                    <button key={i}
+                      onClick={() => handleSetDayOfWeek(selectedDayId, isAssigned ? null : i)}
+                      disabled={usedByOther}
+                      className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                        isAssigned ? "bg-primary text-primary-foreground" : usedByOther ? "bg-muted text-muted-foreground/40" : "bg-background text-muted-foreground hover:text-foreground ring-1 ring-border"
+                      }`}>
+                      {t(key as any)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Daily exercises with full editing */}
           {dailyExercises.length > 0 && (
             <div className="rounded-xl bg-card p-3">
               <p className="text-xs text-muted-foreground font-medium mb-2">{t("gym.daily")}</p>
-              {dailyExercises.map(ex => (
-                <EditExerciseRow key={ex.id} exercise={ex} formatEx={formatExView}
-                  onEdit={() => openExerciseForm(ex.group_id, ex)}
-                  onDeactivate={() => handleDeactivateExercise(ex.id)} />
+              {dailyExercises.map((ex, ei) => (
+                <div key={ex.id}>
+                  {editingExercise?.exercise?.id === ex.id ? (
+                    <InlineExerciseForm form={exForm} onChange={setExForm} onSave={handleSaveExercise}
+                      onCancel={() => setEditingExercise(null)} onDeactivate={() => handleDeactivateExercise(ex.id)} isEditing t={t} />
+                  ) : (
+                    <EditExerciseRow exercise={ex} formatEx={formatExView}
+                      onEdit={() => openExerciseForm(ex.group_id, ex)}
+                      onDeactivate={() => handleDeactivateExercise(ex.id)}
+                    />
+                  )}
+                </div>
               ))}
             </div>
           )}

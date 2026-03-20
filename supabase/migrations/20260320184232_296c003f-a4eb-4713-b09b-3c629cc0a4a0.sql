@@ -1,0 +1,1 @@
+ALTER TABLE public.gym_program_days ADD COLUMN day_of_week integer DEFAULT NULL;
