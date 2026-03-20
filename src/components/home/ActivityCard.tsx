@@ -51,7 +51,8 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
-  const { isCardEnabled } = useUserCards();
+  const { isCardEnabled, enabledCards } = useUserCards();
+  const anyCardEnabled = enabledCards.length > 0;
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);
