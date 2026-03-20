@@ -70,6 +70,7 @@ const App = () => (
               <Route path="/cards" element={<CardsHub />} />
               <Route path="/cards/gym" element={<GymCardPage />} />
               <Route path="/cards/finance" element={<FinanceCardPage />} />
+              <Route path="/plus" element={<PlusPage />} />
               {/* Legacy redirects */}
               <Route path="/progress" element={<Progress />} />
               <Route path="/areas" element={<Navigate to="/activities" replace />} />
