@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Pencil, Check } from "lucide-react";
+import { getISODay } from "date-fns";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { QuantityCounter } from "./QuantityCounter";
@@ -9,6 +10,11 @@ import type { Database } from "@/integrations/supabase/types";
 type Area = Database["public"]["Tables"]["areas"]["Row"];
 
 const NOTE_MAX = 1500;
+
+const WEEKDAY_SHORT: Record<string, string[]> = {
+  it: ["", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
+  en: ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+};
 
 interface ActivityCardProps {
   area: Area;
@@ -22,6 +28,7 @@ interface ActivityCardProps {
   hasGymProgram: boolean;
   gymDayLabel?: string;
   gymDayName?: string;
+  gymDayOfWeek?: number | null;
   note: string;
   onSaveNote: (areaId: string, content: string) => void;
 }
@@ -38,10 +45,11 @@ export function ActivityCard({
   hasGymProgram,
   gymDayLabel,
   gymDayName,
+  gymDayOfWeek,
   note,
   onSaveNote,
 }: ActivityCardProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { isCardEnabled } = useUserCards();
   const [noteOpen, setNoteOpen] = useState(false);
@@ -52,14 +60,16 @@ export function ActivityCard({
   const isQuantityReduce = area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
   const isQuantityNoQuickAdd = area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
 
+  const todayDow = getISODay(new Date());
+  const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
+  const weekdays = WEEKDAY_SHORT[locale] || WEEKDAY_SHORT.en;
+
   const handleCTAClick = () => {
     if (isFutureDay) return;
-
     if (isCheckedIn) {
       setUndoConfirm(true);
       return;
     }
-
     if (isGym && hasGymProgram) {
       if (isCardEnabled("gym")) {
         navigate("/cards/gym");
@@ -69,25 +79,68 @@ export function ActivityCard({
       }
       return;
     }
-
     onCheckIn(area.id);
+  };
+
+  const handleDoneClick = () => {
+    if (isFutureDay || isLoading) return;
+    if (isCheckedIn) {
+      setUndoConfirm(true);
+    } else {
+      onCheckIn(area.id);
+    }
   };
 
   const showGymDay = isGym && hasGymProgram && !isCheckedIn && gymDayLabel;
 
-  // Quantity reduce card with quick-add — small done icon when checked in
+  // Done button (shared across card types)
+  const doneButton = (
+    undoConfirm ? (
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className="text-xs text-muted-foreground">{t("home.undo.confirm")}</span>
+        <button
+          onClick={() => { onUndoCheckIn(area.id); setUndoConfirm(false); }}
+          className="text-xs font-medium text-destructive min-h-[36px] px-2"
+        >
+          {t("home.undo.yes")}
+        </button>
+        <button
+          onClick={() => setUndoConfirm(false)}
+          className="text-xs font-medium text-muted-foreground min-h-[36px] px-2"
+        >
+          {t("home.undo.no")}
+        </button>
+      </div>
+    ) : (
+      <button
+        onClick={handleDoneClick}
+        disabled={isLoading || isFutureDay}
+        className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+          isCheckedIn
+            ? "bg-primary/20 text-primary"
+            : "border border-border text-muted-foreground hover:text-foreground hover:border-primary"
+        } ${isLoading || isFutureDay ? "opacity-30 cursor-not-allowed" : ""}`}
+      >
+        {isLoading ? (
+          <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        ) : (
+          <Check size={16} />
+        )}
+      </button>
+    )
+  );
+
+  // Quantity reduce card with quick-add — centered counter
   if (isQuantityReduce) {
     return (
       <div className="rounded-xl bg-card p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <p className="text-base font-medium truncate flex-1">{area.name}</p>
-          {isCheckedIn && (
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20">
-              <Check size={14} className="text-primary" />
-            </div>
-          )}
+          {doneButton}
         </div>
-        <QuantityCounter areaId={area.id} date={selectedDateStr} isFutureDay={isFutureDay} />
+        <div className="flex justify-center">
+          <QuantityCounter areaId={area.id} date={selectedDateStr} isFutureDay={isFutureDay} />
+        </div>
       </div>
     );
   }
@@ -95,13 +148,15 @@ export function ActivityCard({
   // Quantity reduce card without quick-add
   if (isQuantityNoQuickAdd) {
     return (
-      <button
-        onClick={() => navigate(`/activities/${area.id}`)}
-        className="rounded-xl bg-card p-4 flex items-center justify-between w-full text-left hover:opacity-90 transition-opacity"
-      >
-        <p className="text-base font-medium truncate">{area.name}</p>
-        <span className="text-sm text-muted-foreground">›</span>
-      </button>
+      <div className="rounded-xl bg-card p-4 flex items-center justify-between gap-3">
+        <button
+          onClick={() => navigate(`/activities/${area.id}`)}
+          className="flex-1 min-w-0 text-left"
+        >
+          <p className="text-base font-medium truncate">{area.name}</p>
+        </button>
+        {doneButton}
+      </div>
     );
   }
 
@@ -113,51 +168,25 @@ export function ActivityCard({
           <p className="text-base font-medium truncate">{area.name}</p>
         </div>
 
-        {undoConfirm ? (
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-muted-foreground">{t("home.undo.confirm")}</span>
-            <button
-              onClick={() => { onUndoCheckIn(area.id); setUndoConfirm(false); }}
-              className="text-xs font-medium text-destructive min-h-[36px] px-2"
-            >
-              {t("home.undo.yes")}
-            </button>
-            <button
-              onClick={() => setUndoConfirm(false)}
-              className="text-xs font-medium text-muted-foreground min-h-[36px] px-2"
-            >
-              {t("home.undo.no")}
-            </button>
-          </div>
+        {isGym && hasGymProgram && !isCheckedIn ? (
+          // Gym: only show done button (CTA is below)
+          doneButton
         ) : (
-          <button
-            onClick={handleCTAClick}
-            disabled={isLoading || isFutureDay}
-            className={`flex-shrink-0 min-h-[36px] rounded-lg text-sm font-medium border transition-all flex items-center justify-center gap-1.5 ${
-              isCheckedIn
-                ? "bg-primary/20 text-primary border-primary w-10"
-                : isGym && hasGymProgram
-                ? "hidden"
-                : "bg-transparent text-foreground border-primary px-4"
-            } ${isLoading || isFutureDay ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {isLoading ? (
-              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            ) : isCheckedIn ? (
-              <Check size={16} />
-            ) : (
-              t("home.cta.done")
-            )}
-          </button>
+          doneButton
         )}
       </div>
 
-      {/* Gym day CTA - centered below name */}
+      {/* Gym day CTA - centered below name, with weekday badge */}
       {showGymDay && (
         <button
           onClick={() => isCardEnabled("gym") ? navigate("/cards/gym") : navigate(`/activities/${area.id}`)}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
         >
+          {gymDayOfWeek != null && (
+            <span className={`text-xs px-1.5 py-0.5 rounded ${isGymToday ? "bg-primary text-primary-foreground font-semibold" : "bg-primary/20 text-primary"}`}>
+              {weekdays[gymDayOfWeek]}
+            </span>
+          )}
           {gymDayLabel}{gymDayName ? ` — ${gymDayName}` : ""} →
         </button>
       )}

@@ -20,6 +20,7 @@ interface GymDayInfo {
   dayLabel: string;
   dayName: string;
   hasProgram: boolean;
+  dayOfWeek?: number | null;
 }
 
 interface ScheduledDay {
@@ -186,7 +187,7 @@ const Index = () => {
 
         const { data: days } = await supabase
           .from("gym_program_days")
-          .select("id, name, order")
+          .select("id, name, order, day_of_week")
           .eq("program_id", program.id)
           .order("order");
         if (!days || days.length === 0) { setGymDayInfo({ areaId: gymArea.id, dayLabel: "", dayName: "", hasProgram: true }); return; }
@@ -215,7 +216,7 @@ const Index = () => {
         const dayNumber = nextDay.order + 1;
         const dayLabel = locale === "it" ? `Giorno ${dayNumber}` : `Day ${dayNumber}`;
 
-        setGymDayInfo({ areaId: gymArea.id, dayLabel, dayName: groupNames, hasProgram: true });
+        setGymDayInfo({ areaId: gymArea.id, dayLabel, dayName: groupNames, hasProgram: true, dayOfWeek: (nextDay as any).day_of_week ?? null });
       } catch {
         setGymDayInfo(null);
       }
@@ -380,6 +381,7 @@ const Index = () => {
                 hasGymProgram={hasGymProgram}
                 gymDayLabel={gymDayInfo?.areaId === area.id ? gymDayInfo.dayLabel : undefined}
                 gymDayName={gymDayInfo?.areaId === area.id ? gymDayInfo.dayName : undefined}
+                gymDayOfWeek={gymDayInfo?.areaId === area.id ? gymDayInfo.dayOfWeek : undefined}
                 note={notes[area.id] || ""}
                 onSaveNote={handleSaveNote}
               />
