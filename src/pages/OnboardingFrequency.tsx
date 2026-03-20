@@ -17,6 +17,7 @@ const typeLabelKeys: Record<AreaType, TranslationKey> = {
   study: "areaType.study",
   reduce: "areaType.reduce",
   finance: "areaType.finance",
+  career: "areaType.career",
 };
 
 export default function OnboardingFrequency() {
