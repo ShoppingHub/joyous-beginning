@@ -29,6 +29,7 @@ import GymCardPage from "./pages/GymCardPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
 import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
+import PlusPage from "./pages/PlusPage";
 
 const queryClient = new QueryClient();
 
