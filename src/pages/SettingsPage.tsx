@@ -5,8 +5,9 @@ import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid } from "lucide-react";
+import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid, ChevronRight } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
