@@ -81,6 +81,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </NavConfigProvider>
+        </PlusProvider>
         </UserCardsProvider>
         </I18nProvider>
         </AuthProvider>
