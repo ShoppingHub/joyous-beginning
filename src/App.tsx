@@ -44,6 +44,7 @@ const App = () => (
         <AuthProvider>
         <I18nProvider>
         <UserCardsProvider>
+        <PlusProvider>
         <NavConfigProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
