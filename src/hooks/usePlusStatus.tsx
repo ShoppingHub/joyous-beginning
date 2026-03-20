@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
+import { useTheme } from "@/hooks/useTheme";
 
 type PlusFeature = "cards" | "quantity_reduce" | "themes_extra";
 
@@ -20,6 +21,7 @@ const PlusContext = createContext<PlusContextType>({
 export function PlusProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isDemo } = useDemo();
+  const { resetIfLocked } = useTheme();
   const [isPlusActive, setIsPlusActive] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -39,10 +41,13 @@ export function PlusProvider({ children }: { children: ReactNode }) {
         .select("plus_active")
         .eq("user_id", user.id)
         .single();
-      setIsPlusActive((data as any)?.plus_active ?? false);
+      const active = (data as any)?.plus_active ?? false;
+      setIsPlusActive(active);
       setLoading(false);
+      // Auto-reset extra themes if not Plus
+      resetIfLocked(active);
     })();
-  }, [user, isDemo]);
+  }, [user, isDemo, resetIfLocked]);
 
   const isFeatureLocked = (feature: PlusFeature) => !isPlusActive;
 
