@@ -32,6 +32,9 @@ export interface GymProgramExercise {
   is_daily: boolean;
   active: boolean;
   order: number;
+  exercise_type: "strength" | "cardio";
+  duration_minutes: number | null;
+  intensity: number | null;
   created_at: string;
 }
 
