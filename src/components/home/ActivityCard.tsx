@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Pencil } from "lucide-react";
+import { FileText, Pencil, Check } from "lucide-react";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { QuantityCounter } from "./QuantityCounter";
@@ -18,12 +18,10 @@ interface ActivityCardProps {
   selectedDateStr: string;
   onCheckIn: (areaId: string) => void;
   onUndoCheckIn: (areaId: string) => void;
-  // Gym
   isGym: boolean;
   hasGymProgram: boolean;
   gymDayLabel?: string;
   gymDayName?: string;
-  // Notes
   note: string;
   onSaveNote: (areaId: string, content: string) => void;
 }
@@ -54,7 +52,6 @@ export function ActivityCard({
   const isQuantityReduce = area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
   const isQuantityNoQuickAdd = area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
 
-  // Determine CTA
   const handleCTAClick = () => {
     if (isFutureDay) return;
 
@@ -76,27 +73,26 @@ export function ActivityCard({
     onCheckIn(area.id);
   };
 
-  const ctaLabel = isCheckedIn
-    ? t("home.cta.observed")
-    : isGym && hasGymProgram
-    ? t("home.cta.openSession")
-    : t("home.cta.done");
-
   const showGymDay = isGym && hasGymProgram && !isCheckedIn && gymDayLabel;
 
-  // Quantity reduce card with quick-add
+  // Quantity reduce card with quick-add — small done icon when checked in
   if (isQuantityReduce) {
     return (
       <div className="rounded-xl bg-card p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <p className="text-base font-medium truncate">{area.name}</p>
+          <p className="text-base font-medium truncate flex-1">{area.name}</p>
+          {isCheckedIn && (
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20">
+              <Check size={14} className="text-primary" />
+            </div>
+          )}
         </div>
         <QuantityCounter areaId={area.id} date={selectedDateStr} isFutureDay={isFutureDay} />
       </div>
     );
   }
 
-  // Quantity reduce card without quick-add (just navigates)
+  // Quantity reduce card without quick-add
   if (isQuantityNoQuickAdd) {
     return (
       <button
@@ -115,14 +111,6 @@ export function ActivityCard({
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium truncate">{area.name}</p>
-          {showGymDay && (
-            <button
-              onClick={() => navigate(`/activities/${area.id}`)}
-              className="text-sm text-muted-foreground mt-0.5 hover:text-foreground transition-colors text-left"
-            >
-              {gymDayLabel}{gymDayName ? ` — ${gymDayName}` : ""} →
-            </button>
-          )}
         </div>
 
         {undoConfirm ? (
@@ -145,20 +133,34 @@ export function ActivityCard({
           <button
             onClick={handleCTAClick}
             disabled={isLoading || isFutureDay}
-            className={`flex-shrink-0 min-h-[36px] px-4 rounded-lg text-sm font-medium border transition-all flex items-center justify-center gap-2 ${
+            className={`flex-shrink-0 min-h-[36px] rounded-lg text-sm font-medium border transition-all flex items-center justify-center gap-1.5 ${
               isCheckedIn
-                ? "bg-primary/20 text-primary border-primary"
-                : "bg-transparent text-foreground border-primary"
+                ? "bg-primary/20 text-primary border-primary w-10"
+                : isGym && hasGymProgram
+                ? "hidden"
+                : "bg-transparent text-foreground border-primary px-4"
             } ${isLoading || isFutureDay ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {isLoading ? (
               <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : isCheckedIn ? (
+              <Check size={16} />
             ) : (
-              ctaLabel
+              t("home.cta.done")
             )}
           </button>
         )}
       </div>
+
+      {/* Gym day CTA - centered below name */}
+      {showGymDay && (
+        <button
+          onClick={() => isCardEnabled("gym") ? navigate("/cards/gym") : navigate(`/activities/${area.id}`)}
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+        >
+          {gymDayLabel}{gymDayName ? ` — ${gymDayName}` : ""} →
+        </button>
+      )}
 
       {/* Note toggle icon */}
       <div className="flex justify-end">

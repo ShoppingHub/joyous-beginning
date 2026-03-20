@@ -5,18 +5,30 @@ import { useI18n } from "@/hooks/useI18n";
 import { format } from "date-fns";
 import { it, enUS } from "date-fns/locale";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import type { GymProgramDay, GymProgramExercise } from "./types";
+import type { GymProgramExercise } from "./types";
 
 interface GymHistoryProps {
   areaId: string;
   programId: string;
 }
 
+interface HistoryExercise {
+  name: string;
+  sets: number;
+  reps: number;
+  weight_used: number | null;
+  exercise_type: string;
+  duration_used: number | null;
+  intensity_used: number | null;
+  duration_minutes: number | null;
+  intensity: number | null;
+}
+
 interface HistorySession {
   id: string;
   date: string;
   day_name: string;
-  exercises: { name: string; sets: number; reps: number; weight_used: number | null }[];
+  exercises: HistoryExercise[];
 }
 
 export function GymHistory({ areaId, programId }: GymHistoryProps) {
@@ -58,9 +70,8 @@ export function GymHistory({ areaId, programId }: GymHistoryProps) {
     const daysMap: Record<string, string> = {};
     for (const d of (daysRes.data as any[] || [])) daysMap[d.id] = d.name;
 
-    // Get exercise names
     const exerciseIds = [...new Set(sessExData.map(se => se.exercise_id))];
-    let exMap: Record<string, GymProgramExercise> = {};
+    let exMap: Record<string, any> = {};
     if (exerciseIds.length > 0) {
       const { data: exData } = await supabase
         .from("gym_program_exercises" as any)
@@ -80,6 +91,11 @@ export function GymHistory({ areaId, programId }: GymHistoryProps) {
               sets: ex?.sets || 0,
               reps: ex?.reps || 0,
               weight_used: se.weight_used,
+              exercise_type: ex?.exercise_type || "strength",
+              duration_used: se.duration_used,
+              intensity_used: se.intensity_used,
+              duration_minutes: ex?.duration_minutes || null,
+              intensity: ex?.intensity || null,
             };
           });
         return {
@@ -110,6 +126,19 @@ export function GymHistory({ areaId, programId }: GymHistoryProps) {
     return `${count} ${t("gym.exercises")}`;
   };
 
+  const formatHistoryEx = (ex: HistoryExercise) => {
+    if (ex.exercise_type === "cardio") {
+      const dur = ex.duration_used ?? ex.duration_minutes;
+      const int_ = ex.intensity_used ?? ex.intensity;
+      const parts: string[] = [];
+      if (dur) parts.push(`${dur} min`);
+      if (int_) parts.push(`int. ${int_}`);
+      return parts.join(" · ") || "Cardio";
+    }
+    if (ex.weight_used && ex.weight_used > 0) return `${ex.sets} × ${ex.weight_used}kg`;
+    return `${ex.sets} × ${ex.reps}`;
+  };
+
   return (
     <div className="flex flex-col gap-2 mt-4">
       <div className="h-px bg-border" />
@@ -136,7 +165,7 @@ export function GymHistory({ areaId, programId }: GymHistoryProps) {
                     <div key={i} className="flex items-center justify-between py-1.5">
                       <span className="text-sm font-medium">{ex.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {ex.weight_used && ex.weight_used > 0 ? `${ex.sets} × ${ex.weight_used}kg` : `${ex.sets} × ${ex.reps}`}
+                        {formatHistoryEx(ex)}
                       </span>
                     </div>
                   ))}
