@@ -179,7 +179,11 @@ export default function PlusPage() {
           <p className="text-xs text-muted-foreground">{t("plus.price" as any)}</p>
 
           <button
-            onClick={handleCheckout}
+            onClick={async () => {
+              setLoading(true);
+              await refreshPlusStatus();
+              setLoading(false);
+            }}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {t("plus.restore" as any)}
