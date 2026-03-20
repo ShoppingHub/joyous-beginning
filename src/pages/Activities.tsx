@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
+import { useUserCards } from "@/hooks/useUserCards";
 import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, MoreVertical } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
