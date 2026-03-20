@@ -81,10 +81,17 @@ export function PlusProvider({ children }: { children: ReactNode }) {
     await checkSubscription();
   }, [checkSubscription]);
 
+  const disablePlus = useCallback(async () => {
+    if (!user) return;
+    await supabase.from("users").update({ plus_active: false } as any).eq("user_id", user.id);
+    setIsPlusActive(false);
+    resetIfLocked(false);
+  }, [user, resetIfLocked]);
+
   const isFeatureLocked = (feature: PlusFeature) => !isPlusActive;
 
   return (
-    <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus }}>
+    <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus, disablePlus }}>
       {children}
     </PlusContext.Provider>
   );
