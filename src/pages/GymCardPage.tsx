@@ -361,7 +361,7 @@ const GymCardPage = () => {
 
   const getWeekdayLabel = (dow: number | null): string => {
     if (dow === null || dow === undefined) return "";
-    return t(WEEKDAY_KEYS[dow] as any);
+    return t(WEEKDAY_KEYS[dow - 1] as any);
   };
 
   // ─── Formatters ───
