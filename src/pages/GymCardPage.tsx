@@ -521,14 +521,46 @@ const GymCardPage = () => {
       {/* ═══ EDIT MODE ═══ */}
       {isEditing && (
         <div className="flex flex-col gap-3">
-          {/* Daily exercises */}
+          {/* Weekday assignment for selected day */}
+          {selectedDayId && (
+            <div className="rounded-xl bg-card p-3">
+              <p className="text-xs text-muted-foreground font-medium mb-2">{t("gym.weekday.assign")}</p>
+              <div className="flex gap-1 flex-wrap">
+                {WEEKDAY_KEYS.map((key, i) => {
+                  const selectedDay = days.find(d => d.id === selectedDayId);
+                  const isAssigned = selectedDay?.day_of_week === i;
+                  const usedByOther = days.some(d => d.id !== selectedDayId && d.day_of_week === i);
+                  return (
+                    <button key={i}
+                      onClick={() => handleSetDayOfWeek(selectedDayId, isAssigned ? null : i)}
+                      disabled={usedByOther}
+                      className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                        isAssigned ? "bg-primary text-primary-foreground" : usedByOther ? "bg-muted text-muted-foreground/40" : "bg-background text-muted-foreground hover:text-foreground ring-1 ring-border"
+                      }`}>
+                      {t(key as any)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Daily exercises with full editing */}
           {dailyExercises.length > 0 && (
             <div className="rounded-xl bg-card p-3">
               <p className="text-xs text-muted-foreground font-medium mb-2">{t("gym.daily")}</p>
-              {dailyExercises.map(ex => (
-                <EditExerciseRow key={ex.id} exercise={ex} formatEx={formatExView}
-                  onEdit={() => openExerciseForm(ex.group_id, ex)}
-                  onDeactivate={() => handleDeactivateExercise(ex.id)} />
+              {dailyExercises.map((ex, ei) => (
+                <div key={ex.id}>
+                  {editingExercise?.exercise?.id === ex.id ? (
+                    <InlineExerciseForm form={exForm} onChange={setExForm} onSave={handleSaveExercise}
+                      onCancel={() => setEditingExercise(null)} onDeactivate={() => handleDeactivateExercise(ex.id)} isEditing t={t} />
+                  ) : (
+                    <EditExerciseRow exercise={ex} formatEx={formatExView}
+                      onEdit={() => openExerciseForm(ex.group_id, ex)}
+                      onDeactivate={() => handleDeactivateExercise(ex.id)}
+                    />
+                  )}
+                </div>
               ))}
             </div>
           )}
