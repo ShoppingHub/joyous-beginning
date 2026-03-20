@@ -169,12 +169,18 @@ const Index = () => {
   }, [user, isDemo, weekOffset, today, checkedIn]);
 
   // Fetch gym day info
+  // Fetch gym program days (once)
+  const [gymProgramDays, setGymProgramDays] = useState<any[] | null>(null);
+  const [gymAreaId, setGymAreaId] = useState<string | null>(null);
+  const [gymLastSessionDayId, setGymLastSessionDayId] = useState<string | null>(null);
+
   useEffect(() => {
     if (isDemo || !user || areas.length === 0) return;
     const gymArea = areas.find(
       (a) => a.type === "health" && /^(gym|palestra)$/i.test(a.name)
     );
-    if (!gymArea) { setGymDayInfo(null); return; }
+    if (!gymArea) { setGymDayInfo(null); setGymAreaId(null); return; }
+    setGymAreaId(gymArea.id);
 
     (async () => {
       try {
@@ -191,6 +197,7 @@ const Index = () => {
           .eq("program_id", program.id)
           .order("order");
         if (!days || days.length === 0) { setGymDayInfo({ areaId: gymArea.id, dayLabel: "", dayName: "", hasProgram: true }); return; }
+        setGymProgramDays(days);
 
         const { data: lastSession } = await supabase
           .from("gym_sessions")
@@ -200,28 +207,54 @@ const Index = () => {
           .order("date", { ascending: false })
           .limit(1)
           .single();
-
-        let nextDay = days[0];
-        if (lastSession) {
-          const lastIdx = days.findIndex((d) => d.id === lastSession.day_id);
-          nextDay = days[(lastIdx + 1) % days.length];
-        }
-
-        const { data: groups } = await supabase
-          .from("gym_muscle_groups")
-          .select("name")
-          .eq("day_id", nextDay.id)
-          .order("order");
-        const groupNames = groups?.map((g) => g.name).join(", ") || "";
-        const dayNumber = nextDay.order + 1;
-        const dayLabel = locale === "it" ? `Giorno ${dayNumber}` : `Day ${dayNumber}`;
-
-        setGymDayInfo({ areaId: gymArea.id, dayLabel, dayName: groupNames, hasProgram: true, dayOfWeek: (nextDay as any).day_of_week ?? null });
+        setGymLastSessionDayId(lastSession?.day_id ?? null);
       } catch {
         setGymDayInfo(null);
       }
     })();
-  }, [user, isDemo, areas, locale]);
+  }, [user, isDemo, areas]);
+
+  // Compute gym day info based on selected weekday
+  useEffect(() => {
+    if (!gymAreaId || !gymProgramDays || gymProgramDays.length === 0) return;
+
+    (async () => {
+      // If any day has day_of_week assigned, try to match the selected date's weekday
+      const hasWeekdayAssignments = gymProgramDays.some(d => d.day_of_week != null);
+      let targetDay: any;
+
+      if (hasWeekdayAssignments) {
+        // Find the day matching the selected weekday
+        targetDay = gymProgramDays.find(d => d.day_of_week === selectedDayOfWeek);
+        // Fallback to rotation if no match
+        if (!targetDay) {
+          targetDay = gymProgramDays[0];
+          if (gymLastSessionDayId) {
+            const lastIdx = gymProgramDays.findIndex((d: any) => d.id === gymLastSessionDayId);
+            targetDay = gymProgramDays[(lastIdx + 1) % gymProgramDays.length];
+          }
+        }
+      } else {
+        // No weekday assignments, use rotation
+        targetDay = gymProgramDays[0];
+        if (gymLastSessionDayId) {
+          const lastIdx = gymProgramDays.findIndex((d: any) => d.id === gymLastSessionDayId);
+          targetDay = gymProgramDays[(lastIdx + 1) % gymProgramDays.length];
+        }
+      }
+
+      const { data: groups } = await supabase
+        .from("gym_muscle_groups")
+        .select("name")
+        .eq("day_id", targetDay.id)
+        .order("order");
+      const groupNames = groups?.map((g: any) => g.name).join(", ") || "";
+      const dayNumber = targetDay.order + 1;
+      const dayLabel = locale === "it" ? `Giorno ${dayNumber}` : `Day ${dayNumber}`;
+
+      setGymDayInfo({ areaId: gymAreaId, dayLabel, dayName: groupNames, hasProgram: true, dayOfWeek: targetDay.day_of_week ?? null });
+    })();
+  }, [gymAreaId, gymProgramDays, gymLastSessionDayId, selectedDayOfWeek, locale]);
 
   // Check-in handler
   const handleCheckIn = async (areaId: string) => {
