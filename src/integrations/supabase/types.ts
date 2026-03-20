@@ -571,6 +571,10 @@ export type Database = {
           id: string
           language: string
           menu_custom_items: string[]
+          plus_activated_at: string | null
+          plus_active: boolean
+          plus_expires_at: string | null
+          plus_provider: string | null
           settings_notifications: boolean
           settings_score_visible: boolean
           updated_at: string
@@ -581,6 +585,10 @@ export type Database = {
           id?: string
           language?: string
           menu_custom_items?: string[]
+          plus_activated_at?: string | null
+          plus_active?: boolean
+          plus_expires_at?: string | null
+          plus_provider?: string | null
           settings_notifications?: boolean
           settings_score_visible?: boolean
           updated_at?: string
@@ -591,6 +599,10 @@ export type Database = {
           id?: string
           language?: string
           menu_custom_items?: string[]
+          plus_activated_at?: string | null
+          plus_active?: boolean
+          plus_expires_at?: string | null
+          plus_provider?: string | null
           settings_notifications?: boolean
           settings_score_visible?: boolean
           updated_at?: string
