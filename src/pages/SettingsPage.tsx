@@ -34,7 +34,9 @@ const SettingsPage = () => {
   const anyCardEnabled = enabledCards.length > 0;
   const handleCardsToggle = (checked: boolean) => toggleAllCards(checked);
   const { mode, setMode, palette, setPalette } = useTheme();
-  const { isPlusActive } = usePlusStatus();
+  const { isPlusActive, disablePlus, refreshPlusStatus } = usePlusStatus();
+  const [disablingPlus, setDisablingPlus] = useState(false);
+  const [showCardsAlert, setShowCardsAlert] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [scoreVisible, setScoreVisible] = useState(false);
