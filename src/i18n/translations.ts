@@ -164,7 +164,10 @@ const translations = {
   "areas.section.study": { en: "Study", it: "Studio" },
   "areas.section.reduce": { en: "Reduce", it: "Riduci" },
   "areas.section.finance": { en: "Finance", it: "Finanze" },
+  "areas.section.career": { en: "Career", it: "Carriera" },
   "areas.add": { en: "+ Add", it: "+ Aggiungi" },
+  "areas.discoverCards": { en: "Discover activity cards", it: "Scopri le schede attività" },
+  "areas.activatePlus": { en: "Activate Plus", it: "Attiva Plus" },
 
   // Cards (Epic 14)
   "settings.cards": { en: "Cards", it: "Schede" },
