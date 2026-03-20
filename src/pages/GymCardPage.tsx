@@ -353,6 +353,17 @@ const GymCardPage = () => {
     ));
   };
 
+  // ─── Weekday assignment ───
+  const handleSetDayOfWeek = async (dayId: string, dayOfWeek: number | null) => {
+    await supabase.from("gym_program_days" as any).update({ day_of_week: dayOfWeek } as any).eq("id", dayId);
+    setDays(prev => prev.map(d => d.id === dayId ? { ...d, day_of_week: dayOfWeek } : d));
+  };
+
+  const getWeekdayLabel = (dow: number | null): string => {
+    if (dow === null || dow === undefined) return "";
+    return t(WEEKDAY_KEYS[dow] as any);
+  };
+
   // ─── Formatters ───
   const formatExView = (ex: GymProgramExercise) => {
     if (ex.exercise_type === "cardio") {
