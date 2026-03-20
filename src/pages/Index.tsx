@@ -187,7 +187,7 @@ const Index = () => {
 
         const { data: days } = await supabase
           .from("gym_program_days")
-          .select("id, name, order")
+          .select("id, name, order, day_of_week")
           .eq("program_id", program.id)
           .order("order");
         if (!days || days.length === 0) { setGymDayInfo({ areaId: gymArea.id, dayLabel: "", dayName: "", hasProgram: true }); return; }
