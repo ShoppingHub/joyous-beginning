@@ -437,6 +437,44 @@ const SettingsPage = () => {
           </div>
         </button>
 
+        {/* Disable Plus toggle (test mode) */}
+        {isPlusActive && (
+          <div className="flex items-center justify-between rounded-xl bg-card ring-1 ring-border px-4 min-h-[48px]">
+            <div className="flex flex-col">
+              <span className="text-base">{t("plus.settings.disableLabel" as any)}</span>
+              <span className="text-xs text-muted-foreground">{t("plus.settings.disableDesc" as any)}</span>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] px-2">
+                  {disablingPlus ? <Loader2 size={16} className="animate-spin" /> : t("plus.settings.disableBtn" as any)}
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-[340px] bg-card border-border">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("plus.settings.disableConfirmTitle" as any)}</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">{t("plus.settings.disableConfirmDesc" as any)}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+                  <AlertDialogAction
+                    onClick={async () => {
+                      setDisablingPlus(true);
+                      await disablePlus();
+                      setDisablingPlus(false);
+                    }}
+                    className="bg-transparent text-destructive hover:bg-destructive/10 border-0 shadow-none"
+                  >
+                    {t("plus.settings.disableBtn" as any)}
+                  </AlertDialogAction>
+                  <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
+                    {t("areaForm.delete.confirm.no" as any)}
+                  </AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
+
         <button onClick={handleSignOut} disabled={signingOut}
           className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
           {signingOut && <Loader2 size={18} className="animate-spin" />}
