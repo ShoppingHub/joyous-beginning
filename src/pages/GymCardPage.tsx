@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check } from "lucide-react";
+import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check, GripVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,10 @@ const GymCardPage = () => {
   const [editingExercise, setEditingExercise] = useState<{ groupId: string; exercise?: GymProgramExercise } | null>(null);
   const [exForm, setExForm] = useState({ name: "", sets: "", reps: "", weight: "", daily: false, exerciseType: "strength" as "strength" | "cardio", duration: "", intensity: "" });
   const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<string | null>(null);
+
+  // Drag state
+  const [dragExerciseId, setDragExerciseId] = useState<string | null>(null);
+  const [dragGroupId, setDragGroupId] = useState<string | null>(null);
 
   // Auto-save debounce refs
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -182,7 +186,7 @@ const GymCardPage = () => {
     await loadDayData(dayId, data as any);
   };
 
-  // ─── Auto-save for session values (weight/duration/intensity) ───
+  // ─── Auto-save for session values ───
   const autoSaveSessionValue = async (exercise: GymProgramExercise, field: string, value: number | null) => {
     if (!selectedDayId) return;
     const sessionId = await ensureSession(selectedDayId);
@@ -197,7 +201,6 @@ const GymCardPage = () => {
       const { data } = await supabase.from("gym_session_exercises" as any).insert(insertPayload).select("*").single();
       if (data) setSessionExercises(prev => ({ ...prev, [exercise.id]: data as any }));
     }
-    // Also update default in program
     const defaultField = field === "weight_used" ? "default_weight" : field === "duration_used" ? "duration_minutes" : "intensity";
     await supabase.from("gym_program_exercises" as any).update({ [defaultField]: value } as any).eq("id", exercise.id);
   };
@@ -236,7 +239,6 @@ const GymCardPage = () => {
   const handleSaveExercise = async () => {
     if (!editingExercise || !exForm.name.trim()) return;
     const isCardio = exForm.exerciseType === "cardio";
-
     if (!isCardio && (!parseInt(exForm.sets) || !parseInt(exForm.reps))) return;
 
     const payload: any = {
@@ -291,6 +293,47 @@ const GymCardPage = () => {
     });
   };
 
+  // ─── Reorder helpers ───
+  const handleMoveExercise = async (groupId: string, exerciseId: string, direction: "up" | "down") => {
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+    const idx = group.exercises.findIndex(e => e.id === exerciseId);
+    if (idx < 0) return;
+    const newIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= group.exercises.length) return;
+
+    const exercises = [...group.exercises];
+    [exercises[idx], exercises[newIdx]] = [exercises[newIdx], exercises[idx]];
+
+    // Optimistic update
+    setGroups(prev => prev.map(g => g.id === groupId ? { ...g, exercises } : g));
+
+    // Persist
+    await Promise.all(exercises.map((ex, i) =>
+      supabase.from("gym_program_exercises" as any).update({ order: i } as any).eq("id", ex.id)
+    ));
+  };
+
+  const handleMoveGroup = async (groupId: string, direction: "up" | "down") => {
+    const idx = groups.findIndex(g => g.id === groupId);
+    if (idx < 0) return;
+    const newIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= groups.length) return;
+
+    const newGroups = [...groups];
+    [newGroups[idx], newGroups[newIdx]] = [newGroups[newIdx], newGroups[newIdx]];
+    [newGroups[idx], newGroups[newIdx]] = [newGroups[newIdx], newGroups[idx]];
+
+    // Fix: proper swap
+    const g = [...groups];
+    [g[idx], g[newIdx]] = [g[newIdx], g[idx]];
+    setGroups(g);
+
+    await Promise.all(g.map((gr, i) =>
+      supabase.from("gym_muscle_groups" as any).update({ order: i } as any).eq("id", gr.id)
+    ));
+  };
+
   // ─── Formatters ───
   const formatExView = (ex: GymProgramExercise) => {
     if (ex.exercise_type === "cardio") {
@@ -318,7 +361,7 @@ const GymCardPage = () => {
     return `${ex.sets} × ${ex.reps}`;
   };
 
-  // ─── Header component ───
+  // ─── Header ───
   const PageHeader = ({ showEdit = false }: { showEdit?: boolean }) => (
     <div className="relative flex items-center justify-center h-14">
       <button onClick={() => navigate("/cards")} className="absolute left-0 flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
@@ -393,7 +436,7 @@ const GymCardPage = () => {
         </div>
       )}
 
-      {/* ═══ VIEW MODE (session check-off) ═══ */}
+      {/* ═══ VIEW MODE ═══ */}
       {!isEditing && (
         <>
           {allExercises.length === 0 ? (
@@ -426,7 +469,6 @@ const GymCardPage = () => {
             </div>
           )}
 
-          {/* History */}
           {program && areaId && <GymHistory areaId={areaId} programId={program.id} />}
         </>
       )}
@@ -446,8 +488,8 @@ const GymCardPage = () => {
             </div>
           )}
 
-          {/* Groups */}
-          {groups.map(group => (
+          {/* Groups with reorder */}
+          {groups.map((group, gi) => (
             <div key={group.id} className="rounded-xl bg-card p-3">
               {/* Group header */}
               {editingGroupId === group.id ? (
@@ -460,7 +502,20 @@ const GymCardPage = () => {
                 </div>
               ) : (
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-muted-foreground font-medium">{group.name}</p>
+                  <div className="flex items-center gap-1.5">
+                    {/* Reorder group buttons */}
+                    <div className="flex flex-col">
+                      <button onClick={() => handleMoveGroup(group.id, "up")} disabled={gi === 0}
+                        className="text-muted-foreground disabled:opacity-20 min-h-[20px] px-0.5 hover:text-foreground">
+                        <ChevronUp size={12} />
+                      </button>
+                      <button onClick={() => handleMoveGroup(group.id, "down")} disabled={gi === groups.length - 1}
+                        className="text-muted-foreground disabled:opacity-20 min-h-[20px] px-0.5 hover:text-foreground">
+                        <ChevronDown size={12} />
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium">{group.name}</p>
+                  </div>
                   <div className="flex items-center gap-1">
                     <button onClick={() => { setEditingGroupId(group.id); setEditGroupName(group.name); }}
                       className="text-muted-foreground min-h-[32px] px-1 hover:text-foreground"><Pencil size={13} /></button>
@@ -487,8 +542,8 @@ const GymCardPage = () => {
                 </div>
               )}
 
-              {/* Exercises in group */}
-              {group.exercises.map(ex => (
+              {/* Exercises with reorder */}
+              {group.exercises.map((ex, ei) => (
                 <div key={ex.id}>
                   {editingExercise?.exercise?.id === ex.id ? (
                     <InlineExerciseForm form={exForm} onChange={setExForm} onSave={handleSaveExercise}
@@ -496,12 +551,15 @@ const GymCardPage = () => {
                   ) : (
                     <EditExerciseRow exercise={ex} formatEx={formatExView}
                       onEdit={() => openExerciseForm(group.id, ex)}
-                      onDeactivate={() => handleDeactivateExercise(ex.id)} />
+                      onDeactivate={() => handleDeactivateExercise(ex.id)}
+                      onMoveUp={ei > 0 ? () => handleMoveExercise(group.id, ex.id, "up") : undefined}
+                      onMoveDown={ei < group.exercises.length - 1 ? () => handleMoveExercise(group.id, ex.id, "down") : undefined}
+                    />
                   )}
                 </div>
               ))}
 
-              {/* Add exercise (inline) */}
+              {/* Add exercise */}
               {editingExercise && !editingExercise.exercise && editingExercise.groupId === group.id ? (
                 <InlineExerciseForm form={exForm} onChange={setExForm} onSave={handleSaveExercise}
                   onCancel={() => setEditingExercise(null)} t={t} />
@@ -537,7 +595,7 @@ const GymCardPage = () => {
   );
 };
 
-// ─── Session exercise row (view mode with inline value adjustment) ───
+// ─── Session exercise row ───
 function SessionExerciseRow({ exercise, sessionEx, onToggle, formatEx, onValueChange }: {
   exercise: GymProgramExercise;
   sessionEx?: GymSessionExercise;
@@ -616,19 +674,34 @@ function SessionExerciseRow({ exercise, sessionEx, onToggle, formatEx, onValueCh
   );
 }
 
-// ─── Edit mode exercise row ───
-function EditExerciseRow({ exercise, formatEx, onEdit, onDeactivate }: {
+// ─── Edit mode exercise row with reorder ───
+function EditExerciseRow({ exercise, formatEx, onEdit, onDeactivate, onMoveUp, onMoveDown }: {
   exercise: GymProgramExercise;
   formatEx: (ex: GymProgramExercise) => string;
   onEdit: () => void;
   onDeactivate: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }) {
   return (
     <div className="flex items-center justify-between py-1.5 group">
-      <button onClick={onEdit} className="text-sm font-medium text-left flex-1 hover:opacity-80">{exercise.name}</button>
+      <div className="flex items-center gap-1.5">
+        {/* Reorder buttons */}
+        <div className="flex flex-col">
+          <button onClick={onMoveUp} disabled={!onMoveUp}
+            className="text-muted-foreground disabled:opacity-20 min-h-[16px] px-0.5 hover:text-foreground">
+            <ChevronUp size={11} />
+          </button>
+          <button onClick={onMoveDown} disabled={!onMoveDown}
+            className="text-muted-foreground disabled:opacity-20 min-h-[16px] px-0.5 hover:text-foreground">
+            <ChevronDown size={11} />
+          </button>
+        </div>
+        <button onClick={onEdit} className="text-sm font-medium text-left hover:opacity-80">{exercise.name}</button>
+      </div>
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground">{formatEx(exercise)}</span>
-        <button onClick={onDeactivate} className="text-muted-foreground hover:text-destructive min-h-[32px] px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={onDeactivate} className="text-muted-foreground hover:text-destructive min-h-[32px] px-1">
           <Trash2 size={13} />
         </button>
       </div>
@@ -636,7 +709,7 @@ function EditExerciseRow({ exercise, formatEx, onEdit, onDeactivate }: {
   );
 }
 
-// ─── Inline exercise form (edit mode) ───
+// ─── Inline exercise form ───
 function InlineExerciseForm({ form, onChange, onSave, onCancel, onDeactivate, isEditing, t }: {
   form: { name: string; sets: string; reps: string; weight: string; daily: boolean; exerciseType: "strength" | "cardio"; duration: string; intensity: string };
   onChange: (f: typeof form) => void;
@@ -653,7 +726,6 @@ function InlineExerciseForm({ form, onChange, onSave, onCancel, onDeactivate, is
       <Input value={form.name} onChange={(e) => onChange({ ...form, name: e.target.value })}
         placeholder={t("gym.form.namePlaceholder")} className="bg-card border-border h-9 text-sm" autoFocus />
 
-      {/* Exercise type toggle */}
       <div className="flex rounded-lg bg-card p-0.5 gap-0.5">
         <button onClick={() => onChange({ ...form, exerciseType: "strength" })}
           className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${!isCardio ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
