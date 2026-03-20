@@ -91,7 +91,7 @@ export function ActivityCard({
     }
   };
 
-  const showGymDay = isGym && hasGymProgram && !isCheckedIn && gymDayLabel;
+  const showGymDay = isGym && hasGymProgram && gymDayLabel;
 
   // Done button (shared across card types)
   const doneButton = (
