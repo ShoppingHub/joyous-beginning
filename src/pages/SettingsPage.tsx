@@ -297,13 +297,29 @@ const SettingsPage = () => {
           <p className="text-sm text-muted-foreground font-medium">{t("settings.cards")}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{t("settings.cardsSub")}</p>
         </div>
-        <div className="flex items-center justify-between min-h-[44px]">
-          <div className="flex items-center gap-3">
-            <LayoutGrid size={20} strokeWidth={1.5} className={anyCardEnabled ? "text-primary" : "text-muted-foreground"} />
-            <span className="text-base">{t("settings.cardsToggle")}</span>
+        {isPlusActive ? (
+          <div className="flex items-center justify-between min-h-[44px]">
+            <div className="flex items-center gap-3">
+              <LayoutGrid size={20} strokeWidth={1.5} className={anyCardEnabled ? "text-primary" : "text-muted-foreground"} />
+              <span className="text-base">{t("settings.cardsToggle")}</span>
+            </div>
+            <Switch checked={anyCardEnabled} onCheckedChange={handleCardsToggle} className="data-[state=checked]:bg-primary" />
           </div>
-          <Switch checked={anyCardEnabled} onCheckedChange={handleCardsToggle} className="data-[state=checked]:bg-primary" />
-        </div>
+        ) : (
+          <div className="flex items-center justify-between min-h-[44px]">
+            <div className="flex items-center gap-3">
+              <LayoutGrid size={20} strokeWidth={1.5} className="text-muted-foreground" />
+              <span className="text-base text-muted-foreground">{t("settings.cardsToggle")}</span>
+              <span className="text-xs text-primary font-medium">{t("plus.badge" as any)}</span>
+            </div>
+            <Switch checked={false} disabled className="opacity-40" />
+          </div>
+        )}
+        {!isPlusActive && (
+          <button onClick={() => navigate("/plus")} className="text-xs text-primary hover:opacity-80 transition-opacity">
+            {t("plus.discoverPlus" as any)}
+          </button>
+        )}
       </div>
 
       {/* Google Tasks */}
