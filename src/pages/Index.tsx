@@ -33,6 +33,7 @@ const Index = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale } = useI18n();
+  const { isPlusActive } = usePlusStatus();
   const navigate = useNavigate();
 
   const today = useMemo(() => new Date(), []);
