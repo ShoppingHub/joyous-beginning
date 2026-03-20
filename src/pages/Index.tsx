@@ -20,6 +20,7 @@ interface GymDayInfo {
   dayLabel: string;
   dayName: string;
   hasProgram: boolean;
+  dayOfWeek?: number | null;
 }
 
 interface ScheduledDay {
