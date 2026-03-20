@@ -52,6 +52,8 @@ export interface GymSessionExercise {
   session_id: string;
   exercise_id: string;
   weight_used: number | null;
+  duration_used: number | null;
+  intensity_used: number | null;
   completed: boolean;
   created_at: string;
 }
