@@ -32,9 +32,10 @@ export function NavConfigProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { isCardEnabled, loading: cardsLoading } = useUserCards();
+  const { isPlusActive } = usePlusStatus();
 
   const financeEnabled = isCardEnabled("finance_projection");
-  const anyCardEnabled = isCardEnabled("gym") || financeEnabled;
+  const anyCardEnabled = isPlusActive && (isCardEnabled("gym") || financeEnabled);
 
   const items: NavItem[] = [
     { key: "home", to: "/", icon: LayoutDashboard, labelKey: "nav.home", visible: true },
