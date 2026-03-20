@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { useUserCards } from "@/hooks/useUserCards";
 import { ArrowLeft, Loader2, Dumbbell, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
