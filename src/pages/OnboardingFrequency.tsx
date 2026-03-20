@@ -17,6 +17,7 @@ const typeLabelKeys: Record<AreaType, TranslationKey> = {
   study: "areaType.study",
   reduce: "areaType.reduce",
   finance: "areaType.finance",
+  career: "areaType.career",
 };
 
 export default function OnboardingFrequency() {
@@ -38,7 +39,7 @@ export default function OnboardingFrequency() {
   };
 
   const allTypesAssigned = areas.every((a) => a.type !== null);
-  const typeOptions: AreaType[] = ["health", "study", "reduce", "finance"];
+  const typeOptions: AreaType[] = ["health", "study", "reduce", "finance", "career"];
 
   const handleSave = async () => {
     if (!user || !allTypesAssigned) return;

@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 export type AreaDraft = {
   name: string;
-  type: "health" | "study" | "reduce" | "finance" | null;
+  type: "health" | "study" | "reduce" | "finance" | "career" | null;
   frequency: number;
   isPreset: boolean;
 };

@@ -20,13 +20,14 @@ import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
 
 type AreaType = Database["public"]["Enums"]["area_type"];
-const typeOptions: AreaType[] = ["health", "study", "reduce", "finance"];
+const typeOptions: AreaType[] = ["health", "study", "reduce", "finance", "career"];
 
 const typeLabelKeys: Record<AreaType, TranslationKey> = {
   health: "areaType.health",
   study: "areaType.study",
   reduce: "areaType.reduce",
   finance: "areaType.finance",
+  career: "areaType.career",
 };
 
 // Day labels (1=Mon..7=Sun)
