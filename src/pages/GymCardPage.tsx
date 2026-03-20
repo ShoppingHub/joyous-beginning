@@ -123,6 +123,23 @@ const GymCardPage = () => {
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
   useEffect(() => { if (program) fetchSession(); }, [program, fetchSession]);
 
+  // ─── Weekly summary ───
+  const fetchWeeklySummary = useCallback(async () => {
+    if (!user || !areaId || !program) return;
+    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+    const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+    const { data, count } = await supabase.from("gym_sessions" as any)
+      .select("id", { count: "exact" })
+      .eq("area_id", areaId)
+      .eq("user_id", user.id)
+      .gte("date", weekStart)
+      .lte("date", weekEnd);
+    setWeekSessions(count ?? 0);
+    setWeekTotal(days.length || 0);
+  }, [user, areaId, program, days.length]);
+
+  useEffect(() => { fetchWeeklySummary(); }, [fetchWeeklySummary]);
+
   // ─── Session actions ───
   const ensureSession = async (dayId: string): Promise<string | null> => {
     if (session) return session.id;
