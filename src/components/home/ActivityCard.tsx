@@ -4,6 +4,7 @@ import { FileText, Pencil, Check } from "lucide-react";
 import { getISODay } from "date-fns";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { QuantityCounter } from "./QuantityCounter";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -51,15 +52,17 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
-  const { isCardEnabled, enabledCards } = useUserCards();
-  const anyCardEnabled = enabledCards.length > 0;
+  const { isCardEnabled } = useUserCards();
+  const { isPlusActive } = usePlusStatus();
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);
 
   const hasNote = note.length > 0;
-  const isQuantityReduce = anyCardEnabled && area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
-  const isQuantityNoQuickAdd = anyCardEnabled && area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
+  // Quantity reduce requires Plus
+  const isQuantityReduce = isPlusActive && area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
+  const isQuantityNoQuickAdd = isPlusActive && area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
+  const isQuantityLocked = !isPlusActive && area.tracking_mode === "quantity_reduce";
 
   const todayDow = getISODay(new Date());
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
@@ -72,7 +75,7 @@ export function ActivityCard({
       return;
     }
     if (isGym && hasGymProgram) {
-      if (isCardEnabled("gym")) {
+      if (isPlusActive && isCardEnabled("gym")) {
         navigate("/cards/gym");
       } else {
         onCheckIn(area.id);
@@ -92,7 +95,7 @@ export function ActivityCard({
     }
   };
 
-  const showGymDay = isGym && hasGymProgram && gymDayLabel && isCardEnabled("gym");
+  const showGymDay = isGym && hasGymProgram && gymDayLabel && isPlusActive && isCardEnabled("gym");
 
   // Done button (shared across card types)
   const doneButton = (
@@ -131,7 +134,7 @@ export function ActivityCard({
     )
   );
 
-  // Quantity reduce card with quick-add — centered counter
+  // Quantity reduce card with quick-add (Plus active)
   if (isQuantityReduce) {
     return (
       <div className="rounded-xl bg-card p-4 flex flex-col gap-3">
@@ -146,7 +149,7 @@ export function ActivityCard({
     );
   }
 
-  // Quantity reduce card without quick-add
+  // Quantity reduce card without quick-add (Plus active)
   if (isQuantityNoQuickAdd) {
     return (
       <div className="rounded-xl bg-card p-4 flex items-center justify-between gap-3">
@@ -161,20 +164,23 @@ export function ActivityCard({
     );
   }
 
-  // Standard binary card
+  // Standard binary card (also used for quantity_reduce when Plus is locked)
   return (
     <div className="rounded-xl bg-card p-4 flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium truncate">{area.name}</p>
+          {/* Plus locked badge for quantity_reduce areas */}
+          {isQuantityLocked && (
+            <button
+              onClick={() => navigate("/plus")}
+              className="text-xs text-primary mt-0.5 hover:opacity-80 transition-opacity"
+            >
+              {t("plus.quantityLocked" as any)}
+            </button>
+          )}
         </div>
-
-        {isGym && hasGymProgram && !isCheckedIn ? (
-          // Gym: only show done button (CTA is below)
-          doneButton
-        ) : (
-          doneButton
-        )}
+        {doneButton}
       </div>
 
       {/* Gym day CTA - centered below name, with weekday badge */}

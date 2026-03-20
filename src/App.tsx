@@ -8,6 +8,7 @@ import { DemoProvider } from "@/hooks/useDemo";
 import { I18nProvider } from "@/hooks/useI18n";
 import { NavConfigProvider } from "@/hooks/useNavConfig";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { PlusProvider } from "@/hooks/usePlusStatus";
 import { UserCardsProvider } from "@/hooks/useUserCards";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
@@ -28,6 +29,7 @@ import GymCardPage from "./pages/GymCardPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
 import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
+import PlusPage from "./pages/PlusPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +44,7 @@ const App = () => (
         <AuthProvider>
         <I18nProvider>
         <UserCardsProvider>
+        <PlusProvider>
         <NavConfigProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -67,6 +70,7 @@ const App = () => (
               <Route path="/cards" element={<CardsHub />} />
               <Route path="/cards/gym" element={<GymCardPage />} />
               <Route path="/cards/finance" element={<FinanceCardPage />} />
+              <Route path="/plus" element={<PlusPage />} />
               {/* Legacy redirects */}
               <Route path="/progress" element={<Progress />} />
               <Route path="/areas" element={<Navigate to="/activities" replace />} />
@@ -77,6 +81,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </NavConfigProvider>
+        </PlusProvider>
         </UserCardsProvider>
         </I18nProvider>
         </AuthProvider>

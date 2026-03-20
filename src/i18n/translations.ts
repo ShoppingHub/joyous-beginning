@@ -306,6 +306,32 @@ const translations = {
   "settings.colors.ocean": { en: "Ocean", it: "Oceano" },
   "settings.colors.sunset": { en: "Sunset", it: "Tramonto" },
   "settings.colors.forest": { en: "Forest", it: "Foresta" },
+
+  // Plus
+  "plus.banner.title": { en: "Observe more with Plus", it: "Osserva di più con Plus" },
+  "plus.banner.subtitle": { en: "Unlock cards, themes and habit reduction", it: "Sblocca schede, temi e riduzione abitudini" },
+  "plus.banner.cta": { en: "Discover Plus", it: "Scopri Plus" },
+  "plus.subtitle": { en: "Extend your observation with advanced tools.", it: "Estendi la tua osservazione con strumenti avanzati." },
+  "plus.feature.cards": { en: "Cards", it: "Schede" },
+  "plus.feature.cards.desc": { en: "Gym, Finance and future modules.", it: "Palestra, Finanze e moduli futuri." },
+  "plus.feature.reduce": { en: "Habit reduction", it: "Riduzione abitudini" },
+  "plus.feature.reduce.desc": { en: "Track the daily reduction of what you want to observe.", it: "Traccia la riduzione giornaliera di ciò che vuoi osservare." },
+  "plus.feature.themes": { en: "Themes", it: "Temi" },
+  "plus.feature.themes.desc": { en: "Ocean, Sunset, Forest — customize the look.", it: "Ocean, Sunset, Forest — personalizza l'aspetto." },
+  "plus.cta": { en: "Activate Plus", it: "Attiva Plus" },
+  "plus.comingSoon": { en: "Coming soon.", it: "Disponibile a breve." },
+  "plus.restore": { en: "Already Plus? Restore purchase", it: "Già Plus? Ripristina acquisto" },
+  "plus.active": { en: "Plus active", it: "Plus attivo" },
+  "plus.badge": { en: "Plus", it: "Plus" },
+  "plus.cardLocked": { en: "This card is available with Plus.", it: "Questa scheda è disponibile con Plus." },
+  "plus.discoverPlus": { en: "Discover Plus", it: "Scopri Plus" },
+  "plus.quantityLocked": { en: "Advanced tracking with Plus", it: "Tracciamento avanzato con Plus" },
+  "plus.quantityFormWarning": { en: "Quantitative tracking is available with Plus. The area will work in standard mode.", it: "Il tracciamento quantitativo è disponibile con Plus. L'area funzionerà in modalità standard." },
+  "plus.quantityChartLocked": { en: "Quantity chart available with Plus", it: "Grafico quantità disponibile con Plus" },
+  "plus.themeLocked": { en: "Available with Plus", it: "Disponibile con Plus" },
+  "plus.settings.label": { en: "Plus", it: "Plus" },
+  "plus.settings.notActive": { en: "Not active", it: "Non attivo" },
+  "plus.settings.active": { en: "Active", it: "Attivo" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { Eye } from "lucide-react";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
+import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek } from "date-fns";
 import { getDemoAreas, getDemoTodayCheckins } from "@/lib/demoData";
@@ -32,6 +33,7 @@ const Index = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale } = useI18n();
+  const { isPlusActive } = usePlusStatus();
   const navigate = useNavigate();
 
   const today = useMemo(() => new Date(), []);
@@ -372,7 +374,7 @@ const Index = () => {
         </div>
       ) : areas.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-16">
-          <Eye size={48} className="text-primary" strokeWidth={1.5} />
+          <Sparkles size={48} className="text-primary" strokeWidth={1.5} />
           <div className="text-center space-y-2">
             <p className="text-[18px] font-medium">{t("home.empty.title")}</p>
             <p className="text-sm text-muted-foreground">{t("home.empty.description")}</p>
@@ -425,6 +427,21 @@ const Index = () => {
             <p className="text-sm text-muted-foreground text-center mt-2">
               {t("home.allLogged")}
             </p>
+          )}
+
+          {/* Plus banner */}
+          {!isPlusActive && (
+            <button
+              onClick={() => navigate("/plus")}
+              className="flex items-center gap-4 rounded-xl bg-card ring-1 ring-primary/20 p-4 mt-2 text-left hover:opacity-90 transition-opacity"
+            >
+              <Sparkles size={24} strokeWidth={1.5} className="text-primary flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{t("plus.banner.title" as any)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("plus.banner.subtitle" as any)}</p>
+              </div>
+              <span className="text-xs font-medium text-primary flex-shrink-0">{t("plus.banner.cta" as any)}</span>
+            </button>
           )}
         </motion.div>
       )}

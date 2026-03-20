@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, MoreVertical } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -44,7 +45,8 @@ const Areas = () => {
   const { isDemo } = useDemo();
   const { t } = useI18n();
   const { enabledCards } = useUserCards();
-  const anyCardEnabled = enabledCards.length > 0;
+  const { isPlusActive } = usePlusStatus();
+  const anyCardEnabled = isPlusActive && enabledCards.length > 0;
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,7 +136,7 @@ const Areas = () => {
                 <span className="text-sm font-medium text-muted-foreground">{t(labelKey)}</span>
               </div>
               {items.map((area) => {
-                const isQuantity = anyCardEnabled && area.tracking_mode === "quantity_reduce";
+                const isQuantity = isPlusActive && area.tracking_mode === "quantity_reduce";
                 const qty = todayQuantities[area.id] ?? 0;
                 return (
                   <div key={area.id} className="flex items-center gap-1">

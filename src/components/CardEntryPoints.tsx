@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { AVAILABLE_CARDS, getCardName, getCardDescription } from "@/lib/cards";
 import { ChevronRight } from "lucide-react";
 import {
@@ -24,6 +25,7 @@ interface CardEntryPointsProps {
 export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
   const { locale, t } = useI18n();
   const { getCardsForSection, getUserCard } = useUserCards();
+  const { isPlusActive } = usePlusStatus();
   const navigate = useNavigate();
   const [previewCard, setPreviewCard] = useState<CardDefinition | null>(null);
 
@@ -33,8 +35,6 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
   const isConfigured = (card: CardDefinition): boolean => {
     const uc = getUserCard(card.id);
     if (!uc?.area_id) return false;
-    // For gym: we can't easily check gym_program here without async, so trust area_id presence
-    // For finance: trust area_id presence
     return true;
   };
 
@@ -43,8 +43,14 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
       {sectionCards.map((card) => {
         const configured = isConfigured(card);
         const Icon = card.icon;
-        const badgeLabel = configured ? t("cards.configured") : t("cards.notConfigured");
-        const badgeColor = configured ? "text-primary" : "text-accent";
+
+        // If not Plus, show Plus badge instead of configured badge
+        const badgeLabel = !isPlusActive
+          ? t("plus.badge" as any)
+          : configured ? t("cards.configured") : t("cards.notConfigured");
+        const badgeColor = !isPlusActive
+          ? "text-primary"
+          : configured ? "text-primary" : "text-accent";
 
         return (
           <button
@@ -72,18 +78,38 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
                   {getCardDescription(previewCard, locale)}
                 </DrawerDescription>
               </DrawerHeader>
-              <span className={`text-xs ${isConfigured(previewCard) ? "text-primary" : "text-accent"}`}>
-                {isConfigured(previewCard) ? t("cards.configured") : t("cards.notConfigured")}
-              </span>
-              <button
-                onClick={() => {
-                  setPreviewCard(null);
-                  navigate(previewCard.route);
-                }}
-                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
-              >
-                {t("cards.open")}
-              </button>
+
+              {!isPlusActive ? (
+                <>
+                  <p className="text-sm text-muted-foreground text-center">
+                    {t("plus.cardLocked" as any)}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setPreviewCard(null);
+                      navigate("/plus");
+                    }}
+                    className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
+                  >
+                    {t("plus.discoverPlus" as any)}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className={`text-xs ${isConfigured(previewCard) ? "text-primary" : "text-accent"}`}>
+                    {isConfigured(previewCard) ? t("cards.configured") : t("cards.notConfigured")}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setPreviewCard(null);
+                      navigate(previewCard.route);
+                    }}
+                    className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
+                  >
+                    {t("cards.open")}
+                  </button>
+                </>
+              )}
             </div>
           )}
         </DrawerContent>

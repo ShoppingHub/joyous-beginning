@@ -9,6 +9,7 @@ interface ThemeContextType {
   palette: ColorPalette;
   setPalette: (p: ColorPalette) => void;
   resolvedMode: "dark" | "light";
+  resetIfLocked: (isPlusActive: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -17,11 +18,14 @@ const ThemeContext = createContext<ThemeContextType>({
   palette: "teal",
   setPalette: () => {},
   resolvedMode: "dark",
+  resetIfLocked: () => {},
 });
 
 function getSystemTheme(): "dark" | "light" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
+
+const EXTRA_PALETTES: ColorPalette[] = ["ocean", "sunset", "forest"];
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>(() =>
@@ -43,6 +47,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("theme-palette", p);
   }, []);
 
+  const resetIfLocked = useCallback((isPlusActive: boolean) => {
+    if (!isPlusActive && EXTRA_PALETTES.includes(palette)) {
+      setPaletteState("teal");
+      localStorage.setItem("theme-palette", "teal");
+    }
+  }, [palette]);
+
   // Apply classes to html
   useEffect(() => {
     const root = document.documentElement;
@@ -61,7 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [mode]);
 
   return (
-    <ThemeContext.Provider value={{ mode, setMode, palette, setPalette, resolvedMode }}>
+    <ThemeContext.Provider value={{ mode, setMode, palette, setPalette, resolvedMode, resetIfLocked }}>
       {children}
     </ThemeContext.Provider>
   );

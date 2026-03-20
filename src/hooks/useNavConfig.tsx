@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useUserCards } from "@/hooks/useUserCards";
+import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { LayoutDashboard, Activity, TrendingUp, LayoutGrid } from "lucide-react";
 import type { TranslationKey } from "@/i18n/translations";
 
@@ -31,9 +32,10 @@ export function NavConfigProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { isCardEnabled, loading: cardsLoading } = useUserCards();
+  const { isPlusActive } = usePlusStatus();
 
   const financeEnabled = isCardEnabled("finance_projection");
-  const anyCardEnabled = isCardEnabled("gym") || financeEnabled;
+  const anyCardEnabled = isPlusActive && (isCardEnabled("gym") || financeEnabled);
 
   const items: NavItem[] = [
     { key: "home", to: "/", icon: LayoutDashboard, labelKey: "nav.home", visible: true },
