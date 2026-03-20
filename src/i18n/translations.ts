@@ -239,6 +239,17 @@ const translations = {
   "gym.plan.deleteGroupAll": { en: "Delete all", it: "Elimina tutto" },
   "gym.edit": { en: "Edit", it: "Modifica" },
   "gym.done": { en: "Done", it: "Fatto" },
+  "gym.weekday.assign": { en: "Assign day", it: "Assegna giorno" },
+  "gym.weekday.none": { en: "No day", it: "Nessun giorno" },
+  "gym.weekday.mon": { en: "Mon", it: "Lun" },
+  "gym.weekday.tue": { en: "Tue", it: "Mar" },
+  "gym.weekday.wed": { en: "Wed", it: "Mer" },
+  "gym.weekday.thu": { en: "Thu", it: "Gio" },
+  "gym.weekday.fri": { en: "Fri", it: "Ven" },
+  "gym.weekday.sat": { en: "Sat", it: "Sab" },
+  "gym.weekday.sun": { en: "Sun", it: "Dom" },
+  "gym.weeklySummary": { en: "This week", it: "Questa settimana" },
+  "gym.weeklySessions": { en: "sessions completed", it: "sessioni completate" },
 
   // Reduce tracking
   "reduce.trackingLabel": { en: "How do you want to track this?", it: "Come vuoi tracciare?" },

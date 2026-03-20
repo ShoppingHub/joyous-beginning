@@ -11,6 +11,7 @@ export interface GymProgramDay {
   program_id: string;
   name: string;
   order: number;
+  day_of_week: number | null;
   created_at: string;
 }
 
