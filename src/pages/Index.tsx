@@ -374,7 +374,7 @@ const Index = () => {
         </div>
       ) : areas.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-16">
-          <Eye size={48} className="text-primary" strokeWidth={1.5} />
+          <Sparkles size={48} className="text-primary" strokeWidth={1.5} />
           <div className="text-center space-y-2">
             <p className="text-[18px] font-medium">{t("home.empty.title")}</p>
             <p className="text-sm text-muted-foreground">{t("home.empty.description")}</p>
