@@ -7,6 +7,7 @@ import { useUserCards } from "@/hooks/useUserCards";
 import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, endOfWeek } from "date-fns";
+import { track } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
