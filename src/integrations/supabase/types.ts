@@ -52,6 +52,38 @@ export type Database = {
           },
         ]
       }
+      area_monthly_days: {
+        Row: {
+          area_id: string
+          created_at: string
+          day_of_month: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          area_id: string
+          created_at?: string
+          day_of_month: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string
+          created_at?: string
+          day_of_month?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "area_monthly_days_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       area_scheduled_days: {
         Row: {
           area_id: string
@@ -88,11 +120,13 @@ export type Database = {
         Row: {
           archived_at: string | null
           baseline_initial: number | null
+          biweekly_start_date: string | null
           created_at: string
           frequency_per_week: number
           google_tasks_sync: boolean
           id: string
           name: string
+          recurrence_type: string
           show_quick_add_home: boolean
           tracking_mode: string
           type: Database["public"]["Enums"]["area_type"]
@@ -103,11 +137,13 @@ export type Database = {
         Insert: {
           archived_at?: string | null
           baseline_initial?: number | null
+          biweekly_start_date?: string | null
           created_at?: string
           frequency_per_week: number
           google_tasks_sync?: boolean
           id?: string
           name: string
+          recurrence_type?: string
           show_quick_add_home?: boolean
           tracking_mode?: string
           type: Database["public"]["Enums"]["area_type"]
@@ -118,11 +154,13 @@ export type Database = {
         Update: {
           archived_at?: string | null
           baseline_initial?: number | null
+          biweekly_start_date?: string | null
           created_at?: string
           frequency_per_week?: number
           google_tasks_sync?: boolean
           id?: string
           name?: string
+          recurrence_type?: string
           show_quick_add_home?: boolean
           tracking_mode?: string
           type?: Database["public"]["Enums"]["area_type"]
