@@ -84,7 +84,7 @@ const Index = () => {
       ]);
       setAreas(areasRes.data || []);
       setScheduledDays((scheduledRes.data as ScheduledDay[]) || []);
-      setMonthlyDays((monthlyRes.data as MonthlyDay[]) || []);
+      setMonthlyDays(((monthlyRes.data as any) || []) as MonthlyDay[]);
     })();
   }, [user, isDemo]);
 
