@@ -78,6 +78,7 @@ const Login = () => {
           setGenericError(t("login.error.generic"));
         }
       } else {
+        track("auth_signup", { method: "email" });
         setScreen("check-email");
       }
     } catch {setGenericError(t("login.error.generic"));} finally
