@@ -48,12 +48,41 @@ export default function PlusPage() {
     }
   }, [searchParams, setSearchParams, refreshPlusStatus]);
 
-  const handleCheckout = async () => {
+  const handleActivate = async () => {
+    setPromoError("");
+
+    // Demo mode: instant activation
+    if (isDemo) {
+      setLoading(true);
+      await enablePlus();
+      setSuccessMsg(true);
+      setLoading(false);
+      setTimeout(() => setSuccessMsg(false), 5000);
+      return;
+    }
+
+    // Promo code: validate and activate directly
+    const trimmedCode = promoCode.trim().toUpperCase();
+    if (trimmedCode) {
+      if (VALID_PROMO_CODES.includes(trimmedCode)) {
+        setLoading(true);
+        await enablePlus();
+        setSuccessMsg(true);
+        setLoading(false);
+        setTimeout(() => setSuccessMsg(false), 5000);
+        return;
+      } else {
+        setPromoError(t("plus.promoInvalid" as any) || "Invalid promo code");
+        return;
+      }
+    }
+
+    // Normal Stripe checkout
     if (!user?.email) return;
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { promoCode: promoCode.trim() || undefined },
+        body: { promoCode: trimmedCode || undefined },
       });
       if (error) throw error;
       if (data?.url) {
