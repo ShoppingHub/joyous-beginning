@@ -8,6 +8,7 @@ import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
+import { track } from "@/lib/analytics";
 
 const emailSchema = z.string().email();
 
