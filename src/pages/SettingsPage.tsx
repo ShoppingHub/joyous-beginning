@@ -271,9 +271,13 @@ const SettingsPage = () => {
           <span className="text-base">{t("settings.language")}</span>
           <div className="flex rounded-full bg-card ring-1 ring-border overflow-hidden">
             {languageOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setLocale(opt.value)}
+               <button
+                 key={opt.value}
+                 onClick={() => {
+                   setLocale(opt.value);
+                   track("settings_language_changed", { language: opt.value });
+                   if (user) updateUserProperties(user.id, { language: opt.value });
+                 }}
                 className={`px-4 py-1.5 text-sm font-medium transition-colors min-h-[36px] ${
                   locale === opt.value
                     ? "bg-primary text-primary-foreground"

@@ -27,6 +27,7 @@ export function BottomNav() {
             >
               <NavLink
                 to={to}
+                onClick={() => track("tab_switched", { tab: key })}
                 className="flex flex-col items-center justify-center min-h-[44px] gap-0.5"
               >
                 <Icon

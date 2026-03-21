@@ -90,6 +90,7 @@ export default function PlusPage() {
     // Normal Stripe checkout
     if (!user?.email) return;
     setLoading(true);
+    track("plus_upgrade_clicked");
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { promoCode: trimmedCode || undefined },
