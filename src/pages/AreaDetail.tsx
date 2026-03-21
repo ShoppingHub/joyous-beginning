@@ -55,6 +55,13 @@ export default function AreaDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Track area detail viewed
+  useEffect(() => {
+    if (area) {
+      track("area_detail_viewed", { area_type: area.type });
+    }
+  }, [area?.id]);
+
   const handleArchive = async () => {
     if (!id) return;
     await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", id);
