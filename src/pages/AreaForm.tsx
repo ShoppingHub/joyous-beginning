@@ -229,6 +229,8 @@ export default function AreaForm({ mode }: AreaFormProps) {
       }
 
       if (mode === "add" && savedAreaId && type) {
+        track("area_created", { area_type: type, tracking_mode: isReduce ? trackingMode : "binary" });
+        if (user) updateUserProperties(user.id, { areas_count: undefined }); // will be refreshed on next identify
         const matchedCard = matchCardForArea(type, name.trim());
         if (matchedCard && !isCardEnabled(matchedCard.id)) {
           setCardSuggestion({ cardType: matchedCard.id, cardName: getCardName(matchedCard, locale), route: matchedCard.route, areaId: savedAreaId });
@@ -237,6 +239,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
         }
         navigate("/", { replace: true });
       } else {
+        track("area_edited", { area_type: type });
         navigate(`/activities/${id}`, { replace: true });
       }
     } catch { setError(t("areaForm.error")); setSaving(false); }
