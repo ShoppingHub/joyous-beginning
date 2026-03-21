@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { format } from "date-fns";
+import { track } from "@/lib/analytics";
 import { ChevronDown, Pencil } from "lucide-react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
   const [sessionExercises, setSessionExercises] = useState<Record<string, GymSessionExercise>>({});
   const [loading, setLoading] = useState(true);
   const [dayPickerOpen, setDayPickerOpen] = useState(false);
+  const sessionCompletedRef = useRef(false);
 
   // Weight edit drawer
   const [weightDrawer, setWeightDrawer] = useState<{ exercise: GymProgramExercise } | null>(null);
@@ -168,6 +170,19 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
     return (data as any).id;
   };
 
+  const checkSessionCompleted = (updatedExercises: Record<string, GymSessionExercise>) => {
+    if (sessionCompletedRef.current) return;
+    const total = allExercisesRef.current;
+    if (total.length === 0) return;
+    const allDone = total.every(ex => updatedExercises[ex.id]?.completed);
+    if (allDone) {
+      sessionCompletedRef.current = true;
+      track("session_gym_completed", {
+        exercises_done: total.filter(ex => updatedExercises[ex.id]?.completed).length,
+      });
+    }
+  };
+
   const handleToggleExercise = async (exercise: GymProgramExercise) => {
     if (!selectedDayId) return;
     const existing = sessionExercises[exercise.id];
@@ -181,10 +196,12 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
       await supabase.from("gym_session_exercises" as any)
         .update({ completed: newCompleted } as any)
         .eq("id", existing.id);
-      setSessionExercises(prev => ({
-        ...prev,
-        [exercise.id]: { ...prev[exercise.id], completed: newCompleted },
-      }));
+      const updated = {
+        ...sessionExercises,
+        [exercise.id]: { ...sessionExercises[exercise.id], completed: newCompleted },
+      };
+      setSessionExercises(updated);
+      if (newCompleted) checkSessionCompleted(updated);
       if (newCompleted && isFirstCompletion) onAutoCheckIn();
     } else {
       const { data } = await supabase.from("gym_session_exercises" as any)
@@ -197,7 +214,9 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
         .select("*")
         .single();
       if (data) {
-        setSessionExercises(prev => ({ ...prev, [exercise.id]: data as any }));
+        const updated = { ...sessionExercises, [exercise.id]: data as any };
+        setSessionExercises(updated);
+        checkSessionCompleted(updated);
         if (isFirstCompletion || Object.values(sessionExercises).every(se => !se.completed)) {
           onAutoCheckIn();
         }
@@ -287,6 +306,8 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
 
   const selectedDay = days.find(d => d.id === selectedDayId);
   const allExercises = [...dailyExercises, ...groups.flatMap(g => g.exercises)];
+  const allExercisesRef = useRef(allExercises);
+  allExercisesRef.current = allExercises;
   const hasExercises = allExercises.length > 0;
 
   if (loading) {
