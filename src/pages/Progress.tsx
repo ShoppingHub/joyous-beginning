@@ -8,7 +8,7 @@ import { Eye, TrendingUp, Filter, Layers, BarChart3, Check } from "lucide-react"
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
 import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
-import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel } from "@/components/progress/useAdaptiveChart";
+import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel, formatTooltipLabel } from "@/components/progress/useAdaptiveChart";
 import { motion, AnimatePresence } from "framer-motion";
 import { subDays, format, parseISO } from "date-fns";
 import { it, enUS } from "date-fns/locale";
@@ -414,7 +414,17 @@ const Progress = () => {
                   <YAxis hide domain={[yDomainMin, yDomainMax]} />
                   {isOverlay ? (
                     <Tooltip
-                      content={() => null}
+                      content={(props: any) => {
+                        if (!props.active || !props.payload?.length) return null;
+                        const point = props.payload[0]?.payload;
+                        if (!point) return null;
+                        const label = formatTooltipLabel(point.date, granularity, locale);
+                        return (
+                          <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
+                            <p className="text-muted-foreground tabular-nums">{label}</p>
+                          </div>
+                        );
+                      }}
                       cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
                     />
                   ) : (
