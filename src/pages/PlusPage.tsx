@@ -187,42 +187,49 @@ export default function PlusPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          {/* Promo code */}
-          <input
-            type="text"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-            placeholder={t("plus.promoPlaceholder" as any)}
-            className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
+          {/* Promo code - hidden in demo mode */}
+          {!isDemo && (
+            <div className="w-full">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => { setPromoCode(e.target.value); setPromoError(""); }}
+                placeholder={t("plus.promoPlaceholder" as any)}
+                className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              {promoError && <p className="text-sm text-destructive mt-1">{promoError}</p>}
+            </div>
+          )}
 
           <button
-            onClick={handleCheckout}
+            onClick={handleActivate}
             disabled={loading}
             className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px] flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                {t("plus.redirecting" as any)}
+                {isDemo ? "Activating..." : t("plus.redirecting" as any)}
               </>
             ) : (
-              t("plus.cta" as any)
+              isDemo ? t("plus.cta" as any) : t("plus.cta" as any)
             )}
           </button>
 
-          <p className="text-xs text-muted-foreground">{t("plus.price" as any)}</p>
+          {!isDemo && <p className="text-xs text-muted-foreground">{t("plus.price" as any)}</p>}
 
-          <button
-            onClick={async () => {
-              setLoading(true);
-              await refreshPlusStatus();
-              setLoading(false);
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {t("plus.restore" as any)}
-          </button>
+          {!isDemo && (
+            <button
+              onClick={async () => {
+                setLoading(true);
+                await refreshPlusStatus();
+                setLoading(false);
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t("plus.restore" as any)}
+            </button>
+          )}
         </div>
       )}
     </motion.div>
