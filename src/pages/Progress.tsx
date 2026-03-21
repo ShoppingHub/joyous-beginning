@@ -501,10 +501,8 @@ function OverlayTooltip({ active, payload, areaKeys, locale }: {
   const date = payload[0]?.payload?.date;
   const label = (() => {
     try {
-      const { format: fmtDate, parseISO } = require("date-fns");
-      const { it: itLoc, enUS } = require("date-fns/locale");
-      const loc = locale === "it" ? itLoc : enUS;
-      return fmtDate(parseISO(date), "d MMM yyyy", { locale: loc });
+      const loc = locale === "it" ? it : enUS;
+      return format(parseISO(date), "d MMM yyyy", { locale: loc });
     } catch {
       return date;
     }
