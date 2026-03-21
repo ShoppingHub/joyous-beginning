@@ -108,14 +108,37 @@ const Index = () => {
     })();
   }, [user, isDemo]);
 
-  // Filter areas by scheduled day
+  // Filter areas by scheduled day, recurrence type
   const filteredAreas = useMemo(() => {
+    const selectedDayOfMonth = getDate(selectedDate);
     return areas.filter(area => {
+      const recurrence = (area as any).recurrence_type || "weekly";
+
+      if (recurrence === "monthly") {
+        const areaMonthly = monthlyDays.filter(md => md.area_id === area.id);
+        if (areaMonthly.length === 0) return true;
+        return areaMonthly.some(md => md.day_of_month === selectedDayOfMonth);
+      }
+
+      // Weekly or biweekly
       const areaSchedule = scheduledDays.filter(sd => sd.area_id === area.id);
-      if (areaSchedule.length === 0) return true; // no schedule = show every day
-      return areaSchedule.some(sd => sd.day_of_week === selectedDayOfWeek);
+      if (areaSchedule.length === 0) return true;
+      const dayMatch = areaSchedule.some(sd => sd.day_of_week === selectedDayOfWeek);
+      if (!dayMatch) return false;
+
+      if (recurrence === "biweekly") {
+        const startDate = (area as any).biweekly_start_date;
+        if (startDate) {
+          const start = startOfWeek(new Date(startDate), { weekStartsOn: 1 });
+          const current = startOfWeek(selectedDate, { weekStartsOn: 1 });
+          const weeksDiff = differenceInWeeks(current, start);
+          return weeksDiff % 2 === 0;
+        }
+      }
+
+      return true;
     });
-  }, [areas, scheduledDays, selectedDayOfWeek]);
+  }, [areas, scheduledDays, monthlyDays, selectedDayOfWeek, selectedDate]);
 
   // Fetch check-ins + notes for selected date
   const fetchDayData = useCallback(async () => {
