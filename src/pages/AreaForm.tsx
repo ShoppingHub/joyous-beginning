@@ -187,8 +187,8 @@ export default function AreaForm({ mode }: AreaFormProps) {
         savedAreaId = id;
       }
 
-      // Save scheduled days
-      if (savedAreaId) {
+      // Save scheduled days (weekly/biweekly)
+      if (savedAreaId && recurrenceType !== "monthly") {
         await supabase.from("area_scheduled_days").delete().eq("area_id", savedAreaId).eq("user_id", user.id);
         if (selectedDays.length > 0) {
           await supabase.from("area_scheduled_days").insert(
@@ -196,6 +196,20 @@ export default function AreaForm({ mode }: AreaFormProps) {
               area_id: savedAreaId!,
               user_id: user.id,
               day_of_week: day,
+            }))
+          );
+        }
+      }
+
+      // Save monthly days
+      if (savedAreaId && recurrenceType === "monthly") {
+        await (supabase.from("area_monthly_days" as any) as any).delete().eq("area_id", savedAreaId).eq("user_id", user.id);
+        if (selectedMonthlyDays.length > 0) {
+          await supabase.from("area_monthly_days" as any).insert(
+            selectedMonthlyDays.map(day => ({
+              area_id: savedAreaId!,
+              user_id: user.id,
+              day_of_month: day,
             }))
           );
         }
