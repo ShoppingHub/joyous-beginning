@@ -362,8 +362,8 @@ const Progress = () => {
       >
         {hasData ? (
           <div className="relative">
-            {/* Score labels - only in total mode */}
-            {!isOverlay && (
+            {/* Score labels */}
+            {!isOverlay ? (
               <>
                 <div className="absolute top-2 right-4 z-10 text-right">
                   <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
@@ -372,6 +372,10 @@ const Progress = () => {
                   <p className="text-xs text-muted-foreground tabular-nums">{fmt(firstScore)}</p>
                 </div>
               </>
+            ) : (
+              <div className="absolute top-2 right-4 z-10 text-right">
+                <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
+              </div>
             )}
 
             {/* Chart */}
