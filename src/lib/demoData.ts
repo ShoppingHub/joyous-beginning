@@ -16,10 +16,10 @@ interface DemoCheckin {
 }
 
 const DEMO_AREAS: Area[] = [
-  { id: "demo-health-1", user_id: "demo", name: "Morning run", type: "health", frequency_per_week: 5, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false },
-  { id: "demo-study-1", user_id: "demo", name: "Read 30 min", type: "study", frequency_per_week: 7, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false },
-  { id: "demo-reduce-1", user_id: "demo", name: "No social after 9pm", type: "reduce", frequency_per_week: 7, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false },
-  { id: "demo-finance-1", user_id: "demo", name: "Track expenses", type: "finance", frequency_per_week: 3, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false },
+  { id: "demo-health-1", user_id: "demo", name: "Morning run", type: "health", frequency_per_week: 5, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false, recurrence_type: "weekly", biweekly_start_date: null },
+  { id: "demo-study-1", user_id: "demo", name: "Read 30 min", type: "study", frequency_per_week: 7, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false, recurrence_type: "weekly", biweekly_start_date: null },
+  { id: "demo-reduce-1", user_id: "demo", name: "No social after 9pm", type: "reduce", frequency_per_week: 7, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false, recurrence_type: "weekly", biweekly_start_date: null },
+  { id: "demo-finance-1", user_id: "demo", name: "Track expenses", type: "finance", frequency_per_week: 3, archived_at: null, created_at: "", updated_at: "", tracking_mode: "binary", unit_label: null, baseline_initial: null, show_quick_add_home: true, google_tasks_sync: false, recurrence_type: "weekly", biweekly_start_date: null },
 ];
 
 // Seeded pseudo-random for deterministic demo data
