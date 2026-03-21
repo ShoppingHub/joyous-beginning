@@ -3,6 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
+import { OpadLogo } from "@/components/OpadLogo";
 
 export function DesktopSidebar() {
   const location = useLocation();
