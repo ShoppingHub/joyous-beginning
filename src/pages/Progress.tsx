@@ -404,14 +404,19 @@ const Progress = () => {
                     tickMargin={6}
                   />
                   <YAxis hide domain={[yDomainMin, yDomainMax]} />
-                  <Tooltip
-                    content={(props: any) => (
-                      isOverlay
-                        ? <OverlayTooltip {...props} areaKeys={overlayData.areaKeys} locale={locale} />
-                        : <ProgressTooltip {...props} granularity={granularity} locale={locale} />
-                    )}
-                    cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
-                  />
+                  {isOverlay ? (
+                    <Tooltip
+                      content={() => null}
+                      cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                    />
+                  ) : (
+                    <Tooltip
+                      content={(props: any) => (
+                        <ProgressTooltip {...props} granularity={granularity} locale={locale} />
+                      )}
+                      cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                    />
+                  )}
 
                   {isOverlay ? (
                     overlayData.areaKeys.map((ak) => (
