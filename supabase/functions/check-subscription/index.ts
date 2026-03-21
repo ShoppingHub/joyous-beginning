@@ -39,16 +39,28 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Check if user has a non-stripe plus provider (e.g. promo) — don't override
+    const { data: userRow } = await supabaseClient
+      .from("users")
+      .select("plus_active, plus_provider")
+      .eq("user_id", user.id)
+      .single();
+
+    const plusProvider = userRow?.plus_provider;
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      logStep("No Stripe customer found, setting plus_active = false");
-      await supabaseClient
-        .from("users")
-        .update({ plus_active: false })
-        .eq("user_id", user.id);
-      return new Response(JSON.stringify({ subscribed: false }), {
+      logStep("No Stripe customer found");
+      // Only disable if provider is stripe or null (don't touch promo users)
+      if (!plusProvider || plusProvider === "stripe") {
+        await supabaseClient
+          .from("users")
+          .update({ plus_active: false })
+          .eq("user_id", user.id);
+      }
+      return new Response(JSON.stringify({ subscribed: userRow?.plus_active ?? false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
