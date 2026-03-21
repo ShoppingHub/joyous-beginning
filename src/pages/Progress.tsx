@@ -8,7 +8,7 @@ import { Eye, TrendingUp, Filter, Layers, BarChart3, Check } from "lucide-react"
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
 import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
-import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel, formatTooltipLabel, smoothOverlayData } from "@/components/progress/useAdaptiveChart";
+import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel, formatTooltipLabel, groupAndSmoothOverlayData } from "@/components/progress/useAdaptiveChart";
 import { motion, AnimatePresence } from "framer-motion";
 import { subDays, format, parseISO } from "date-fns";
 import { it, enUS } from "date-fns/locale";
@@ -159,11 +159,10 @@ const Progress = () => {
         color: OVERLAY_COLORS[i % OVERLAY_COLORS.length],
       }));
 
-    // Apply smoothing to overlay data based on granularity
-    const overlayGranularity = rawData.length <= 90 ? "daily" as const : rawData.length <= 730 ? "weekly" as const : "monthly" as const;
-    const data = smoothOverlayData(rawData, areaKeys.map(k => k.id), overlayGranularity);
+    // Group by week/month and smooth, same as total view
+    const { data, granularity: overlayGran } = groupAndSmoothOverlayData(rawData, areaKeys.map(k => k.id));
 
-    return { data, areaKeys };
+    return { data, areaKeys, granularity: overlayGran };
   }, [viewMode, filteredAreas, scores]);
 
   const { chartData, granularity } = useAdaptiveChart(rawAveraged);
@@ -200,8 +199,9 @@ const Progress = () => {
     ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
     : chartData.length > 0 && chartData.some((d) => d.score !== 0);
 
-  const isLargeRange = granularity !== "daily";
-  const tickInterval = getTickInterval(granularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
+  const effectiveGranularity = viewMode === "overlay" ? (overlayData.granularity ?? granularity) : granularity;
+  const isLargeRange = effectiveGranularity !== "daily";
+  const tickInterval = getTickInterval(effectiveGranularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
 
   const fmt = (n: number) => {
     if (Math.abs(n) >= 1000) return n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -412,7 +412,7 @@ const Progress = () => {
                     tickLine={false}
                     interval={tickInterval}
                     tick={{ fontSize: 10, fill: "hsl(195, 5%, 56%)" }}
-                    tickFormatter={(val: string) => formatTickLabel(val, granularity, locale)}
+                    tickFormatter={(val: string) => formatTickLabel(val, effectiveGranularity, locale)}
                     tickMargin={6}
                   />
                   <YAxis hide domain={[yDomainMin, yDomainMax]} />
@@ -422,7 +422,7 @@ const Progress = () => {
                         if (!props.active || !props.payload?.length) return null;
                         const point = props.payload[0]?.payload;
                         if (!point) return null;
-                        const label = formatTooltipLabel(point.date, granularity, locale);
+                        const label = formatTooltipLabel(point.date, effectiveGranularity, locale);
                         return (
                           <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
                             <p className="text-muted-foreground tabular-nums">{label}</p>
