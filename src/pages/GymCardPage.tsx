@@ -156,6 +156,7 @@ const GymCardPage = () => {
   const handleAutoCheckIn = useCallback(async () => {
     if (!user || !areaId) return;
     await supabase.from("checkins").upsert({ area_id: areaId, user_id: user.id, date: today, completed: true }, { onConflict: "area_id,date" });
+    track("session_gym_started");
     const { data: { session: authSession } } = await supabase.auth.getSession();
     if (authSession?.access_token) {
       supabase.functions.invoke("calculate-score", { body: { area_id: areaId, date: today }, headers: { Authorization: `Bearer ${authSession.access_token}` } }).catch(console.error);
