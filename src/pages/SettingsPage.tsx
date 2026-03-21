@@ -6,6 +6,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
+import { track, updateUserProperties } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid, ChevronRight } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
