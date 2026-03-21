@@ -236,7 +236,6 @@ const SettingsPage = () => {
                      setPalette(opt.value);
                      track("settings_theme_changed", { theme: mode, palette: opt.value });
                    }}
-                  }}
                   className={`flex flex-col items-center gap-1.5 flex-1 py-2 rounded-xl transition-all min-h-[44px] ${
                     palette === opt.value ? "ring-2 ring-primary bg-card" : "hover:bg-card/50"
                   } ${locked ? "opacity-50" : ""}`}
