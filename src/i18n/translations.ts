@@ -365,6 +365,14 @@ const translations = {
   "plus.settings.disableConfirmDesc": { en: "Plus features will be deactivated. You can re-enable by checking your subscription status or paying again.", it: "Le funzionalità Plus verranno disattivate. Puoi riattivare verificando lo stato dell'abbonamento o pagando di nuovo." },
   "plus.required.title": { en: "Plus required", it: "Necessario versione Plus" },
   "plus.required.desc": { en: "This feature requires an active Plus subscription.", it: "Questa funzionalità richiede un abbonamento Plus attivo." },
+
+  // Progress filters
+  "progress.filter": { en: "Filter", it: "Filtro" },
+  "progress.filter.allActivities": { en: "All activities", it: "Tutte le attività" },
+  "progress.filter.byType": { en: "By type", it: "Per tipo" },
+  "progress.filter.byActivity": { en: "By activity", it: "Per attività" },
+  "progress.view.total": { en: "Total", it: "Totale" },
+  "progress.view.overlay": { en: "Overlay", it: "Sovrapposizione" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
