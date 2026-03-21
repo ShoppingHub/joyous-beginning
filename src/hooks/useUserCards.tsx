@@ -55,7 +55,12 @@ export function UserCardsProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    if (!user) return;
+    if (!user) {
+      // Reset state on logout
+      setUserCards([]);
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("user_cards" as any)
       .select("*")

@@ -68,7 +68,10 @@ export function PlusProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (!user) {
+      // Reset state on logout
+      setIsPlusActive(false);
       setLoading(false);
+      manuallyDisabledRef.current = false;
       return;
     }
     (async () => {
