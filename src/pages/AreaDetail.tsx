@@ -142,11 +142,18 @@ export default function AreaDetail() {
         />
       </div>
 
-      {/* Gym Card */}
-      {!isDemo && isGymArea && id && (
-        <div className="mt-6">
-          <GymCard areaId={id} onAutoCheckIn={handleAutoCheckIn} />
-        </div>
+      {/* Gym Card link */}
+      {isGymArea && (
+        <button
+          onClick={() => navigate("/cards/gym")}
+          className="mt-6 flex items-center justify-between w-full bg-[#1F4A50]/60 rounded-lg border border-[#7DA3A0]/20 border-dashed p-4 transition-colors hover:bg-[#1F4A50]/80"
+        >
+          <div className="flex items-center gap-3">
+            <Dumbbell size={20} strokeWidth={1.5} className="text-primary" />
+            <span className="text-sm font-medium">{t("gym.title" as any)}</span>
+          </div>
+          <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground" />
+        </button>
       )}
 
       {/* Notes History */}
