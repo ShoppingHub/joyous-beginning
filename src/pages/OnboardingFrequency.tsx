@@ -9,6 +9,7 @@ import { Minus, Plus, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
+import { track, identifyUser } from "@/lib/analytics";
 
 type AreaType = Database["public"]["Enums"]["area_type"];
 
