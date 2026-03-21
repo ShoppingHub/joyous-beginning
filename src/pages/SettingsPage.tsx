@@ -258,7 +258,7 @@ const SettingsPage = () => {
             <p className="text-xs text-muted-foreground mt-1">{t("plus.themeLocked" as any)}</p>
           )}
           {!isPlusActive && (
-            <button onClick={() => navigate("/plus")} className="text-xs text-primary hover:opacity-80 transition-opacity">
+             <button onClick={() => navigate("/plus", { state: { source: "settings" } })} className="text-xs text-primary hover:opacity-80 transition-opacity">
               {t("plus.discoverPlus" as any)}
             </button>
           )}
