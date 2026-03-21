@@ -12,6 +12,7 @@ interface PlusContextType {
   isFeatureLocked: (feature: PlusFeature) => boolean;
   refreshPlusStatus: () => Promise<void>;
   disablePlus: () => Promise<void>;
+  enablePlus: () => Promise<void>;
 }
 
 const PlusContext = createContext<PlusContextType>({
