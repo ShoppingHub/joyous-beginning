@@ -391,38 +391,107 @@ export default function AreaForm({ mode }: AreaFormProps) {
           </div>
         )}
 
-        {/* Day of week picker */}
+        {/* Recurrence type selector */}
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            {locale === "it" ? "Giorni della settimana" : "Days of the week"}
-            {selectedDays.length > 0 && (
-              <span className="ml-1 text-foreground font-medium">({selectedDays.length}x)</span>
-            )}
-            {selectedDays.length === 0 && (
-              <span className="ml-1 text-muted-foreground/60">
-                ({locale === "it" ? "ogni giorno" : "every day"})
-              </span>
-            )}
-          </p>
-          <div className="flex gap-1.5">
-            {DAY_KEYS.map((day, i) => {
-              const selected = selectedDays.includes(day);
-              return (
-                <button
-                  key={day}
-                  onClick={() => toggleDay(day)}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
-                    selected
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {dayLabels[i]}
-                </button>
-              );
-            })}
+          <p className="text-sm text-muted-foreground">{t("recurrence.label" as any)}</p>
+          <div className="flex flex-wrap gap-2">
+            {(["weekly", "biweekly", "monthly"] as const).map((rt) => (
+              <button
+                key={rt}
+                onClick={() => setRecurrenceType(rt)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors min-h-[36px] ${
+                  recurrenceType === rt ? "bg-primary/20 text-primary border-primary" : "bg-transparent border-border text-muted-foreground"
+                }`}
+              >
+                {t(`recurrence.${rt}` as any)}
+              </button>
+            ))}
           </div>
+          {recurrenceType === "biweekly" && (
+            <p className="text-xs text-muted-foreground">{t("recurrence.biweeklyDesc" as any)}</p>
+          )}
+          {recurrenceType === "monthly" && (
+            <p className="text-xs text-muted-foreground">{t("recurrence.monthlyDesc" as any)}</p>
+          )}
         </div>
+
+        {/* Day of week picker - for weekly & biweekly */}
+        {recurrenceType !== "monthly" && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {locale === "it" ? "Giorni della settimana" : "Days of the week"}
+              {selectedDays.length > 0 && (
+                <span className="ml-1 text-foreground font-medium">({selectedDays.length}x)</span>
+              )}
+              {selectedDays.length === 0 && (
+                <span className="ml-1 text-muted-foreground/60">
+                  ({locale === "it" ? "ogni giorno" : "every day"})
+                </span>
+              )}
+            </p>
+            <div className="flex gap-1.5">
+              {DAY_KEYS.map((day, i) => {
+                const selected = selectedDays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    onClick={() => toggleDay(day)}
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {dayLabels[i]}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Biweekly start date */}
+            {recurrenceType === "biweekly" && (
+              <div className="space-y-1 mt-2">
+                <label className="text-sm text-muted-foreground">{t("recurrence.biweeklyStart" as any)}</label>
+                <input
+                  type="date"
+                  value={biweeklyStartDate}
+                  onChange={(e) => setBiweeklyStartDate(e.target.value)}
+                  className="w-full h-12 rounded-xl bg-card px-4 text-base text-foreground outline-none ring-1 ring-border focus:ring-primary transition-colors"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Monthly day picker */}
+        {recurrenceType === "monthly" && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {t("recurrence.monthlyDays" as any)}
+              {selectedMonthlyDays.length > 0 && (
+                <span className="ml-1 text-foreground font-medium">({selectedMonthlyDays.length}x)</span>
+              )}
+            </p>
+            <div className="grid grid-cols-7 gap-1.5">
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+                const selected = selectedMonthlyDays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    onClick={() => toggleMonthlyDay(day)}
+                    className={`py-2 rounded-lg text-sm font-medium transition-colors min-h-[40px] ${
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Google Tasks Sync Toggle - only for binary tracking */}
         {isBinary && (
