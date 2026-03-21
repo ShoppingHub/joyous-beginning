@@ -465,7 +465,7 @@ const Progress = () => {
           <TimeRangeSelector value={timeRange} onChange={(r) => { setTimeRange(r); setActiveDate(null); }} />
         </div>
 
-        {/* Detail panel on hover/touch */}
+        {/* Detail panel on hover/touch — total mode */}
         {hasData && activeDate && !isOverlay && (
           <ChartDetailPanel
             activeDate={activeDate}
@@ -475,6 +475,37 @@ const Progress = () => {
             isLargeRange={isLargeRange}
             checkins={checkins}
           />
+        )}
+
+        {/* Overlay activity list with scores — always visible */}
+        {isOverlay && overlayData.areaKeys.length > 0 && (
+          <div className="px-4 pt-1 pb-2">
+            <div className="flex flex-col gap-1">
+              {overlayData.areaKeys.map((ak) => {
+                const areaScores = scores[ak.id] || [];
+                const lastAreaScore = areaScores.length > 0 ? areaScores[areaScores.length - 1].score : null;
+                const activeDayScore = activeDate
+                  ? overlayData.data.find(d => d.date === activeDate)?.[ak.id] as number | undefined
+                  : undefined;
+                return (
+                  <div key={ak.id} className="flex items-center justify-between py-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ak.color }} />
+                      <span className="text-sm text-foreground">{ak.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {activeDayScore !== undefined && (
+                        <span className="text-xs text-muted-foreground tabular-nums">{fmt(activeDayScore)}</span>
+                      )}
+                      {lastAreaScore !== null && (
+                        <span className="text-sm font-medium text-foreground tabular-nums">{fmt(lastAreaScore)}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </motion.div>
     </div>
