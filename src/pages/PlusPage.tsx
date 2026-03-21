@@ -33,11 +33,19 @@ export default function PlusPage() {
   const [cancelMsg, setCancelMsg] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
 
+  // Track page view with source
+  useEffect(() => {
+    const state = location.state as any;
+    const source = state?.source || "direct";
+    track("plus_page_viewed", { source });
+  }, []);
+
   // Handle return from Stripe
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       setSuccessMsg(true);
       refreshPlusStatus();
+      if (user) updateUserProperties(user.id, { plan: "plus" });
       setSearchParams({}, { replace: true });
       const timer = setTimeout(() => setSuccessMsg(false), 5000);
       return () => clearTimeout(timer);
