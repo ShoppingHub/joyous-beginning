@@ -180,6 +180,7 @@ export function ActivityCard({
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium truncate">{area.name}</p>
+          {recurrenceBadge}
           {/* Plus locked badge for quantity_reduce areas */}
           {isQuantityLocked && (
             <button
