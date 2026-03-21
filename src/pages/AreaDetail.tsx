@@ -124,7 +124,14 @@ export default function AreaDetail() {
 
       {/* Scheduled Days */}
       <div className="mt-6">
-        <ScheduledDaysSection areaId={id!} frequencyPerWeek={area.frequency_per_week} isDemo={isDemo} />
+        <ScheduledDaysSection
+          areaId={id!}
+          frequencyPerWeek={area.frequency_per_week}
+          isDemo={isDemo}
+          recurrenceType={area.recurrence_type}
+          biweeklyStartDate={area.biweekly_start_date}
+          onBiweeklyStartDateChange={(d) => setArea(prev => prev ? { ...prev, biweekly_start_date: d } : prev)}
+        />
       </div>
 
       {/* Gym Card */}
