@@ -229,8 +229,16 @@ export default function AreaForm({ mode }: AreaFormProps) {
       }
 
       if (mode === "add" && savedAreaId && type) {
-        track("area_created", { area_type: type, tracking_mode: isReduce ? trackingMode : "binary" });
-        if (user) updateUserProperties(user.id, { areas_count: undefined }); // will be refreshed on next identify
+        // Count areas in same category after creation
+        let categoryCount = 1;
+        try {
+          const { count } = await supabase.from("areas").select("id", { count: "exact", head: true })
+            .eq("user_id", user.id).eq("type", type).is("archived_at", null);
+          if (count) categoryCount = count;
+        } catch {}
+        const source = searchParams.get("source") || "activities_tab";
+        track("area_created", { area_type: type, tracking_mode: isReduce ? trackingMode : "binary", source, category_count: categoryCount });
+        if (user) updateUserProperties(user.id, { areas_count: undefined });
         const matchedCard = matchCardForArea(type, name.trim());
         if (matchedCard && !isCardEnabled(matchedCard.id)) {
           setCardSuggestion({ cardType: matchedCard.id, cardName: getCardName(matchedCard, locale), route: matchedCard.route, areaId: savedAreaId });
