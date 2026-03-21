@@ -414,7 +414,17 @@ const Progress = () => {
                   <YAxis hide domain={[yDomainMin, yDomainMax]} />
                   {isOverlay ? (
                     <Tooltip
-                      content={() => null}
+                      content={(props: any) => {
+                        if (!props.active || !props.payload?.length) return null;
+                        const point = props.payload[0]?.payload;
+                        if (!point) return null;
+                        const label = formatTooltipLabel(point.date, granularity, locale);
+                        return (
+                          <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
+                            <p className="text-muted-foreground tabular-nums">{label}</p>
+                          </div>
+                        );
+                      }}
                       cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
                     />
                   ) : (
