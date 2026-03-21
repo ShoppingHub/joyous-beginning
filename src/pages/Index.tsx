@@ -29,6 +29,11 @@ interface ScheduledDay {
   day_of_week: number;
 }
 
+interface MonthlyDay {
+  area_id: string;
+  day_of_month: number;
+}
+
 const Index = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
