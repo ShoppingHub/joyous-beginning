@@ -129,6 +129,16 @@ const translations = {
   "areaForm.archive": { en: "Archive area", it: "Archivia area" },
   "areaForm.error": { en: "Something went wrong. Please try again.", it: "Qualcosa è andato storto. Riprova." },
 
+  // Recurrence
+  "recurrence.label": { en: "Recurrence", it: "Ricorrenza" },
+  "recurrence.weekly": { en: "Weekly", it: "Settimanale" },
+  "recurrence.biweekly": { en: "Biweekly", it: "Bisettimanale" },
+  "recurrence.monthly": { en: "Monthly", it: "Mensile" },
+  "recurrence.biweeklyDesc": { en: "Same days, every 2 weeks", it: "Stessi giorni, ogni 2 settimane" },
+  "recurrence.monthlyDesc": { en: "Select specific days of the month", it: "Seleziona giorni specifici del mese" },
+  "recurrence.monthlyDays": { en: "Days of the month", it: "Giorni del mese" },
+  "recurrence.biweeklyStart": { en: "Starting from week of", it: "A partire dalla settimana del" },
+
   // Area types
   "areaType.health": { en: "Health", it: "Salute" },
   "areaType.study": { en: "Study", it: "Studio" },

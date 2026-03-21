@@ -7,7 +7,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek } from "date-fns";
+import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek, differenceInWeeks, getDate } from "date-fns";
 import { getDemoAreas, getDemoTodayCheckins } from "@/lib/demoData";
 import { WeekSelector } from "@/components/home/WeekSelector";
 import { WeekBanner } from "@/components/home/WeekBanner";
@@ -29,6 +29,11 @@ interface ScheduledDay {
   day_of_week: number;
 }
 
+interface MonthlyDay {
+  area_id: string;
+  day_of_month: number;
+}
+
 const Index = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
@@ -47,6 +52,7 @@ const Index = () => {
   const [gymDayInfo, setGymDayInfo] = useState<GymDayInfo | null>(null);
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   const [scheduledDays, setScheduledDays] = useState<ScheduledDay[]>([]);
+  const [monthlyDays, setMonthlyDays] = useState<MonthlyDay[]>([]);
 
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
   const isFutureDay = isAfter(selectedDate, today) && !isSameDay(selectedDate, today);
@@ -60,7 +66,7 @@ const Index = () => {
     }
     if (!user) return;
     (async () => {
-      const [areasRes, scheduledRes] = await Promise.all([
+      const [areasRes, scheduledRes, monthlyRes] = await Promise.all([
         supabase
           .from("areas")
           .select("*")
@@ -71,9 +77,14 @@ const Index = () => {
           .from("area_scheduled_days")
           .select("area_id, day_of_week")
           .eq("user_id", user.id),
+        supabase
+          .from("area_monthly_days" as any)
+          .select("area_id, day_of_month")
+          .eq("user_id", user.id),
       ]);
       setAreas(areasRes.data || []);
       setScheduledDays((scheduledRes.data as ScheduledDay[]) || []);
+      setMonthlyDays(((monthlyRes.data as any) || []) as MonthlyDay[]);
     })();
   }, [user, isDemo]);
 
@@ -97,14 +108,37 @@ const Index = () => {
     })();
   }, [user, isDemo]);
 
-  // Filter areas by scheduled day
+  // Filter areas by scheduled day, recurrence type
   const filteredAreas = useMemo(() => {
+    const selectedDayOfMonth = getDate(selectedDate);
     return areas.filter(area => {
+      const recurrence = (area as any).recurrence_type || "weekly";
+
+      if (recurrence === "monthly") {
+        const areaMonthly = monthlyDays.filter(md => md.area_id === area.id);
+        if (areaMonthly.length === 0) return true;
+        return areaMonthly.some(md => md.day_of_month === selectedDayOfMonth);
+      }
+
+      // Weekly or biweekly
       const areaSchedule = scheduledDays.filter(sd => sd.area_id === area.id);
-      if (areaSchedule.length === 0) return true; // no schedule = show every day
-      return areaSchedule.some(sd => sd.day_of_week === selectedDayOfWeek);
+      if (areaSchedule.length === 0) return true;
+      const dayMatch = areaSchedule.some(sd => sd.day_of_week === selectedDayOfWeek);
+      if (!dayMatch) return false;
+
+      if (recurrence === "biweekly") {
+        const startDate = (area as any).biweekly_start_date;
+        if (startDate) {
+          const start = startOfWeek(new Date(startDate), { weekStartsOn: 1 });
+          const current = startOfWeek(selectedDate, { weekStartsOn: 1 });
+          const weeksDiff = differenceInWeeks(current, start);
+          return weeksDiff % 2 === 0;
+        }
+      }
+
+      return true;
     });
-  }, [areas, scheduledDays, selectedDayOfWeek]);
+  }, [areas, scheduledDays, monthlyDays, selectedDayOfWeek, selectedDate]);
 
   // Fetch check-ins + notes for selected date
   const fetchDayData = useCallback(async () => {

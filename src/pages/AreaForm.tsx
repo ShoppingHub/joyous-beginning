@@ -64,6 +64,17 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [isGymTemplate, setIsGymTemplate] = useState(false);
   const [cardSuggestion, setCardSuggestion] = useState<{ cardType: string; cardName: string; route: string; areaId: string } | null>(null);
 
+  // Recurrence
+  const [recurrenceType, setRecurrenceType] = useState<"weekly" | "biweekly" | "monthly">("weekly");
+  const [biweeklyStartDate, setBiweeklyStartDate] = useState<string>(() => {
+    // Default to current Monday
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(now.setDate(diff)).toISOString().split("T")[0];
+  });
+  const [selectedMonthlyDays, setSelectedMonthlyDays] = useState<number[]>([]);
+
   // Google Tasks sync
   const [googleTasksSync, setGoogleTasksSync] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
@@ -87,9 +98,10 @@ export default function AreaForm({ mode }: AreaFormProps) {
   useEffect(() => {
     if (mode !== "edit" || !id || !user) return;
     (async () => {
-      const [areaRes, daysRes] = await Promise.all([
+      const [areaRes, daysRes, monthlyRes] = await Promise.all([
         supabase.from("areas").select("*").eq("id", id).single(),
         supabase.from("area_scheduled_days").select("day_of_week").eq("area_id", id).eq("user_id", user.id),
+        supabase.from("area_monthly_days" as any).select("day_of_month").eq("area_id", id).eq("user_id", user.id),
       ]);
       if (areaRes.data) {
         const data = areaRes.data;
@@ -100,9 +112,14 @@ export default function AreaForm({ mode }: AreaFormProps) {
         setBaselineInitial(data.baseline_initial != null ? String(data.baseline_initial) : "");
         setShowQuickAddHome(data.show_quick_add_home ?? true);
         setGoogleTasksSync(data.google_tasks_sync ?? false);
+        setRecurrenceType((data.recurrence_type as "weekly" | "biweekly" | "monthly") || "weekly");
+        if (data.biweekly_start_date) setBiweeklyStartDate(data.biweekly_start_date);
       }
       if (daysRes.data && daysRes.data.length > 0) {
         setSelectedDays(daysRes.data.map(d => d.day_of_week));
+      }
+      if (monthlyRes.data && (monthlyRes.data as any[]).length > 0) {
+        setSelectedMonthlyDays((monthlyRes.data as any[]).map((d: any) => d.day_of_month));
       }
       setLoadingData(false);
     })();
@@ -118,7 +135,15 @@ export default function AreaForm({ mode }: AreaFormProps) {
     );
   };
 
-  const frequency = selectedDays.length > 0 ? selectedDays.length : 7;
+  const toggleMonthlyDay = (day: number) => {
+    setSelectedMonthlyDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const frequency = recurrenceType === "monthly"
+    ? selectedMonthlyDays.length > 0 ? selectedMonthlyDays.length : 4
+    : selectedDays.length > 0 ? selectedDays.length : 7;
 
   const validate = (): boolean => {
     if (!name.trim()) return false;
@@ -146,6 +171,8 @@ export default function AreaForm({ mode }: AreaFormProps) {
       baseline_initial: isQuantity ? parseInt(baselineInitial, 10) : null,
       show_quick_add_home: isQuantity ? showQuickAddHome : true,
       google_tasks_sync: isBinary ? googleTasksSync : false,
+      recurrence_type: recurrenceType,
+      biweekly_start_date: recurrenceType === "biweekly" ? biweeklyStartDate : null,
     };
 
     try {
@@ -160,8 +187,8 @@ export default function AreaForm({ mode }: AreaFormProps) {
         savedAreaId = id;
       }
 
-      // Save scheduled days
-      if (savedAreaId) {
+      // Save scheduled days (weekly/biweekly)
+      if (savedAreaId && recurrenceType !== "monthly") {
         await supabase.from("area_scheduled_days").delete().eq("area_id", savedAreaId).eq("user_id", user.id);
         if (selectedDays.length > 0) {
           await supabase.from("area_scheduled_days").insert(
@@ -169,6 +196,20 @@ export default function AreaForm({ mode }: AreaFormProps) {
               area_id: savedAreaId!,
               user_id: user.id,
               day_of_week: day,
+            }))
+          );
+        }
+      }
+
+      // Save monthly days
+      if (savedAreaId && recurrenceType === "monthly") {
+        await (supabase.from("area_monthly_days" as any) as any).delete().eq("area_id", savedAreaId).eq("user_id", user.id);
+        if (selectedMonthlyDays.length > 0) {
+          await supabase.from("area_monthly_days" as any).insert(
+            selectedMonthlyDays.map(day => ({
+              area_id: savedAreaId!,
+              user_id: user.id,
+              day_of_month: day,
             }))
           );
         }
@@ -350,38 +391,107 @@ export default function AreaForm({ mode }: AreaFormProps) {
           </div>
         )}
 
-        {/* Day of week picker */}
+        {/* Recurrence type selector */}
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            {locale === "it" ? "Giorni della settimana" : "Days of the week"}
-            {selectedDays.length > 0 && (
-              <span className="ml-1 text-foreground font-medium">({selectedDays.length}x)</span>
-            )}
-            {selectedDays.length === 0 && (
-              <span className="ml-1 text-muted-foreground/60">
-                ({locale === "it" ? "ogni giorno" : "every day"})
-              </span>
-            )}
-          </p>
-          <div className="flex gap-1.5">
-            {DAY_KEYS.map((day, i) => {
-              const selected = selectedDays.includes(day);
-              return (
-                <button
-                  key={day}
-                  onClick={() => toggleDay(day)}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
-                    selected
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {dayLabels[i]}
-                </button>
-              );
-            })}
+          <p className="text-sm text-muted-foreground">{t("recurrence.label" as any)}</p>
+          <div className="flex flex-wrap gap-2">
+            {(["weekly", "biweekly", "monthly"] as const).map((rt) => (
+              <button
+                key={rt}
+                onClick={() => setRecurrenceType(rt)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors min-h-[36px] ${
+                  recurrenceType === rt ? "bg-primary/20 text-primary border-primary" : "bg-transparent border-border text-muted-foreground"
+                }`}
+              >
+                {t(`recurrence.${rt}` as any)}
+              </button>
+            ))}
           </div>
+          {recurrenceType === "biweekly" && (
+            <p className="text-xs text-muted-foreground">{t("recurrence.biweeklyDesc" as any)}</p>
+          )}
+          {recurrenceType === "monthly" && (
+            <p className="text-xs text-muted-foreground">{t("recurrence.monthlyDesc" as any)}</p>
+          )}
         </div>
+
+        {/* Day of week picker - for weekly & biweekly */}
+        {recurrenceType !== "monthly" && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {locale === "it" ? "Giorni della settimana" : "Days of the week"}
+              {selectedDays.length > 0 && (
+                <span className="ml-1 text-foreground font-medium">({selectedDays.length}x)</span>
+              )}
+              {selectedDays.length === 0 && (
+                <span className="ml-1 text-muted-foreground/60">
+                  ({locale === "it" ? "ogni giorno" : "every day"})
+                </span>
+              )}
+            </p>
+            <div className="flex gap-1.5">
+              {DAY_KEYS.map((day, i) => {
+                const selected = selectedDays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    onClick={() => toggleDay(day)}
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {dayLabels[i]}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Biweekly start date */}
+            {recurrenceType === "biweekly" && (
+              <div className="space-y-1 mt-2">
+                <label className="text-sm text-muted-foreground">{t("recurrence.biweeklyStart" as any)}</label>
+                <input
+                  type="date"
+                  value={biweeklyStartDate}
+                  onChange={(e) => setBiweeklyStartDate(e.target.value)}
+                  className="w-full h-12 rounded-xl bg-card px-4 text-base text-foreground outline-none ring-1 ring-border focus:ring-primary transition-colors"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Monthly day picker */}
+        {recurrenceType === "monthly" && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {t("recurrence.monthlyDays" as any)}
+              {selectedMonthlyDays.length > 0 && (
+                <span className="ml-1 text-foreground font-medium">({selectedMonthlyDays.length}x)</span>
+              )}
+            </p>
+            <div className="grid grid-cols-7 gap-1.5">
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+                const selected = selectedMonthlyDays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    onClick={() => toggleMonthlyDay(day)}
+                    className={`py-2 rounded-lg text-sm font-medium transition-colors min-h-[40px] ${
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card ring-1 ring-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Google Tasks Sync Toggle - only for binary tracking */}
         {isBinary && (
