@@ -64,6 +64,17 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [isGymTemplate, setIsGymTemplate] = useState(false);
   const [cardSuggestion, setCardSuggestion] = useState<{ cardType: string; cardName: string; route: string; areaId: string } | null>(null);
 
+  // Recurrence
+  const [recurrenceType, setRecurrenceType] = useState<"weekly" | "biweekly" | "monthly">("weekly");
+  const [biweeklyStartDate, setBiweeklyStartDate] = useState<string>(() => {
+    // Default to current Monday
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(now.setDate(diff)).toISOString().split("T")[0];
+  });
+  const [selectedMonthlyDays, setSelectedMonthlyDays] = useState<number[]>([]);
+
   // Google Tasks sync
   const [googleTasksSync, setGoogleTasksSync] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
