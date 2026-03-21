@@ -22,6 +22,9 @@ export default function OnboardingAreas() {
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customName, setCustomName] = useState("");
 
+  // Track onboarding_started on mount
+  useEffect(() => { track("onboarding_started"); }, []);
+
   const presets: (AreaDraft & { key: TranslationKey })[] = PRESET_KEYS.map((p) => ({
     name: t(p.nameKey),
     type: p.type,
