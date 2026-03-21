@@ -179,30 +179,77 @@ export function useAdaptiveChart(
 }
 
 /**
- * Smooths overlay data (keyed per-area) using a centered moving average.
+ * Groups and smooths overlay data (keyed per-area).
+ * Applies the same granularity logic as the total view:
+ * daily for ≤90 days, weekly for ≤730, monthly beyond.
  */
-export function smoothOverlayData(
+export function groupAndSmoothOverlayData(
   data: Record<string, any>[],
   areaKeys: string[],
-  granularity: Granularity
-): Record<string, any>[] {
-  if (data.length === 0 || areaKeys.length === 0) return data;
-  const windowSize = getSmoothingWindow(granularity, data.length);
-  if (windowSize <= 1) return data;
+): { data: Record<string, any>[]; granularity: Granularity } {
+  if (data.length === 0 || areaKeys.length === 0) return { data, granularity: "daily" };
+
+  // Determine granularity from date span
+  const dates = data.map(d => d.date as string).filter(Boolean);
+  const granularity = dates.length < 2 ? "daily" : (() => {
+    const span = differenceInDays(parseISO(dates[dates.length - 1]), parseISO(dates[0]));
+    if (span <= 90) return "daily" as Granularity;
+    if (span <= 730) return "weekly" as Granularity;
+    return "monthly" as Granularity;
+  })();
+
+  let grouped = data;
+
+  if (granularity === "weekly") {
+    // Group by ISO week, take last value per area per week
+    const buckets = new Map<string, Record<string, any>[]>();
+    for (const d of data) {
+      const weekStart = format(startOfISOWeek(parseISO(d.date)), "yyyy-MM-dd");
+      if (!buckets.has(weekStart)) buckets.set(weekStart, []);
+      buckets.get(weekStart)!.push(d);
+    }
+    grouped = [];
+    for (const [weekStart, points] of buckets) {
+      const sorted = points.sort((a, b) => (a.date as string).localeCompare(b.date as string));
+      const last = sorted[sorted.length - 1];
+      grouped.push({ ...last, date: weekStart });
+    }
+    grouped.sort((a, b) => (a.date as string).localeCompare(b.date as string));
+  } else if (granularity === "monthly") {
+    const buckets = new Map<string, Record<string, any>[]>();
+    for (const d of data) {
+      const monthKey = format(startOfMonth(parseISO(d.date)), "yyyy-MM");
+      if (!buckets.has(monthKey)) buckets.set(monthKey, []);
+      buckets.get(monthKey)!.push(d);
+    }
+    grouped = [];
+    for (const [monthKey, points] of buckets) {
+      const sorted = points.sort((a, b) => (a.date as string).localeCompare(b.date as string));
+      const last = sorted[sorted.length - 1];
+      grouped.push({ ...last, date: monthKey + "-01" });
+    }
+    grouped.sort((a, b) => (a.date as string).localeCompare(b.date as string));
+  }
+
+  // Apply moving average smoothing
+  const windowSize = getSmoothingWindow(granularity, grouped.length);
+  if (windowSize <= 1) return { data: grouped, granularity };
 
   const half = Math.floor(windowSize / 2);
-  return data.map((point, i) => {
-    const smoothed: Record<string, any> = { ...point };
+  const smoothed = grouped.map((point, i) => {
+    const result: Record<string, any> = { ...point };
     for (const key of areaKeys) {
       const start = Math.max(0, i - half);
-      const end = Math.min(data.length, i + half + 1);
+      const end = Math.min(grouped.length, i + half + 1);
       let sum = 0, count = 0;
       for (let j = start; j < end; j++) {
-        const v = data[j][key];
+        const v = grouped[j][key];
         if (v !== undefined && v !== null) { sum += v; count++; }
       }
-      if (count > 0) smoothed[key] = sum / count;
+      if (count > 0) result[key] = sum / count;
     }
-    return smoothed;
+    return result;
   });
+
+  return { data: smoothed, granularity };
 }
