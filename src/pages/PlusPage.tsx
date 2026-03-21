@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { ArrowLeft, Sparkles, LayoutGrid, TrendingDown, Palette, Loader2, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { track, updateUserProperties } from "@/lib/analytics";
 
 const VALID_PROMO_CODES = ["MCAI2026"];
 
