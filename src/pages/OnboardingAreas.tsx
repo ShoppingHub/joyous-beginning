@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOnboarding, AreaDraft } from "@/pages/OnboardingLayout";
 import { useI18n } from "@/hooks/useI18n";
@@ -6,6 +6,7 @@ import { AreaTypePill } from "@/components/AreaTypePill";
 import { Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import type { TranslationKey } from "@/i18n/translations";
+import { track } from "@/lib/analytics";
 
 const PRESET_KEYS: { nameKey: TranslationKey; type: "health" | "study" | "reduce" | "finance" }[] = [
   { nameKey: "onboarding.areas.preset.morning", type: "health" },
