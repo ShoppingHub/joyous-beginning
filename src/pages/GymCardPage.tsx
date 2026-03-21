@@ -121,7 +121,7 @@ const GymCardPage = () => {
     }
   };
 
-  useEffect(() => { fetchProgram(); }, [fetchProgram]);
+  useEffect(() => { fetchProgram(); track("card_opened", { card_type: "gym" }); }, [fetchProgram]);
   useEffect(() => { if (program) fetchSession(); }, [program, fetchSession]);
 
   // ─── Weekly summary ───
