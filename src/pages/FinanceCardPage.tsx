@@ -9,6 +9,7 @@ import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/Tim
 import { motion } from "framer-motion";
 import { subDays, addDays, format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { track } from "@/lib/analytics";
 
 const financeRanges = [
   { value: "1m" as TimeRange, label: "1m" },
