@@ -199,7 +199,7 @@ const Progress = () => {
     ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
     : chartData.length > 0 && chartData.some((d) => d.score !== 0);
 
-  const effectiveGranularity = isOverlay ? (overlayData.granularity ?? granularity) : granularity;
+  const effectiveGranularity = viewMode === "overlay" ? (overlayData.granularity ?? granularity) : granularity;
   const isLargeRange = effectiveGranularity !== "daily";
   const tickInterval = getTickInterval(effectiveGranularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
 
