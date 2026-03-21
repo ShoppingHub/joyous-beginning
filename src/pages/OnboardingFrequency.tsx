@@ -54,6 +54,10 @@ export default function OnboardingFrequency() {
       // Save language preference
       await supabase.from("users").update({ language: locale } as any).eq("user_id", user.id);
 
+      track("onboarding_step_completed", { step: 2 });
+      track("onboarding_completed", { areas_count: areas.length });
+      identifyUser(user.id);
+
       navigate("/", { replace: true });
     } catch { setError(t("areaForm.error")); setSaving(false); }
   };

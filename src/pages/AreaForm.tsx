@@ -251,6 +251,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
     try {
       const { error: archiveError } = await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", id);
       if (archiveError) throw archiveError;
+      track("area_archived", { area_type: type });
       navigate("/", { replace: true });
     } catch { setError(t("areaForm.error")); setArchiving(false); }
   };

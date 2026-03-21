@@ -96,7 +96,7 @@ export default function OnboardingAreas() {
       )}
 
       <div className="mt-auto pt-8">
-        <button onClick={() => navigate("/onboarding/frequency")} disabled={areas.length === 0}
+        <button onClick={() => { track("onboarding_step_completed", { step: 1 }); navigate("/onboarding/frequency"); }} disabled={areas.length === 0}
           className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
           {t("onboarding.areas.continue")}
         </button>

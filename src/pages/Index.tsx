@@ -298,12 +298,14 @@ const Index = () => {
     if (isDemo || !user) return;
     setCheckInLoadingId(areaId);
     setCheckedIn((prev) => ({ ...prev, [areaId]: true }));
+    const area = areas.find((a) => a.id === areaId);
     try {
       const { error } = await supabase.from("checkins").upsert(
         { area_id: areaId, user_id: user.id, date: selectedDateStr, completed: true },
         { onConflict: "area_id,date" }
       );
       if (error) throw error;
+      track("checkin_completed", { area_type: area?.type, tracking_mode: area?.tracking_mode || "binary", source: "home" });
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
       if (isSameDay(selectedDate, today) && token) {
@@ -313,7 +315,6 @@ const Index = () => {
         });
       }
       // Sync to Google Tasks if enabled (fire-and-forget)
-      const area = areas.find((a) => a.id === areaId);
       if (area?.google_tasks_sync && token) {
         supabase.functions.invoke("sync-google-tasks", {
           body: { area_id: areaId },
@@ -332,6 +333,7 @@ const Index = () => {
     if (isDemo || !user) return;
     setCheckInLoadingId(areaId);
     setCheckedIn((prev) => ({ ...prev, [areaId]: false }));
+    const area = areas.find((a) => a.id === areaId);
     try {
       const { error } = await supabase
         .from("checkins")
@@ -340,6 +342,7 @@ const Index = () => {
         .eq("user_id", user.id)
         .eq("date", selectedDateStr);
       if (error) throw error;
+      track("checkin_undo", { area_type: area?.type });
     } catch {
       setCheckedIn((prev) => ({ ...prev, [areaId]: true }));
     } finally {

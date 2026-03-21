@@ -65,6 +65,7 @@ export default function AreaDetail() {
   const handleArchive = async () => {
     if (!id) return;
     await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", id);
+    track("area_archived", { area_type: area?.type });
     navigate("/activities", { replace: true });
   };
 
