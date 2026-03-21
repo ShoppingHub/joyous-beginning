@@ -18,6 +18,7 @@ import {
 import { matchCardForArea, getCardName } from "@/lib/cards";
 import type { Database } from "@/integrations/supabase/types";
 import type { TranslationKey } from "@/i18n/translations";
+import { track, updateUserProperties } from "@/lib/analytics";
 
 type AreaType = Database["public"]["Enums"]["area_type"];
 const typeOptions: AreaType[] = ["health", "study", "reduce", "finance", "career"];
