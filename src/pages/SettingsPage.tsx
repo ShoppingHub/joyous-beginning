@@ -104,6 +104,7 @@ const SettingsPage = () => {
     const prev = scoreVisible;
     setScoreVisible(checked);
     updateSetting("settings_score_visible", checked, () => setScoreVisible(prev));
+    track("settings_score_toggled", { visible: checked });
   };
 
   const handleNotificationsToggle = (checked: boolean) => {
