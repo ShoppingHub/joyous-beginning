@@ -170,6 +170,19 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
     return (data as any).id;
   };
 
+  const checkSessionCompleted = (updatedExercises: Record<string, GymSessionExercise>) => {
+    if (sessionCompletedRef.current) return;
+    const total = allExercisesRef.current;
+    if (total.length === 0) return;
+    const allDone = total.every(ex => updatedExercises[ex.id]?.completed);
+    if (allDone) {
+      sessionCompletedRef.current = true;
+      track("session_gym_completed", {
+        exercises_done: total.filter(ex => updatedExercises[ex.id]?.completed).length,
+      });
+    }
+  };
+
   const handleToggleExercise = async (exercise: GymProgramExercise) => {
     if (!selectedDayId) return;
     const existing = sessionExercises[exercise.id];
@@ -183,10 +196,12 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
       await supabase.from("gym_session_exercises" as any)
         .update({ completed: newCompleted } as any)
         .eq("id", existing.id);
-      setSessionExercises(prev => ({
-        ...prev,
-        [exercise.id]: { ...prev[exercise.id], completed: newCompleted },
-      }));
+      const updated = {
+        ...sessionExercises,
+        [exercise.id]: { ...sessionExercises[exercise.id], completed: newCompleted },
+      };
+      setSessionExercises(updated);
+      if (newCompleted) checkSessionCompleted(updated);
       if (newCompleted && isFirstCompletion) onAutoCheckIn();
     } else {
       const { data } = await supabase.from("gym_session_exercises" as any)
@@ -199,7 +214,9 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
         .select("*")
         .single();
       if (data) {
-        setSessionExercises(prev => ({ ...prev, [exercise.id]: data as any }));
+        const updated = { ...sessionExercises, [exercise.id]: data as any };
+        setSessionExercises(updated);
+        checkSessionCompleted(updated);
         if (isFirstCompletion || Object.values(sessionExercises).every(se => !se.completed)) {
           onAutoCheckIn();
         }
