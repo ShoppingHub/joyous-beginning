@@ -93,6 +93,7 @@ const Login = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {setGenericError(t("login.error.invalid"));}
+      else { track("auth_login", { method: "email" }); }
     } catch {setGenericError(t("login.error.generic"));} finally
     {setAuthLoading(false);}
   };
