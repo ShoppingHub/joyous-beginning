@@ -13,6 +13,7 @@ import { WeekSelector } from "@/components/home/WeekSelector";
 import { WeekBanner } from "@/components/home/WeekBanner";
 import { ActivityCard } from "@/components/home/ActivityCard";
 import type { Database } from "@/integrations/supabase/types";
+import { track, updateUserProperties } from "@/lib/analytics";
 
 type Area = Database["public"]["Tables"]["areas"]["Row"];
 
