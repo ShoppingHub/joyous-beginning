@@ -239,7 +239,8 @@ export default function AreaForm({ mode }: AreaFormProps) {
       <div className="flex flex-col gap-6 mt-4 flex-1">
         {/* Name */}
         <div className="space-y-2">
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("areaForm.namePlaceholder")}
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+            placeholder={type ? t(`areaForm.namePlaceholder.${type}` as any) : t("areaForm.namePlaceholder")}
             className="w-full h-12 rounded-xl bg-card px-4 text-base text-foreground placeholder:text-muted-foreground outline-none ring-1 ring-border focus:ring-primary transition-colors" />
         </div>
 
