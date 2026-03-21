@@ -68,6 +68,14 @@ export function ActivityCard({
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
   const weekdays = WEEKDAY_SHORT[locale] || WEEKDAY_SHORT.en;
 
+  const recurrenceType = (area as any).recurrence_type || "weekly";
+  const recurrenceBadge = recurrenceType !== "weekly" ? (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-medium">
+      {recurrenceType === "biweekly" ? <Repeat size={11} /> : <CalendarDays size={11} />}
+      {t(`recurrence.${recurrenceType}` as any)}
+    </span>
+  ) : null;
+
   const handleCTAClick = () => {
     if (isFutureDay) return;
     if (isCheckedIn) {
