@@ -127,7 +127,7 @@ const Areas = () => {
       <div className="flex items-center justify-between h-12">
         <h1 className="text-[18px] font-semibold">{t("areas.title")}</h1>
         {!isDemo && (
-          <button onClick={() => navigate("/activities/new")}
+          <button onClick={() => navigate("/activities/new?source=activities_tab")}
             className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
             <Plus size={24} strokeWidth={1.5} className="text-primary" />
           </button>
@@ -198,7 +198,7 @@ const Areas = () => {
               })}
               {anyCardEnabled && <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />}
               {!isDemo && !isMobile && (
-                <button onClick={() => navigate(`/activities/new?type=${type}`)}
+                <button onClick={() => navigate(`/activities/new?type=${type}&source=activities_tab`)}
                   className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] flex items-center">
                   {t("areas.add")}
                 </button>
