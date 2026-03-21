@@ -29,6 +29,7 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
   const [sessionExercises, setSessionExercises] = useState<Record<string, GymSessionExercise>>({});
   const [loading, setLoading] = useState(true);
   const [dayPickerOpen, setDayPickerOpen] = useState(false);
+  const sessionCompletedRef = useRef(false);
 
   // Weight edit drawer
   const [weightDrawer, setWeightDrawer] = useState<{ exercise: GymProgramExercise } | null>(null);
