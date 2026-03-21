@@ -21,10 +21,12 @@ export default function PlusPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useI18n();
-  const { isPlusActive, refreshPlusStatus } = usePlusStatus();
+  const { isPlusActive, refreshPlusStatus, enablePlus } = usePlusStatus();
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const [loading, setLoading] = useState(false);
   const [promoCode, setPromoCode] = useState("");
+  const [promoError, setPromoError] = useState("");
   const [successMsg, setSuccessMsg] = useState(false);
   const [cancelMsg, setCancelMsg] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
