@@ -465,6 +465,8 @@ const Progress = () => {
             </div>
 
             {/* Overlay legend removed — shown in bottom list */}
+              </motion.div>
+            </AnimatePresence>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 px-4" style={{ height: "40vh" }}>
