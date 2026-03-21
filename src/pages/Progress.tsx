@@ -34,13 +34,13 @@ const AREA_TYPE_KEYS: { value: AreaType; labelKey: TranslationKey }[] = [
 
 const OVERLAY_COLORS = [
   "hsl(var(--primary))",
-  "hsl(var(--accent-foreground))",
   "hsl(var(--destructive))",
-  "hsl(190, 40%, 55%)",
-  "hsl(30, 60%, 55%)",
-  "hsl(270, 40%, 55%)",
-  "hsl(150, 40%, 45%)",
-  "hsl(340, 50%, 55%)",
+  "hsl(var(--graph-positive))",
+  "hsl(var(--graph-decline))",
+  "hsl(var(--ring))",
+  "hsl(var(--accent))",
+  "hsl(var(--graph-neutral))",
+  "hsl(var(--sidebar-primary))",
 ];
 
 const Progress = () => {
