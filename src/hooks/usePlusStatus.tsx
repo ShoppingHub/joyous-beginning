@@ -21,6 +21,7 @@ const PlusContext = createContext<PlusContextType>({
   isFeatureLocked: () => true,
   refreshPlusStatus: async () => {},
   disablePlus: async () => {},
+  enablePlus: async () => {},
 });
 
 export function PlusProvider({ children }: { children: ReactNode }) {
