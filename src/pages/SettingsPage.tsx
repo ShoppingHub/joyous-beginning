@@ -207,7 +207,7 @@ const SettingsPage = () => {
             {themeOptions.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => setMode(opt.value)}
+                onClick={() => { setMode(opt.value); track("settings_theme_changed", { theme: opt.value, palette }); }}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-colors min-h-[44px] ${
                   mode === opt.value
                     ? "bg-primary text-primary-foreground"
