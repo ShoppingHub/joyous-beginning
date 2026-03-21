@@ -35,15 +35,17 @@ export function PlusProvider({ children }: { children: ReactNode }) {
 
   const checkSubscription = useCallback(async () => {
     if (!user) return;
-    // Don't auto-re-enable if user manually disabled for testing
     if (manuallyDisabledRef.current) return;
     try {
       const { data } = await supabase.functions.invoke("check-subscription");
       if (data?.subscribed !== undefined) {
+        // Only update if the server actually changed the status
+        // (the edge function now respects promo providers)
         setIsPlusActive(data.subscribed);
         resetIfLocked(data.subscribed);
       }
     } catch (err) {
+      // On error, keep current state — don't flicker
       console.error("check-subscription error:", err);
     }
   }, [user, resetIfLocked]);
