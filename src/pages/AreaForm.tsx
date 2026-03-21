@@ -98,9 +98,10 @@ export default function AreaForm({ mode }: AreaFormProps) {
   useEffect(() => {
     if (mode !== "edit" || !id || !user) return;
     (async () => {
-      const [areaRes, daysRes] = await Promise.all([
+      const [areaRes, daysRes, monthlyRes] = await Promise.all([
         supabase.from("areas").select("*").eq("id", id).single(),
         supabase.from("area_scheduled_days").select("day_of_week").eq("area_id", id).eq("user_id", user.id),
+        supabase.from("area_monthly_days" as any).select("day_of_month").eq("area_id", id).eq("user_id", user.id),
       ]);
       if (areaRes.data) {
         const data = areaRes.data;
@@ -111,9 +112,14 @@ export default function AreaForm({ mode }: AreaFormProps) {
         setBaselineInitial(data.baseline_initial != null ? String(data.baseline_initial) : "");
         setShowQuickAddHome(data.show_quick_add_home ?? true);
         setGoogleTasksSync(data.google_tasks_sync ?? false);
+        setRecurrenceType((data.recurrence_type as "weekly" | "biweekly" | "monthly") || "weekly");
+        if (data.biweekly_start_date) setBiweeklyStartDate(data.biweekly_start_date);
       }
       if (daysRes.data && daysRes.data.length > 0) {
         setSelectedDays(daysRes.data.map(d => d.day_of_week));
+      }
+      if (monthlyRes.data && (monthlyRes.data as any[]).length > 0) {
+        setSelectedMonthlyDays((monthlyRes.data as any[]).map((d: any) => d.day_of_month));
       }
       setLoadingData(false);
     })();
