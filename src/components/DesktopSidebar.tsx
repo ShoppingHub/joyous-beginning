@@ -6,6 +6,7 @@ import { useNavConfig } from "@/hooks/useNavConfig";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Sparkles } from "lucide-react";
 import logoOpadme from "@/assets/logo-opadme.svg";
+import { track } from "@/lib/analytics";
 
 export function DesktopSidebar() {
   const location = useLocation();
