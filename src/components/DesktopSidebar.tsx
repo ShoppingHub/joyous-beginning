@@ -3,7 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
-import logoOpadme from "@/assets/logo-opadme-head.svg";
+import logoOpadme from "@/assets/logo-opadme.svg";
 
 export function DesktopSidebar() {
   const location = useLocation();

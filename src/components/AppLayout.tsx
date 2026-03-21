@@ -4,7 +4,7 @@ import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Sparkles } from "lucide-react";
-import logoOpadme from "@/assets/logo-opadme-head.svg";
+import logoOpadme from "@/assets/logo-opadme.svg";
 
 export function AppLayout() {
   const { isPlusActive } = usePlusStatus();
