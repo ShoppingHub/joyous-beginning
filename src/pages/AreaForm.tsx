@@ -135,7 +135,15 @@ export default function AreaForm({ mode }: AreaFormProps) {
     );
   };
 
-  const frequency = selectedDays.length > 0 ? selectedDays.length : 7;
+  const toggleMonthlyDay = (day: number) => {
+    setSelectedMonthlyDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const frequency = recurrenceType === "monthly"
+    ? selectedMonthlyDays.length > 0 ? selectedMonthlyDays.length : 4
+    : selectedDays.length > 0 ? selectedDays.length : 7;
 
   const validate = (): boolean => {
     if (!name.trim()) return false;
