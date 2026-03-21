@@ -167,6 +167,7 @@ export function ActivityCard({
           className="flex-1 min-w-0 text-left"
         >
           <p className="text-base font-medium truncate">{area.name}</p>
+          {recurrenceBadge}
         </button>
         {doneButton}
       </div>
