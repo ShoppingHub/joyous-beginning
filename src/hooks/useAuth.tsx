@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { identifyUser, resetUser, track } from "@/lib/analytics";
 
 interface AuthContextType {
   session: Session | null;
@@ -28,11 +29,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setLoading(false);
 
+        // Identify user on sign-in or token refresh with active session
+        if (session?.user && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
+          // Check if demo mode — skip identify
+          if (sessionStorage.getItem("demo_mode") !== "true") {
+            identifyUser(session.user.id);
+          }
+        }
+
         // Session expired and refresh failed
         if (event === "TOKEN_REFRESHED" && !session) {
           navigate("/login", { replace: true });
         }
         if (event === "SIGNED_OUT") {
+          resetUser();
+          track("auth_logout");
           navigate("/login", { replace: true });
         }
       }

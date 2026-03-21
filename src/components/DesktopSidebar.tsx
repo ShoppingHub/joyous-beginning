@@ -6,6 +6,7 @@ import { useNavConfig } from "@/hooks/useNavConfig";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Sparkles } from "lucide-react";
 import logoOpadme from "@/assets/logo-opadme.svg";
+import { track } from "@/lib/analytics";
 
 export function DesktopSidebar() {
   const location = useLocation();
@@ -34,6 +35,7 @@ export function DesktopSidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={() => track("tab_switched", { tab: to === "/" ? "home" : to.replace("/", "") })}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
               isActive(to)
                 ? "bg-primary/10 text-primary"

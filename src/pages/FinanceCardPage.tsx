@@ -9,6 +9,7 @@ import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/Tim
 import { motion } from "framer-motion";
 import { subDays, addDays, format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { track } from "@/lib/analytics";
 
 const financeRanges = [
   { value: "1m" as TimeRange, label: "1m" },
@@ -62,7 +63,7 @@ const FinanceCardPage = () => {
     setLoading(false);
   }, [user, areaId, timeRange]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); track("card_opened", { card_type: "finance_projection" }); }, [fetchData]);
 
   const title = locale === "it" ? "Proiezione Finanze" : "Finance Projection";
   const regression = scores.length >= 3 ? linearRegression(scores) : null;

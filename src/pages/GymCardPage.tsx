@@ -7,6 +7,7 @@ import { useUserCards } from "@/hooks/useUserCards";
 import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, endOfWeek } from "date-fns";
+import { track } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -120,7 +121,7 @@ const GymCardPage = () => {
     }
   };
 
-  useEffect(() => { fetchProgram(); }, [fetchProgram]);
+  useEffect(() => { fetchProgram(); track("card_opened", { card_type: "gym" }); }, [fetchProgram]);
   useEffect(() => { if (program) fetchSession(); }, [program, fetchSession]);
 
   // ─── Weekly summary ───
@@ -155,6 +156,7 @@ const GymCardPage = () => {
   const handleAutoCheckIn = useCallback(async () => {
     if (!user || !areaId) return;
     await supabase.from("checkins").upsert({ area_id: areaId, user_id: user.id, date: today, completed: true }, { onConflict: "area_id,date" });
+    track("session_gym_started");
     const { data: { session: authSession } } = await supabase.auth.getSession();
     if (authSession?.access_token) {
       supabase.functions.invoke("calculate-score", { body: { area_id: areaId, date: today }, headers: { Authorization: `Bearer ${authSession.access_token}` } }).catch(console.error);

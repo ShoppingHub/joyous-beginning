@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { ArrowLeft, Sparkles, LayoutGrid, TrendingDown, Palette, Loader2, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { track, updateUserProperties } from "@/lib/analytics";
 
 const VALID_PROMO_CODES = ["MCAI2026"];
 
@@ -19,6 +20,7 @@ const features = [
 
 export default function PlusPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useI18n();
   const { isPlusActive, refreshPlusStatus, enablePlus } = usePlusStatus();
@@ -31,11 +33,19 @@ export default function PlusPage() {
   const [cancelMsg, setCancelMsg] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
 
+  // Track page view with source
+  useEffect(() => {
+    const state = location.state as any;
+    const source = state?.source || "direct";
+    track("plus_page_viewed", { source });
+  }, []);
+
   // Handle return from Stripe
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       setSuccessMsg(true);
       refreshPlusStatus();
+      if (user) updateUserProperties(user.id, { plan: "plus" });
       setSearchParams({}, { replace: true });
       const timer = setTimeout(() => setSuccessMsg(false), 5000);
       return () => clearTimeout(timer);
@@ -50,6 +60,7 @@ export default function PlusPage() {
 
   const handleActivate = async () => {
     setPromoError("");
+    track("plus_upgrade_clicked");
 
     // Demo mode: instant activation
     if (isDemo) {
@@ -80,6 +91,7 @@ export default function PlusPage() {
     // Normal Stripe checkout
     if (!user?.email) return;
     setLoading(true);
+    track("plus_upgrade_clicked");
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { promoCode: trimmedCode || undefined },

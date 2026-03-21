@@ -8,6 +8,7 @@ import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
+import { track } from "@/lib/analytics";
 
 const emailSchema = z.string().email();
 
@@ -77,6 +78,7 @@ const Login = () => {
           setGenericError(t("login.error.generic"));
         }
       } else {
+        track("auth_signup", { method: "email" });
         setScreen("check-email");
       }
     } catch {setGenericError(t("login.error.generic"));} finally
@@ -91,6 +93,7 @@ const Login = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {setGenericError(t("login.error.invalid"));}
+      else { track("auth_login", { method: "email" }); }
     } catch {setGenericError(t("login.error.generic"));} finally
     {setAuthLoading(false);}
   };
@@ -132,6 +135,8 @@ const Login = () => {
         if (!msg.includes("cancelled") && !msg.includes("closed") && !msg.includes("popup")) {
           setGenericError(t("login.error.google"));
         }
+      } else {
+        track("auth_login", { method: "google" });
       }
     } catch {setGenericError(t("login.error.google"));} finally
     {setGoogleLoading(false);}

@@ -6,6 +6,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
+import { track, updateUserProperties } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid, ChevronRight } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -32,7 +33,11 @@ const SettingsPage = () => {
   const { t, locale, setLocale } = useI18n();
   const { enabledCards, allUserCards, toggleAllCards, isCardEnabled } = useUserCards();
   const anyCardEnabled = enabledCards.length > 0;
-  const handleCardsToggle = (checked: boolean) => toggleAllCards(checked);
+  const handleCardsToggle = (checked: boolean) => {
+    toggleAllCards(checked);
+    track(checked ? "card_enabled" : "card_disabled", { card_type: "all" });
+    if (user) updateUserProperties(user.id, { cards_enabled: checked ? enabledCards.map(c => c.userCard.card_type) : [] });
+  };
   const { mode, setMode, palette, setPalette } = useTheme();
   const { isPlusActive, disablePlus, refreshPlusStatus } = usePlusStatus();
   const [disablingPlus, setDisablingPlus] = useState(false);
@@ -103,6 +108,7 @@ const SettingsPage = () => {
     const prev = scoreVisible;
     setScoreVisible(checked);
     updateSetting("settings_score_visible", checked, () => setScoreVisible(prev));
+    track("settings_score_toggled", { visible: checked });
   };
 
   const handleNotificationsToggle = (checked: boolean) => {
@@ -205,7 +211,7 @@ const SettingsPage = () => {
             {themeOptions.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => setMode(opt.value)}
+                onClick={() => { setMode(opt.value); track("settings_theme_changed", { theme: opt.value, palette }); }}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-colors min-h-[44px] ${
                   mode === opt.value
                     ? "bg-primary text-primary-foreground"
@@ -229,10 +235,11 @@ const SettingsPage = () => {
               return (
                 <button
                   key={opt.value}
-                  onClick={() => {
-                    if (locked) return;
-                    setPalette(opt.value);
-                  }}
+                   onClick={() => {
+                     if (locked) return;
+                     setPalette(opt.value);
+                     track("settings_theme_changed", { theme: mode, palette: opt.value });
+                   }}
                   className={`flex flex-col items-center gap-1.5 flex-1 py-2 rounded-xl transition-all min-h-[44px] ${
                     palette === opt.value ? "ring-2 ring-primary bg-card" : "hover:bg-card/50"
                   } ${locked ? "opacity-50" : ""}`}
@@ -251,7 +258,7 @@ const SettingsPage = () => {
             <p className="text-xs text-muted-foreground mt-1">{t("plus.themeLocked" as any)}</p>
           )}
           {!isPlusActive && (
-            <button onClick={() => navigate("/plus")} className="text-xs text-primary hover:opacity-80 transition-opacity">
+             <button onClick={() => navigate("/plus", { state: { source: "settings" } })} className="text-xs text-primary hover:opacity-80 transition-opacity">
               {t("plus.discoverPlus" as any)}
             </button>
           )}
@@ -267,9 +274,13 @@ const SettingsPage = () => {
           <span className="text-base">{t("settings.language")}</span>
           <div className="flex rounded-full bg-card ring-1 ring-border overflow-hidden">
             {languageOptions.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setLocale(opt.value)}
+               <button
+                 key={opt.value}
+                 onClick={() => {
+                   setLocale(opt.value);
+                   track("settings_language_changed", { language: opt.value });
+                   if (user) updateUserProperties(user.id, { language: opt.value });
+                 }}
                 className={`px-4 py-1.5 text-sm font-medium transition-colors min-h-[36px] ${
                   locale === opt.value
                     ? "bg-primary text-primary-foreground"
@@ -318,7 +329,7 @@ const SettingsPage = () => {
           </div>
         )}
         {!isPlusActive && (
-          <button onClick={() => navigate("/plus")} className="text-xs text-primary hover:opacity-80 transition-opacity">
+          <button onClick={() => navigate("/plus", { state: { source: "settings" } })} className="text-xs text-primary hover:opacity-80 transition-opacity">
             {t("plus.discoverPlus" as any)}
           </button>
         )}

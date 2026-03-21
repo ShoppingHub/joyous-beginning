@@ -3,6 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
 import { motion, AnimatePresence } from "framer-motion";
+import { track } from "@/lib/analytics";
 
 export function BottomNav() {
   const location = useLocation();
@@ -26,6 +27,7 @@ export function BottomNav() {
             >
               <NavLink
                 to={to}
+                onClick={() => track("tab_switched", { tab: key })}
                 className="flex flex-col items-center justify-center min-h-[44px] gap-0.5"
               >
                 <Icon

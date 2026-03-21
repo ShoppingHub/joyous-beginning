@@ -12,6 +12,7 @@ import { GymCard } from "@/components/GymCard";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
+import { track } from "@/lib/analytics";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,9 +54,17 @@ export default function AreaDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Track area detail viewed
+  useEffect(() => {
+    if (area) {
+      track("area_detail_viewed", { area_type: area.type });
+    }
+  }, [area?.id]);
+
   const handleArchive = async () => {
     if (!id) return;
     await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", id);
+    track("area_archived", { area_type: area?.type });
     navigate("/activities", { replace: true });
   };
 

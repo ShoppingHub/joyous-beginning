@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOnboarding, AreaDraft } from "@/pages/OnboardingLayout";
 import { useI18n } from "@/hooks/useI18n";
@@ -6,6 +6,7 @@ import { AreaTypePill } from "@/components/AreaTypePill";
 import { Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import type { TranslationKey } from "@/i18n/translations";
+import { track } from "@/lib/analytics";
 
 const PRESET_KEYS: { nameKey: TranslationKey; type: "health" | "study" | "reduce" | "finance" }[] = [
   { nameKey: "onboarding.areas.preset.morning", type: "health" },
@@ -20,6 +21,9 @@ export default function OnboardingAreas() {
   const navigate = useNavigate();
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customName, setCustomName] = useState("");
+
+  // Track onboarding_started on mount
+  useEffect(() => { track("onboarding_started"); }, []);
 
   const presets: (AreaDraft & { key: TranslationKey })[] = PRESET_KEYS.map((p) => ({
     name: t(p.nameKey),
@@ -92,7 +96,7 @@ export default function OnboardingAreas() {
       )}
 
       <div className="mt-auto pt-8">
-        <button onClick={() => navigate("/onboarding/frequency")} disabled={areas.length === 0}
+        <button onClick={() => { track("onboarding_step_completed", { step: 1 }); navigate("/onboarding/frequency"); }} disabled={areas.length === 0}
           className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base flex items-center justify-center hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">
           {t("onboarding.areas.continue")}
         </button>
