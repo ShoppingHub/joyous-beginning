@@ -18,7 +18,8 @@ export function DesktopSidebar() {
 
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[240px] bg-[hsl(var(--nav-bg))] flex-col z-50">
-      <div className="px-6 pt-8 pb-6">
+      <div className="px-6 pt-8 pb-6 flex items-center gap-2.5">
+        <img src={logoOpadme} alt="opad.me logo" className="w-7 h-7" />
         <span className="text-[20px] font-semibold">
           <span className="text-foreground">opad</span>
           <span style={{ color: '#B5453A' }}>.me</span>
