@@ -451,17 +451,7 @@ const Progress = () => {
               <p className="text-xs text-muted-foreground tabular-nums">{fmt(maxScore)}</p>
             </div>
 
-            {/* Overlay legend */}
-            {isOverlay && overlayData.areaKeys.length > 0 && (
-              <div className="flex flex-wrap gap-x-4 gap-y-1 px-5 pt-2">
-                {overlayData.areaKeys.map((ak) => (
-                  <div key={ak.id} className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ak.color }} />
-                    <span className="text-xs text-muted-foreground">{ak.name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Overlay legend removed — shown in bottom list */}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 px-4" style={{ height: "40vh" }}>
