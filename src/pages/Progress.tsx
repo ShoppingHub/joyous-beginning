@@ -147,7 +147,7 @@ const Progress = () => {
       }
     }
 
-    const data = Object.entries(dateMap)
+    const rawData = Object.entries(dateMap)
       .map(([date, vals]) => ({ date, ...vals }))
       .sort((a, b) => a.date.localeCompare(b.date));
 
@@ -158,6 +158,10 @@ const Progress = () => {
         name: a.name,
         color: OVERLAY_COLORS[i % OVERLAY_COLORS.length],
       }));
+
+    // Apply smoothing to overlay data based on granularity
+    const overlayGranularity = rawData.length <= 90 ? "daily" as const : rawData.length <= 730 ? "weekly" as const : "monthly" as const;
+    const data = smoothOverlayData(rawData, areaKeys.map(k => k.id), overlayGranularity);
 
     return { data, areaKeys };
   }, [viewMode, filteredAreas, scores]);
