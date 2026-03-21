@@ -34,13 +34,13 @@ const AREA_TYPE_KEYS: { value: AreaType; labelKey: TranslationKey }[] = [
 
 const OVERLAY_COLORS = [
   "hsl(var(--primary))",
-  "hsl(var(--accent-foreground))",
   "hsl(var(--destructive))",
-  "hsl(190, 40%, 55%)",
-  "hsl(30, 60%, 55%)",
-  "hsl(270, 40%, 55%)",
-  "hsl(150, 40%, 45%)",
-  "hsl(340, 50%, 55%)",
+  "hsl(var(--graph-positive))",
+  "hsl(var(--graph-decline))",
+  "hsl(var(--ring))",
+  "hsl(var(--accent))",
+  "hsl(var(--graph-neutral))",
+  "hsl(var(--sidebar-primary))",
 ];
 
 const Progress = () => {
@@ -222,9 +222,9 @@ const Progress = () => {
     return t("progress.filter");
   }, [filterMode, selectedType, selectedAreaId, areas, t]);
 
-  // Filter popover content
+  // Filter popover content — activities nested under their type
   const filterContent = (
-    <div className="flex flex-col gap-1 min-w-[200px]">
+    <div className="flex flex-col gap-0.5 min-w-[200px]">
       {/* All */}
       <button
         onClick={() => { setFilterMode("all"); setSelectedType(null); setSelectedAreaId(null); setActiveDate(null); setFilterOpen(false); }}
@@ -234,37 +234,34 @@ const Progress = () => {
         <span className={filterMode === "all" ? "" : "ml-5"}>{t("progress.filter.allActivities")}</span>
       </button>
 
-      {/* By type */}
-      <p className="text-xs text-muted-foreground px-3 pt-2 pb-1 font-medium uppercase tracking-wide">{t("progress.filter.byType")}</p>
+      {/* Types with nested activities */}
       {AREA_TYPE_KEYS.map(({ value, labelKey }) => {
-        const isActive = filterMode === "type" && selectedType === value;
-        const hasAreas = areas.some(a => a.type === value);
-        if (!hasAreas) return null;
+        const typeAreas = areas.filter(a => a.type === value);
+        if (typeAreas.length === 0) return null;
+        const isTypeActive = filterMode === "type" && selectedType === value;
         return (
-          <button
-            key={value}
-            onClick={() => { setFilterMode("type"); setSelectedType(value); setSelectedAreaId(null); setActiveDate(null); setFilterOpen(false); }}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${isActive ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted"}`}
-          >
-            {isActive && <Check size={14} />}
-            <span className={isActive ? "" : "ml-5"}>{t(labelKey)}</span>
-          </button>
-        );
-      })}
-
-      {/* By activity */}
-      <p className="text-xs text-muted-foreground px-3 pt-2 pb-1 font-medium uppercase tracking-wide">{t("progress.filter.byActivity")}</p>
-      {areas.map((area) => {
-        const isActive = filterMode === "activity" && selectedAreaId === area.id;
-        return (
-          <button
-            key={area.id}
-            onClick={() => { setFilterMode("activity"); setSelectedAreaId(area.id); setSelectedType(null); setActiveDate(null); setFilterOpen(false); }}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${isActive ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted"}`}
-          >
-            {isActive && <Check size={14} />}
-            <span className={isActive ? "" : "ml-5"}>{area.name}</span>
-          </button>
+          <div key={value}>
+            <button
+              onClick={() => { setFilterMode("type"); setSelectedType(value); setSelectedAreaId(null); setActiveDate(null); setFilterOpen(false); }}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors w-full mt-1 ${isTypeActive ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted"}`}
+            >
+              {isTypeActive && <Check size={14} />}
+              <span className={isTypeActive ? "" : "ml-5"}>{t(labelKey)}</span>
+            </button>
+            {typeAreas.map((area) => {
+              const isActive = filterMode === "activity" && selectedAreaId === area.id;
+              return (
+                <button
+                  key={area.id}
+                  onClick={() => { setFilterMode("activity"); setSelectedAreaId(area.id); setSelectedType(null); setActiveDate(null); setFilterOpen(false); }}
+                  className={`flex items-center gap-2 pl-8 pr-3 py-1.5 rounded-lg text-sm text-left transition-colors w-full ${isActive ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted"}`}
+                >
+                  {isActive && <Check size={12} />}
+                  <span className={isActive ? "" : "ml-4"}>{area.name}</span>
+                </button>
+              );
+            })}
+          </div>
         );
       })}
     </div>
@@ -365,8 +362,8 @@ const Progress = () => {
       >
         {hasData ? (
           <div className="relative">
-            {/* Score labels - only in total mode */}
-            {!isOverlay && (
+            {/* Score labels */}
+            {!isOverlay ? (
               <>
                 <div className="absolute top-2 right-4 z-10 text-right">
                   <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
@@ -375,6 +372,10 @@ const Progress = () => {
                   <p className="text-xs text-muted-foreground tabular-nums">{fmt(firstScore)}</p>
                 </div>
               </>
+            ) : (
+              <div className="absolute top-2 right-4 z-10 text-right">
+                <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
+              </div>
             )}
 
             {/* Chart */}
@@ -450,17 +451,7 @@ const Progress = () => {
               <p className="text-xs text-muted-foreground tabular-nums">{fmt(maxScore)}</p>
             </div>
 
-            {/* Overlay legend */}
-            {isOverlay && overlayData.areaKeys.length > 0 && (
-              <div className="flex flex-wrap gap-x-4 gap-y-1 px-5 pt-2">
-                {overlayData.areaKeys.map((ak) => (
-                  <div key={ak.id} className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ak.color }} />
-                    <span className="text-xs text-muted-foreground">{ak.name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Overlay legend removed — shown in bottom list */}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 px-4" style={{ height: "40vh" }}>
@@ -474,7 +465,7 @@ const Progress = () => {
           <TimeRangeSelector value={timeRange} onChange={(r) => { setTimeRange(r); setActiveDate(null); }} />
         </div>
 
-        {/* Detail panel on hover/touch */}
+        {/* Detail panel on hover/touch — total mode */}
         {hasData && activeDate && !isOverlay && (
           <ChartDetailPanel
             activeDate={activeDate}
@@ -484,6 +475,37 @@ const Progress = () => {
             isLargeRange={isLargeRange}
             checkins={checkins}
           />
+        )}
+
+        {/* Overlay activity list with scores — always visible */}
+        {isOverlay && overlayData.areaKeys.length > 0 && (
+          <div className="px-4 pt-1 pb-2">
+            <div className="flex flex-col gap-1">
+              {overlayData.areaKeys.map((ak) => {
+                const areaScores = scores[ak.id] || [];
+                const lastAreaScore = areaScores.length > 0 ? areaScores[areaScores.length - 1].score : null;
+                const activeDayScore = activeDate
+                  ? overlayData.data.find(d => d.date === activeDate)?.[ak.id] as number | undefined
+                  : undefined;
+                return (
+                  <div key={ak.id} className="flex items-center justify-between py-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ak.color }} />
+                      <span className="text-sm text-foreground">{ak.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {activeDayScore !== undefined && (
+                        <span className="text-xs text-muted-foreground tabular-nums">{fmt(activeDayScore)}</span>
+                      )}
+                      {lastAreaScore !== null && (
+                        <span className="text-sm font-medium text-foreground tabular-nums">{fmt(lastAreaScore)}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </motion.div>
     </div>
