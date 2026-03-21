@@ -67,6 +67,12 @@ export function DesktopSidebar() {
       <div className="px-4 pb-6 pt-2 border-t border-foreground/10">
         <div className="flex items-center gap-3 px-2 py-2">
           <ProfileAvatar size="md" />
+          {isPlusActive && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent/15 text-accent text-[11px] font-medium">
+              <Sparkles className="w-3 h-3" />
+              Plus
+            </span>
+          )}
         </div>
       </div>
     </aside>
