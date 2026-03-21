@@ -135,6 +135,8 @@ const Login = () => {
         if (!msg.includes("cancelled") && !msg.includes("closed") && !msg.includes("popup")) {
           setGenericError(t("login.error.google"));
         }
+      } else {
+        track("auth_login", { method: "google" });
       }
     } catch {setGenericError(t("login.error.google"));} finally
     {setGoogleLoading(false);}
