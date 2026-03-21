@@ -159,11 +159,10 @@ const Progress = () => {
         color: OVERLAY_COLORS[i % OVERLAY_COLORS.length],
       }));
 
-    // Apply smoothing to overlay data based on granularity
-    const overlayGranularity = rawData.length <= 90 ? "daily" as const : rawData.length <= 730 ? "weekly" as const : "monthly" as const;
-    const data = smoothOverlayData(rawData, areaKeys.map(k => k.id), overlayGranularity);
+    // Group by week/month and smooth, same as total view
+    const { data, granularity: overlayGran } = groupAndSmoothOverlayData(rawData, areaKeys.map(k => k.id));
 
-    return { data, areaKeys };
+    return { data, areaKeys, granularity: overlayGran };
   }, [viewMode, filteredAreas, scores]);
 
   const { chartData, granularity } = useAdaptiveChart(rawAveraged);
