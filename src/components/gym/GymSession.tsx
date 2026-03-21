@@ -306,6 +306,8 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
 
   const selectedDay = days.find(d => d.id === selectedDayId);
   const allExercises = [...dailyExercises, ...groups.flatMap(g => g.exercises)];
+  const allExercisesRef = useRef(allExercises);
+  allExercisesRef.current = allExercises;
   const hasExercises = allExercises.length > 0;
 
   if (loading) {
