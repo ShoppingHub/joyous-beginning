@@ -12,6 +12,8 @@ import { GymCard } from "@/components/GymCard";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
+import { track } from "@/lib/analytics";
+import { getDemoAreas } from "@/lib/demoData";
 import {
   AlertDialog,
   AlertDialogAction,
