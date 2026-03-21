@@ -20,7 +20,7 @@ export function AppLayout() {
           <div className="max-w-[428px] mx-auto grid grid-cols-3 items-center px-4 h-14 bg-background/80 backdrop-blur-md">
             {/* Left: logo */}
             <div className="flex items-center">
-              <img src={logoOpadme} alt="opad.me logo" className="w-7 h-7" />
+              <img src={logoOpadme} alt="opad.me logo" className="w-7 h-7 invert dark:invert-0" />
             </div>
             {/* Center: brand name + Plus badge */}
             <div className="flex items-center justify-center gap-1.5">
