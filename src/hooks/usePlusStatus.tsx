@@ -58,9 +58,7 @@ export function PlusProvider({ children }: { children: ReactNode }) {
     const active = (data as any)?.plus_active ?? false;
     setIsPlusActive(active);
     resetIfLocked(active);
-    // If DB says disabled, respect it
-    if (!active) manuallyDisabledRef.current = true;
-    else manuallyDisabledRef.current = false;
+    // Don't set manuallyDisabledRef here — it should only be set by explicit disablePlus()
   }, [user, resetIfLocked]);
 
   useEffect(() => {
