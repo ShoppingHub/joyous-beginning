@@ -33,7 +33,11 @@ const SettingsPage = () => {
   const { t, locale, setLocale } = useI18n();
   const { enabledCards, allUserCards, toggleAllCards, isCardEnabled } = useUserCards();
   const anyCardEnabled = enabledCards.length > 0;
-  const handleCardsToggle = (checked: boolean) => toggleAllCards(checked);
+  const handleCardsToggle = (checked: boolean) => {
+    toggleAllCards(checked);
+    track(checked ? "card_enabled" : "card_disabled", { card_type: "all" });
+    if (user) updateUserProperties(user.id, { cards_enabled: checked ? enabledCards.map(c => c.userCard.card_type) : [] });
+  };
   const { mode, setMode, palette, setPalette } = useTheme();
   const { isPlusActive, disablePlus, refreshPlusStatus } = usePlusStatus();
   const [disablingPlus, setDisablingPlus] = useState(false);
