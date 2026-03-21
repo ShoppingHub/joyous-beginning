@@ -412,7 +412,7 @@ const Progress = () => {
                     tickLine={false}
                     interval={tickInterval}
                     tick={{ fontSize: 10, fill: "hsl(195, 5%, 56%)" }}
-                    tickFormatter={(val: string) => formatTickLabel(val, granularity, locale)}
+                    tickFormatter={(val: string) => formatTickLabel(val, effectiveGranularity, locale)}
                     tickMargin={6}
                   />
                   <YAxis hide domain={[yDomainMin, yDomainMax]} />
