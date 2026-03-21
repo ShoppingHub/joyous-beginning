@@ -60,6 +60,7 @@ export default function PlusPage() {
 
   const handleActivate = async () => {
     setPromoError("");
+    track("plus_upgrade_clicked");
 
     // Demo mode: instant activation
     if (isDemo) {
