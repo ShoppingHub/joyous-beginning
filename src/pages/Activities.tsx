@@ -151,7 +151,19 @@ const Areas = () => {
                   <div key={area.id} className="flex items-center gap-1">
                     <button onClick={() => navigate(`/activities/${area.id}`)}
                       className="flex-1 flex items-center justify-between rounded-lg bg-card px-4 min-h-[48px] hover:opacity-90 transition-opacity">
-                      <span className="text-base text-foreground truncate mr-3">{area.name}</span>
+                      <div className="flex items-center gap-2 truncate mr-3">
+                        <span className="text-base text-foreground truncate">{area.name}</span>
+                        {(area as any).recurrence_type === "biweekly" && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-medium flex-shrink-0">
+                            <Repeat size={11} />{t("recurrence.biweekly" as any)}
+                          </span>
+                        )}
+                        {(area as any).recurrence_type === "monthly" && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-medium flex-shrink-0">
+                            <CalendarDays size={11} />{t("recurrence.monthly" as any)}
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {isQuantity && (
                           <span className="text-sm text-muted-foreground">
