@@ -9,7 +9,7 @@ import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/Tim
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
 import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
 import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel } from "@/components/progress/useAdaptiveChart";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { subDays, format, parseISO } from "date-fns";
 import { it, enUS } from "date-fns/locale";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, ReferenceDot, Tooltip } from "recharts";
@@ -362,6 +362,14 @@ const Progress = () => {
       >
         {hasData ? (
           <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={viewMode}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+              >
             {/* Score labels */}
             {!isOverlay ? (
               <>
@@ -457,6 +465,8 @@ const Progress = () => {
             </div>
 
             {/* Overlay legend removed — shown in bottom list */}
+              </motion.div>
+            </AnimatePresence>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 px-4" style={{ height: "40vh" }}>
