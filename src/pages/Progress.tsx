@@ -222,9 +222,9 @@ const Progress = () => {
     return t("progress.filter");
   }, [filterMode, selectedType, selectedAreaId, areas, t]);
 
-  // Filter popover content
+  // Filter popover content — activities nested under their type
   const filterContent = (
-    <div className="flex flex-col gap-1 min-w-[200px]">
+    <div className="flex flex-col gap-0.5 min-w-[200px]">
       {/* All */}
       <button
         onClick={() => { setFilterMode("all"); setSelectedType(null); setSelectedAreaId(null); setActiveDate(null); setFilterOpen(false); }}
@@ -234,37 +234,34 @@ const Progress = () => {
         <span className={filterMode === "all" ? "" : "ml-5"}>{t("progress.filter.allActivities")}</span>
       </button>
 
-      {/* By type */}
-      <p className="text-xs text-muted-foreground px-3 pt-2 pb-1 font-medium uppercase tracking-wide">{t("progress.filter.byType")}</p>
+      {/* Types with nested activities */}
       {AREA_TYPE_KEYS.map(({ value, labelKey }) => {
-        const isActive = filterMode === "type" && selectedType === value;
-        const hasAreas = areas.some(a => a.type === value);
-        if (!hasAreas) return null;
+        const typeAreas = areas.filter(a => a.type === value);
+        if (typeAreas.length === 0) return null;
+        const isTypeActive = filterMode === "type" && selectedType === value;
         return (
-          <button
-            key={value}
-            onClick={() => { setFilterMode("type"); setSelectedType(value); setSelectedAreaId(null); setActiveDate(null); setFilterOpen(false); }}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${isActive ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted"}`}
-          >
-            {isActive && <Check size={14} />}
-            <span className={isActive ? "" : "ml-5"}>{t(labelKey)}</span>
-          </button>
-        );
-      })}
-
-      {/* By activity */}
-      <p className="text-xs text-muted-foreground px-3 pt-2 pb-1 font-medium uppercase tracking-wide">{t("progress.filter.byActivity")}</p>
-      {areas.map((area) => {
-        const isActive = filterMode === "activity" && selectedAreaId === area.id;
-        return (
-          <button
-            key={area.id}
-            onClick={() => { setFilterMode("activity"); setSelectedAreaId(area.id); setSelectedType(null); setActiveDate(null); setFilterOpen(false); }}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${isActive ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted"}`}
-          >
-            {isActive && <Check size={14} />}
-            <span className={isActive ? "" : "ml-5"}>{area.name}</span>
-          </button>
+          <div key={value}>
+            <button
+              onClick={() => { setFilterMode("type"); setSelectedType(value); setSelectedAreaId(null); setActiveDate(null); setFilterOpen(false); }}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors w-full mt-1 ${isTypeActive ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-muted"}`}
+            >
+              {isTypeActive && <Check size={14} />}
+              <span className={isTypeActive ? "" : "ml-5"}>{t(labelKey)}</span>
+            </button>
+            {typeAreas.map((area) => {
+              const isActive = filterMode === "activity" && selectedAreaId === area.id;
+              return (
+                <button
+                  key={area.id}
+                  onClick={() => { setFilterMode("activity"); setSelectedAreaId(area.id); setSelectedType(null); setActiveDate(null); setFilterOpen(false); }}
+                  className={`flex items-center gap-2 pl-8 pr-3 py-1.5 rounded-lg text-sm text-left transition-colors w-full ${isActive ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted"}`}
+                >
+                  {isActive && <Check size={12} />}
+                  <span className={isActive ? "" : "ml-4"}>{area.name}</span>
+                </button>
+              );
+            })}
+          </div>
         );
       })}
     </div>
