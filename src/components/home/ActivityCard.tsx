@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Pencil, Check } from "lucide-react";
+import { FileText, Pencil, Check, Repeat, CalendarDays } from "lucide-react";
 import { getISODay } from "date-fns";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
@@ -67,6 +67,14 @@ export function ActivityCard({
   const todayDow = getISODay(new Date());
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
   const weekdays = WEEKDAY_SHORT[locale] || WEEKDAY_SHORT.en;
+
+  const recurrenceType = (area as any).recurrence_type || "weekly";
+  const recurrenceBadge = recurrenceType !== "weekly" ? (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-medium">
+      {recurrenceType === "biweekly" ? <Repeat size={11} /> : <CalendarDays size={11} />}
+      {t(`recurrence.${recurrenceType}` as any)}
+    </span>
+  ) : null;
 
   const handleCTAClick = () => {
     if (isFutureDay) return;
@@ -140,6 +148,7 @@ export function ActivityCard({
       <div className="rounded-xl bg-card p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <p className="text-base font-medium truncate flex-1">{area.name}</p>
+          {recurrenceBadge}
           {doneButton}
         </div>
         <div className="flex justify-center">
@@ -158,6 +167,7 @@ export function ActivityCard({
           className="flex-1 min-w-0 text-left"
         >
           <p className="text-base font-medium truncate">{area.name}</p>
+          {recurrenceBadge}
         </button>
         {doneButton}
       </div>
@@ -170,6 +180,7 @@ export function ActivityCard({
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium truncate">{area.name}</p>
+          {recurrenceBadge}
           {/* Plus locked badge for quantity_reduce areas */}
           {isQuantityLocked && (
             <button
