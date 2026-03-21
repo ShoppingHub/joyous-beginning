@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const VALID_PROMO_CODES = ["MCAI2026"];
+
+const features = [
   { icon: LayoutGrid, titleKey: "plus.feature.cards" as const, descKey: "plus.feature.cards.desc" as const },
   { icon: TrendingDown, titleKey: "plus.feature.reduce" as const, descKey: "plus.feature.reduce.desc" as const },
   { icon: Palette, titleKey: "plus.feature.themes" as const, descKey: "plus.feature.themes.desc" as const },
