@@ -3,6 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
 import { motion, AnimatePresence } from "framer-motion";
+import { track } from "@/lib/analytics";
 
 export function BottomNav() {
   const location = useLocation();
