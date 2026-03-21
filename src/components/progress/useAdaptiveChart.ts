@@ -10,10 +10,10 @@ type Filter = "all" | AreaType;
 export type Granularity = "daily" | "weekly" | "monthly";
 
 export interface ChartPoint {
-  date: string;       // original date key for grouping
-  label: string;      // display label
+  date: string;
+  label: string;
   score: number;
-  intraSlope?: number; // for weekly/monthly trend arrow
+  intraSlope?: number;
 }
 
 function getGranularity(data: { date: string }[]): Granularity {
@@ -89,13 +89,13 @@ export function getSlopeWindow(granularity: Granularity): number {
   return 7;
 }
 
+/**
+ * Calculates ideal tick interval to keep ~5-6 visible labels on mobile.
+ */
 export function getTickInterval(granularity: Granularity, dataLength: number): number {
-  if (granularity === "daily") {
-    if (dataLength <= 30) return 6;
-    return 13;
-  }
-  if (granularity === "weekly") return 3; // ~every 4 weeks
-  return 2; // monthly: every 2-3 months
+  const maxLabels = 6;
+  if (dataLength <= maxLabels) return 0;
+  return Math.max(1, Math.floor(dataLength / maxLabels) - 1);
 }
 
 export function formatTickLabel(date: string, granularity: Granularity, locale: string): string {
@@ -131,6 +131,33 @@ export function getTrendArrow(slope: number | undefined): string {
   return "→";
 }
 
+/**
+ * Centered moving average for smoothing.
+ */
+function movingAverage(data: ChartPoint[], windowSize: number): ChartPoint[] {
+  if (windowSize <= 1 || data.length <= windowSize) return data;
+  const half = Math.floor(windowSize / 2);
+  return data.map((point, i) => {
+    const start = Math.max(0, i - half);
+    const end = Math.min(data.length, i + half + 1);
+    const slice = data.slice(start, end);
+    const avg = slice.reduce((s, p) => s + p.score, 0) / slice.length;
+    return { ...point, score: avg };
+  });
+}
+
+/**
+ * Smoothing window based on granularity and data length.
+ */
+function getSmoothingWindow(granularity: Granularity, dataLength: number): number {
+  if (granularity === "monthly") return 1;
+  if (granularity === "weekly") return dataLength > 20 ? 3 : 1;
+  if (dataLength <= 20) return 1;   // 15d
+  if (dataLength <= 35) return 3;   // 1m
+  if (dataLength <= 100) return 5;  // 3m
+  return 7;                          // 6m+
+}
+
 export function useAdaptiveChart(
   rawData: { date: string; score: number }[]
 ): { chartData: ChartPoint[]; granularity: Granularity } {
@@ -145,6 +172,37 @@ export function useAdaptiveChart(
     } else {
       chartData = rawData.map(d => ({ date: d.date, label: d.date, score: d.score }));
     }
+    const smoothWindow = getSmoothingWindow(granularity, chartData.length);
+    chartData = movingAverage(chartData, smoothWindow);
     return { chartData, granularity };
   }, [rawData]);
+}
+
+/**
+ * Smooths overlay data (keyed per-area) using a centered moving average.
+ */
+export function smoothOverlayData(
+  data: Record<string, any>[],
+  areaKeys: string[],
+  granularity: Granularity
+): Record<string, any>[] {
+  if (data.length === 0 || areaKeys.length === 0) return data;
+  const windowSize = getSmoothingWindow(granularity, data.length);
+  if (windowSize <= 1) return data;
+
+  const half = Math.floor(windowSize / 2);
+  return data.map((point, i) => {
+    const smoothed: Record<string, any> = { ...point };
+    for (const key of areaKeys) {
+      const start = Math.max(0, i - half);
+      const end = Math.min(data.length, i + half + 1);
+      let sum = 0, count = 0;
+      for (let j = start; j < end; j++) {
+        const v = data[j][key];
+        if (v !== undefined && v !== null) { sum += v; count++; }
+      }
+      if (count > 0) smoothed[key] = sum / count;
+    }
+    return smoothed;
+  });
 }
