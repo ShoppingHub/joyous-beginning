@@ -148,6 +148,7 @@ export function ActivityCard({
       <div className="rounded-xl bg-card p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <p className="text-base font-medium truncate flex-1">{area.name}</p>
+          {recurrenceBadge}
           {doneButton}
         </div>
         <div className="flex justify-center">
