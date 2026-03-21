@@ -20,6 +20,7 @@ const features = [
 
 export default function PlusPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useI18n();
   const { isPlusActive, refreshPlusStatus, enablePlus } = usePlusStatus();
