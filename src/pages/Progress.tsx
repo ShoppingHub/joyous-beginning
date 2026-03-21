@@ -199,8 +199,9 @@ const Progress = () => {
     ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
     : chartData.length > 0 && chartData.some((d) => d.score !== 0);
 
-  const isLargeRange = granularity !== "daily";
-  const tickInterval = getTickInterval(granularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
+  const effectiveGranularity = isOverlay ? (overlayData.granularity ?? granularity) : granularity;
+  const isLargeRange = effectiveGranularity !== "daily";
+  const tickInterval = getTickInterval(effectiveGranularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
 
   const fmt = (n: number) => {
     if (Math.abs(n) >= 1000) return n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
