@@ -12,6 +12,7 @@ interface PlusContextType {
   isFeatureLocked: (feature: PlusFeature) => boolean;
   refreshPlusStatus: () => Promise<void>;
   disablePlus: () => Promise<void>;
+  enablePlus: () => Promise<void>;
 }
 
 const PlusContext = createContext<PlusContextType>({
@@ -20,6 +21,7 @@ const PlusContext = createContext<PlusContextType>({
   isFeatureLocked: () => true,
   refreshPlusStatus: async () => {},
   disablePlus: async () => {},
+  enablePlus: async () => {},
 });
 
 export function PlusProvider({ children }: { children: ReactNode }) {
@@ -91,17 +93,32 @@ export function PlusProvider({ children }: { children: ReactNode }) {
   }, [checkSubscription]);
 
   const disablePlus = useCallback(async () => {
-    if (!user) return;
+    if (!user && !isDemo) return;
     manuallyDisabledRef.current = true;
-    await supabase.from("users").update({ plus_active: false } as any).eq("user_id", user.id);
+    if (user) {
+      await supabase.from("users").update({ plus_active: false } as any).eq("user_id", user.id);
+    }
     setIsPlusActive(false);
     resetIfLocked(false);
-  }, [user, resetIfLocked]);
+  }, [user, isDemo, resetIfLocked]);
+
+  const enablePlus = useCallback(async () => {
+    if (!user && !isDemo) return;
+    manuallyDisabledRef.current = false;
+    if (user) {
+      await supabase.from("users").update({
+        plus_active: true,
+        plus_activated_at: new Date().toISOString(),
+        plus_provider: "promo",
+      } as any).eq("user_id", user.id);
+    }
+    setIsPlusActive(true);
+  }, [user, isDemo]);
 
   const isFeatureLocked = (feature: PlusFeature) => !isPlusActive;
 
   return (
-    <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus, disablePlus }}>
+    <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus, disablePlus, enablePlus }}>
       {children}
     </PlusContext.Provider>
   );

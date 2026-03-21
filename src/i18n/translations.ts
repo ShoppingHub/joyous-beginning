@@ -340,6 +340,7 @@ const translations = {
   "plus.canceled": { en: "Payment canceled.", it: "Pagamento annullato." },
   "plus.redirecting": { en: "Redirecting...", it: "Reindirizzamento..." },
   "plus.promoPlaceholder": { en: "Promo code (optional)", it: "Codice sconto (opzionale)" },
+  "plus.promoInvalid": { en: "Invalid promo code", it: "Codice sconto non valido" },
   "plus.price": { en: "€2.50/month", it: "2,50 €/mese" },
   "plus.manage": { en: "Manage subscription", it: "Gestisci abbonamento" },
   "plus.settings.disableLabel": { en: "Disable Plus", it: "Disabilita Plus" },

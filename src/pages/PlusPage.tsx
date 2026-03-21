@@ -5,7 +5,11 @@ import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { useDemo } from "@/hooks/useDemo";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const VALID_PROMO_CODES = ["MCAI2026"];
 
 const features = [
   { icon: LayoutGrid, titleKey: "plus.feature.cards" as const, descKey: "plus.feature.cards.desc" as const },
@@ -17,10 +21,12 @@ export default function PlusPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useI18n();
-  const { isPlusActive, refreshPlusStatus } = usePlusStatus();
+  const { isPlusActive, refreshPlusStatus, enablePlus } = usePlusStatus();
   const { user } = useAuth();
+  const { isDemo } = useDemo();
   const [loading, setLoading] = useState(false);
   const [promoCode, setPromoCode] = useState("");
+  const [promoError, setPromoError] = useState("");
   const [successMsg, setSuccessMsg] = useState(false);
   const [cancelMsg, setCancelMsg] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -42,12 +48,41 @@ export default function PlusPage() {
     }
   }, [searchParams, setSearchParams, refreshPlusStatus]);
 
-  const handleCheckout = async () => {
+  const handleActivate = async () => {
+    setPromoError("");
+
+    // Demo mode: instant activation
+    if (isDemo) {
+      setLoading(true);
+      await enablePlus();
+      setSuccessMsg(true);
+      setLoading(false);
+      setTimeout(() => setSuccessMsg(false), 5000);
+      return;
+    }
+
+    // Promo code: validate and activate directly
+    const trimmedCode = promoCode.trim().toUpperCase();
+    if (trimmedCode) {
+      if (VALID_PROMO_CODES.includes(trimmedCode)) {
+        setLoading(true);
+        await enablePlus();
+        setSuccessMsg(true);
+        setLoading(false);
+        setTimeout(() => setSuccessMsg(false), 5000);
+        return;
+      } else {
+        setPromoError(t("plus.promoInvalid" as any) || "Invalid promo code");
+        return;
+      }
+    }
+
+    // Normal Stripe checkout
     if (!user?.email) return;
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { promoCode: promoCode.trim() || undefined },
+        body: { promoCode: trimmedCode || undefined },
       });
       if (error) throw error;
       if (data?.url) {
@@ -152,42 +187,49 @@ export default function PlusPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          {/* Promo code */}
-          <input
-            type="text"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-            placeholder={t("plus.promoPlaceholder" as any)}
-            className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
+          {/* Promo code - hidden in demo mode */}
+          {!isDemo && (
+            <div className="w-full">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => { setPromoCode(e.target.value); setPromoError(""); }}
+                placeholder={t("plus.promoPlaceholder" as any)}
+                className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              {promoError && <p className="text-sm text-destructive mt-1">{promoError}</p>}
+            </div>
+          )}
 
           <button
-            onClick={handleCheckout}
+            onClick={handleActivate}
             disabled={loading}
             className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px] flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                {t("plus.redirecting" as any)}
+                {isDemo ? "Activating..." : t("plus.redirecting" as any)}
               </>
             ) : (
-              t("plus.cta" as any)
+              isDemo ? t("plus.cta" as any) : t("plus.cta" as any)
             )}
           </button>
 
-          <p className="text-xs text-muted-foreground">{t("plus.price" as any)}</p>
+          {!isDemo && <p className="text-xs text-muted-foreground">{t("plus.price" as any)}</p>}
 
-          <button
-            onClick={async () => {
-              setLoading(true);
-              await refreshPlusStatus();
-              setLoading(false);
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {t("plus.restore" as any)}
-          </button>
+          {!isDemo && (
+            <button
+              onClick={async () => {
+                setLoading(true);
+                await refreshPlusStatus();
+                setLoading(false);
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t("plus.restore" as any)}
+            </button>
+          )}
         </div>
       )}
     </motion.div>
