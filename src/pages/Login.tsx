@@ -202,7 +202,7 @@ const Login = () => {
     <div className="flex min-h-screen flex-col items-center justify-center px-4 max-w-[428px] mx-auto">
       <div className="flex flex-col items-center gap-8 w-full">
         <div className="flex flex-col items-center gap-3">
-          <img alt="opad.me logo" className="w-40 h-40" src={logoOpadme} />
+          <img alt="opad.me logo" className="w-16 h-16" src="/lovable-uploads/5adb24e7-df9c-4124-ac4b-270686bcffde.svg" />
           <h1 className="text-[28px] font-semibold leading-[1.2]"><span className="text-foreground">opad</span><span style={{ color: '#B5453A' }}>.me</span></h1>
           <p className="text-sm text-muted-foreground">{t("app.tagline")}</p>
         </div>
