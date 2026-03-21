@@ -470,7 +470,7 @@ const Index = () => {
           {/* Plus banner */}
           {!isPlusActive && (
             <button
-              onClick={() => navigate("/plus")}
+              onClick={() => navigate("/plus", { state: { source: "banner" } })}
               className="flex items-center gap-4 rounded-xl bg-card ring-1 ring-primary/20 p-4 mt-2 text-left hover:opacity-90 transition-opacity"
             >
               <Sparkles size={24} strokeWidth={1.5} className="text-primary flex-shrink-0" />
