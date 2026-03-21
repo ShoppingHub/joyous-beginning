@@ -171,6 +171,8 @@ export default function AreaForm({ mode }: AreaFormProps) {
       baseline_initial: isQuantity ? parseInt(baselineInitial, 10) : null,
       show_quick_add_home: isQuantity ? showQuickAddHome : true,
       google_tasks_sync: isBinary ? googleTasksSync : false,
+      recurrence_type: recurrenceType,
+      biweekly_start_date: recurrenceType === "biweekly" ? biweeklyStartDate : null,
     };
 
     try {
