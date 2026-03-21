@@ -52,6 +52,7 @@ const Index = () => {
   const [gymDayInfo, setGymDayInfo] = useState<GymDayInfo | null>(null);
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   const [scheduledDays, setScheduledDays] = useState<ScheduledDay[]>([]);
+  const [monthlyDays, setMonthlyDays] = useState<MonthlyDay[]>([]);
 
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
   const isFutureDay = isAfter(selectedDate, today) && !isSameDay(selectedDate, today);
