@@ -100,10 +100,13 @@ serve(async (req) => {
         .eq("user_id", user.id);
     } else {
       logStep("No active subscription found");
-      await supabaseClient
-        .from("users")
-        .update({ plus_active: false })
-        .eq("user_id", user.id);
+      // Only disable if provider is stripe or null (don't touch promo users)
+      if (!plusProvider || plusProvider === "stripe") {
+        await supabaseClient
+          .from("users")
+          .update({ plus_active: false })
+          .eq("user_id", user.id);
+      }
     }
 
     return new Response(JSON.stringify({
