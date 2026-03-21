@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Pencil, Check } from "lucide-react";
+import { FileText, Pencil, Check, Repeat, CalendarDays } from "lucide-react";
 import { getISODay } from "date-fns";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
