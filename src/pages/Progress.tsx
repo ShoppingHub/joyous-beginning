@@ -8,7 +8,7 @@ import { Eye, TrendingUp, Filter, Layers, BarChart3, Check } from "lucide-react"
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
 import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
-import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel, formatTooltipLabel, smoothOverlayData } from "@/components/progress/useAdaptiveChart";
+import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel, formatTooltipLabel, groupAndSmoothOverlayData } from "@/components/progress/useAdaptiveChart";
 import { motion, AnimatePresence } from "framer-motion";
 import { subDays, format, parseISO } from "date-fns";
 import { it, enUS } from "date-fns/locale";
