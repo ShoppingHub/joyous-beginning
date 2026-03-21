@@ -66,7 +66,7 @@ const Index = () => {
     }
     if (!user) return;
     (async () => {
-      const [areasRes, scheduledRes] = await Promise.all([
+      const [areasRes, scheduledRes, monthlyRes] = await Promise.all([
         supabase
           .from("areas")
           .select("*")
@@ -77,9 +77,14 @@ const Index = () => {
           .from("area_scheduled_days")
           .select("area_id, day_of_week")
           .eq("user_id", user.id),
+        supabase
+          .from("area_monthly_days" as any)
+          .select("area_id, day_of_month")
+          .eq("user_id", user.id),
       ]);
       setAreas(areasRes.data || []);
       setScheduledDays((scheduledRes.data as ScheduledDay[]) || []);
+      setMonthlyDays((monthlyRes.data as MonthlyDay[]) || []);
     })();
   }, [user, isDemo]);
 
