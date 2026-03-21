@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { OpadLogo } from "@/components/OpadLogo";
 import { z } from "zod";
 
 const emailSchema = z.string().email();
