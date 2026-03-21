@@ -198,7 +198,7 @@ const Areas = () => {
               })}
               {anyCardEnabled && <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />}
               {!isDemo && !isMobile && (
-                <button onClick={() => navigate(`/activities/new?type=${type}`)}
+                <button onClick={() => navigate(`/activities/new?type=${type}&source=activities_tab`)}
                   className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] flex items-center">
                   {t("areas.add")}
                 </button>
