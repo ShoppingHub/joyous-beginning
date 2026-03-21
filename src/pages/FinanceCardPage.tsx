@@ -63,7 +63,7 @@ const FinanceCardPage = () => {
     setLoading(false);
   }, [user, areaId, timeRange]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); track("card_opened", { card_type: "finance_projection" }); }, [fetchData]);
 
   const title = locale === "it" ? "Proiezione Finanze" : "Finance Projection";
   const regression = scores.length >= 3 ? linearRegression(scores) : null;
