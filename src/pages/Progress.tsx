@@ -9,7 +9,7 @@ import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/Tim
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
 import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
 import { useAdaptiveChart, computeSlope, getLineColor, getSlopeWindow, getTickInterval, formatTickLabel } from "@/components/progress/useAdaptiveChart";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { subDays, format, parseISO } from "date-fns";
 import { it, enUS } from "date-fns/locale";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, ReferenceDot, Tooltip } from "recharts";
