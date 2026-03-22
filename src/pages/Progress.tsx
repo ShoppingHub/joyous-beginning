@@ -388,21 +388,7 @@ const Progress = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
-            {/* Score labels */}
-            {!isOverlay ? (
-              <>
-                <div className="absolute top-2 right-4 z-10 text-right">
-                  <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
-                </div>
-                <div className="absolute top-2 left-4 z-10">
-                  <p className="text-xs text-muted-foreground tabular-nums">{fmt(firstScore)}</p>
-                </div>
-              </>
-            ) : (
-              <div className="absolute top-2 right-4 z-10 text-right">
-                <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
-              </div>
-            )}
+            {/* Score labels removed — shown in header */}
 
             {/* Chart */}
             <div style={{ height: "40vh" }} className="w-full">
