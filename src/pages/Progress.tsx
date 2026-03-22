@@ -271,15 +271,18 @@ const Progress = () => {
     </div>
   );
 
+  // Difference from start
+  const scoreDiff = lastScore - firstScore;
+  const diffSign = scoreDiff >= 0 ? "+" : "";
+  const diffColor = scoreDiff > 0.1 ? "text-[hsl(var(--graph-positive))]" : scoreDiff < -0.1 ? "text-destructive" : "text-muted-foreground";
+
   // Header
   const header = (
     <div className="sticky top-0 z-40 bg-background">
+      {/* Row 1: Title + Filter */}
       <div className="flex items-center justify-between px-4 h-14">
         <span className="text-[18px] font-semibold">{t("nav.progress")}</span>
-      </div>
-      {areas.length > 0 && (
-        <div className="flex items-center gap-2 px-4 pb-2">
-          {/* Filter popover */}
+        {areas.length > 0 && (
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
             <PopoverTrigger asChild>
               <button className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium border border-muted-foreground/30 text-foreground transition-colors hover:bg-muted min-h-[36px]">
@@ -287,12 +290,23 @@ const Progress = () => {
                 <span className="max-w-[140px] truncate">{filterLabel}</span>
               </button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="p-2 w-auto max-h-[60vh] overflow-y-auto">
+            <PopoverContent align="end" className="p-2 w-auto max-h-[60vh] overflow-y-auto">
               {filterContent}
             </PopoverContent>
           </Popover>
-
-          {/* View mode toggle */}
+        )}
+      </div>
+      {/* Row 2: Score diff + View mode toggle */}
+      {areas.length > 0 && (
+        <div className="flex items-center justify-between px-4 pb-2">
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold text-foreground tabular-nums">{fmt(lastScore)}</span>
+            {hasData && (
+              <span className={`text-xs font-medium tabular-nums ${diffColor}`}>
+                {diffSign}{fmt(scoreDiff)} · {locale === "it" ? "Dall'inizio" : "From start"}
+              </span>
+            )}
+          </div>
           <div className="flex items-center rounded-full bg-card p-0.5 border border-muted-foreground/20">
             <button
               onClick={() => setViewMode("total")}
@@ -300,7 +314,7 @@ const Progress = () => {
               title={t("progress.view.total")}
             >
               <BarChart3 size={13} />
-              <span className="hidden sm:inline">{t("progress.view.total")}</span>
+              <span>{t("progress.view.total")}</span>
             </button>
             <button
               onClick={() => setViewMode("overlay")}
@@ -308,7 +322,7 @@ const Progress = () => {
               title={t("progress.view.overlay")}
             >
               <Layers size={13} />
-              <span className="hidden sm:inline">{t("progress.view.overlay")}</span>
+              <span>{t("progress.view.overlay")}</span>
             </button>
           </div>
         </div>
@@ -374,21 +388,7 @@ const Progress = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
-            {/* Score labels */}
-            {!isOverlay ? (
-              <>
-                <div className="absolute top-2 right-4 z-10 text-right">
-                  <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
-                </div>
-                <div className="absolute top-2 left-4 z-10">
-                  <p className="text-xs text-muted-foreground tabular-nums">{fmt(firstScore)}</p>
-                </div>
-              </>
-            ) : (
-              <div className="absolute top-2 right-4 z-10 text-right">
-                <p className="text-xl font-semibold text-foreground tabular-nums">{fmt(displayScore)}</p>
-              </div>
-            )}
+            {/* Score labels removed — shown in header */}
 
             {/* Chart */}
             <div style={{ height: "40vh" }} className="w-full">
