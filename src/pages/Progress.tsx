@@ -120,12 +120,14 @@ const Progress = () => {
   useEffect(() => { setActiveDate(null); fetchData(); }, [fetchData]);
 
   // Filtered areas based on filter selection
+  // For "all" and "type" modes, include archived areas with retained data in score calculations
   const filteredAreas = useMemo(() => {
-    if (filterMode === "all") return areas;
-    if (filterMode === "type" && selectedType) return areas.filter((a) => a.type === selectedType);
+    const allWithRetained = [...areas, ...archivedRetainedAreas];
+    if (filterMode === "all") return allWithRetained;
+    if (filterMode === "type" && selectedType) return allWithRetained.filter((a) => a.type === selectedType);
     if (filterMode === "activity" && selectedAreaId) return areas.filter((a) => a.id === selectedAreaId);
-    return areas;
-  }, [areas, filterMode, selectedType, selectedAreaId]);
+    return allWithRetained;
+  }, [areas, archivedRetainedAreas, filterMode, selectedType, selectedAreaId]);
 
   // For "total" view: averaged data
   const rawAveraged = useMemo(() => {
