@@ -205,7 +205,7 @@ export function ActivityCard({
               {weekdays[gymDayOfWeek]}
             </span>
           )}
-          {gymDayLabel}{gymDayName ? ` — ${gymDayName}` : ""} →
+          {gymDayLabel} →
         </button>
       )}
 

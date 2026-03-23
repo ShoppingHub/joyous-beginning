@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useI18n } from "@/hooks/useI18n";
-import { Minus } from "lucide-react";
+
+import { ChevronUp, ChevronDown, Plus, Minus } from "lucide-react";
 
 interface QuantityCounterProps {
   areaId: string;
@@ -12,11 +12,10 @@ interface QuantityCounterProps {
 
 export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterProps) {
   const { user } = useAuth();
-  const { t } = useI18n();
   const [quantity, setQuantity] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
-  const [recorded, setRecorded] = useState(false);
+  
 
   const fetchQuantity = useCallback(async () => {
     if (!user) return;
@@ -32,15 +31,9 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
 
   useEffect(() => { fetchQuantity(); }, [fetchQuantity]);
 
-  const showRecorded = () => {
-    setRecorded(true);
-    setTimeout(() => setRecorded(false), 1000);
-  };
-
   const saveQuantity = async (newQty: number, source: "quick_add" | "manual_edit") => {
     if (!user) return;
     setQuantity(newQty);
-    showRecorded();
 
     const { data: existing } = await supabase
       .from("habit_quantity_daily" as any)
@@ -88,9 +81,10 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
       <button
         onClick={handleMinus}
         disabled={isFutureDay || quantity <= 0}
-        className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity"
+        className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity gap-0"
       >
-        <Minus size={18} />
+        <ChevronDown size={14} className="-mb-1" />
+        <Minus size={12} />
       </button>
 
       {/* Quantity display / edit */}
@@ -120,15 +114,11 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
       <button
         onClick={handlePlus}
         disabled={isFutureDay}
-        className="flex h-11 min-h-[44px] px-3 items-center justify-center rounded-xl border border-[#BFA37A] text-[#BFA37A] font-medium hover:bg-[#BFA37A]/10 disabled:opacity-30 transition-opacity"
+        className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center rounded-xl border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 transition-opacity gap-0"
       >
-        +1
+        <ChevronUp size={14} className="-mb-1" />
+        <Plus size={12} />
       </button>
-
-      {/* Recorded feedback */}
-      {recorded && (
-        <span className="text-xs text-muted-foreground animate-pulse">{t("reduce.recorded")}</span>
-      )}
     </div>
   );
 }
