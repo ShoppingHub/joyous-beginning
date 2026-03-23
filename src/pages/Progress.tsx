@@ -69,12 +69,20 @@ const Progress = () => {
       return;
     }
     if (!user) return;
+    // Fetch active areas
     const { data: areasData } = await supabase
       .from("areas").select("*").eq("user_id", user.id)
       .is("archived_at", null).order("created_at", { ascending: true });
+    // Fetch archived areas that retained data (for total/type scores)
+    const { data: archivedData } = await supabase
+      .from("areas").select("*").eq("user_id", user.id)
+      .not("archived_at", "is", null).eq("data_retained", true)
+      .order("created_at", { ascending: true });
     if (!areasData) { setLoading(false); return; }
     setAreas(areasData);
-    if (areasData.length === 0) { setLoading(false); return; }
+    setArchivedRetainedAreas(archivedData || []);
+    const allAreasForScores = [...areasData, ...(archivedData || [])];
+    if (allAreasForScores.length === 0) { setLoading(false); return; }
 
     const areaIds = areasData.map((a) => a.id);
     const days = rangeToDays[timeRange];
