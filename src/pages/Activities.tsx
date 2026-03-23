@@ -89,10 +89,16 @@ const Areas = () => {
 
   useEffect(() => { fetchAreas(); }, [fetchAreas]);
 
-  const handleArchive = async () => {
+  const [keepData, setKeepData] = useState(true);
+
+  const handleDelete = async () => {
     if (!archiveTarget) return;
-    await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", archiveTarget.id);
+    await supabase.from("areas").update({
+      archived_at: new Date().toISOString(),
+      data_retained: keepData,
+    }).eq("id", archiveTarget.id);
     setArchiveTarget(null);
+    setKeepData(true);
     fetchAreas();
   };
 
