@@ -188,7 +188,7 @@ const Areas = () => {
                             className="text-destructive focus:text-destructive"
                             onClick={() => setArchiveTarget(area)}
                           >
-                            {t("areas.archive" as any)}
+                            {t("areas.delete" as any)}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
