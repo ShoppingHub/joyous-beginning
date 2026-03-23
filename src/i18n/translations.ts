@@ -118,7 +118,7 @@ const translations = {
   "areaForm.namePlaceholder": { en: "e.g. Morning walk", it: "es. Camminata mattutina" },
   "areaForm.namePlaceholder.health": { en: "e.g. Morning walk", it: "es. Camminata Mattutina" },
   "areaForm.namePlaceholder.study": { en: "e.g. Read 30 min a day", it: "es. Leggi 30 min al giorno" },
-  "areaForm.namePlaceholder.reduce": { en: "e.g. Avoid eating fatty foods", it: "es. Evita di mangiare cibi grassi" },
+  "areaForm.namePlaceholder.reduce": { en: "e.g. Limit screen time", it: "es. Limita il tempo schermo" },
   "areaForm.namePlaceholder.finance": { en: "e.g. Save €500 a month", it: "es. Metti da parte 500€ al mese" },
   "areaForm.namePlaceholder.career": { en: "e.g. Search for open positions", it: "es. Cerca posizioni aperte" },
   "areaForm.typeError": { en: "Please select a type", it: "Seleziona un tipo" },
