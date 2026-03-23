@@ -156,7 +156,7 @@ const translations = {
   "onboarding.areas.title": { en: "What do you want to observe?", it: "Cosa vuoi osservare?" },
   "onboarding.areas.preset.morning": { en: "Morning movement", it: "Movimento mattutino" },
   "onboarding.areas.preset.reading": { en: "Daily reading", it: "Lettura quotidiana" },
-  "onboarding.areas.preset.screen": { en: "Less screen time", it: "Meno tempo schermo" },
+  "onboarding.areas.preset.screen": { en: "Screen time control", it: "Controllo tempo schermo" },
   "onboarding.areas.preset.saving": { en: "Monthly saving", it: "Risparmio mensile" },
   "onboarding.areas.addCustom": { en: "Add custom", it: "Aggiungi personalizzata" },
   "onboarding.areas.addButton": { en: "Add", it: "Aggiungi" },

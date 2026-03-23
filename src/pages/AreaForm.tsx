@@ -316,11 +316,17 @@ export default function AreaForm({ mode }: AreaFormProps) {
               <SelectValue placeholder={t("areaForm.typePlaceholder" as any)} />
             </SelectTrigger>
             <SelectContent>
-              {typeOptions.map((tp) => (
-                <SelectItem key={tp} value={tp}>
-                  {t(typeLabelKeys[tp])}
-                </SelectItem>
-              ))}
+              {typeOptions.map((tp) => {
+                const Icon = typeIcons[tp];
+                return (
+                  <SelectItem key={tp} value={tp}>
+                    <span className="flex items-center gap-2">
+                      <Icon size={16} strokeWidth={1.5} />
+                      {t(typeLabelKeys[tp])}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           {typeError && <p className="text-sm text-destructive">{typeError}</p>}
