@@ -31,6 +31,14 @@ const typeLabelKeys: Record<AreaType, TranslationKey> = {
   career: "areaType.career",
 };
 
+const typeIcons: Record<AreaType, React.ElementType> = {
+  health: Heart,
+  study: Brain,
+  reduce: SlidersHorizontal,
+  finance: TrendingUp,
+  career: Briefcase,
+};
+
 // Day labels (1=Mon..7=Sun)
 const DAY_KEYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
