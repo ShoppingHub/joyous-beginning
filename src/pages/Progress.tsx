@@ -84,7 +84,7 @@ const Progress = () => {
     const allAreasForScores = [...areasData, ...(archivedData || [])];
     if (allAreasForScores.length === 0) { setLoading(false); return; }
 
-    const areaIds = areasData.map((a) => a.id);
+    const areaIds = allAreasForScores.map((a) => a.id);
     const days = rangeToDays[timeRange];
     const startDate = format(subDays(new Date(), days), "yyyy-MM-dd");
 
