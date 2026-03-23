@@ -8,6 +8,7 @@ import { useUserCards } from "@/hooks/useUserCards";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, Briefcase, MoreVertical, Sparkles, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
