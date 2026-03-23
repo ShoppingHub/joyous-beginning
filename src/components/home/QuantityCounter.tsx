@@ -32,15 +32,9 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
 
   useEffect(() => { fetchQuantity(); }, [fetchQuantity]);
 
-  const showRecorded = () => {
-    setRecorded(true);
-    setTimeout(() => setRecorded(false), 1000);
-  };
-
   const saveQuantity = async (newQty: number, source: "quick_add" | "manual_edit") => {
     if (!user) return;
     setQuantity(newQty);
-    showRecorded();
 
     const { data: existing } = await supabase
       .from("habit_quantity_daily" as any)
