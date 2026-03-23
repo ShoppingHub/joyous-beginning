@@ -7,7 +7,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, Briefcase, MoreVertical, Sparkles, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
+import { Plus, ChevronRight, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase, MoreVertical, Sparkles, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -37,9 +37,9 @@ type AreaType = Database["public"]["Enums"]["area_type"];
 
 const sections: { type: AreaType; labelKey: TranslationKey; icon: typeof Heart }[] = [
   { type: "health", labelKey: "areas.section.health", icon: Heart },
-  { type: "study", labelKey: "areas.section.study", icon: BookOpen },
-  { type: "reduce", labelKey: "areas.section.reduce", icon: TrendingDown },
-  { type: "finance", labelKey: "areas.section.finance", icon: Wallet },
+  { type: "study", labelKey: "areas.section.study", icon: Brain },
+  { type: "reduce", labelKey: "areas.section.reduce", icon: SlidersHorizontal },
+  { type: "finance", labelKey: "areas.section.finance", icon: TrendingUp },
   { type: "career", labelKey: "areas.section.career" as TranslationKey, icon: Briefcase },
 ];
 

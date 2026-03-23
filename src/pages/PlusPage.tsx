@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { ArrowLeft, Sparkles, LayoutGrid, TrendingDown, Palette, Loader2, CreditCard } from "lucide-react";
+import { ArrowLeft, Sparkles, LayoutGrid, SlidersHorizontal, Palette, Loader2, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
@@ -14,7 +14,7 @@ const VALID_PROMO_CODES = ["MCAI2026"];
 
 const features = [
   { icon: LayoutGrid, titleKey: "plus.feature.cards" as const, descKey: "plus.feature.cards.desc" as const },
-  { icon: TrendingDown, titleKey: "plus.feature.reduce" as const, descKey: "plus.feature.reduce.desc" as const },
+  { icon: SlidersHorizontal, titleKey: "plus.feature.reduce" as const, descKey: "plus.feature.reduce.desc" as const },
   { icon: Palette, titleKey: "plus.feature.themes" as const, descKey: "plus.feature.themes.desc" as const },
 ];
 

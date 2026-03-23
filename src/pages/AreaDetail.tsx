@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { ArrowLeft, Dumbbell, ChevronRight, Pencil, Trash2, Heart, BookOpen, TrendingDown, Wallet, Briefcase } from "lucide-react";
+import { ArrowLeft, Dumbbell, ChevronRight, Pencil, Trash2, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase } from "lucide-react";
 import { AreaTypePill } from "@/components/AreaTypePill";
 import { ScheduledDaysSection } from "@/components/area-detail/ScheduledDaysSection";
 import { NotesHistorySection } from "@/components/area-detail/NotesHistorySection";
@@ -31,9 +31,9 @@ type AreaType = Database["public"]["Enums"]["area_type"];
 
 const areaTypeIcons: Record<AreaType, React.ElementType> = {
   health: Heart,
-  study: BookOpen,
-  reduce: TrendingDown,
-  finance: Wallet,
+  study: Brain,
+  reduce: SlidersHorizontal,
+  finance: TrendingUp,
   career: Briefcase,
 };
 
