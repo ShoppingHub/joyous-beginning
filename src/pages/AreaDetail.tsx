@@ -113,16 +113,11 @@ export default function AreaDetail() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="flex flex-col px-4 pt-2 pb-8">
-      {/* Header: back + name + pill + actions */}
-      <div className="flex items-center h-14 gap-2">
-        <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] shrink-0">
-          <ArrowLeft size={24} strokeWidth={1.5} />
-        </button>
-        <span className="text-[18px] font-semibold truncate">{area.name}</span>
+      {/* Row 1: pill left + action icons right */}
+      <div className="flex items-center justify-between h-10">
         <AreaTypePill type={area.type} />
-        <div className="flex-1" />
         {!isDemo && (
-          <div className="flex items-center gap-0.5 shrink-0">
+          <div className="flex items-center gap-0.5">
             <button
               onClick={() => navigate(`/activities/${id}/edit`)}
               className="flex items-center justify-center h-9 w-9 min-h-[40px] min-w-[40px] rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
@@ -139,6 +134,14 @@ export default function AreaDetail() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Row 2: back + activity name */}
+      <div className="flex items-center h-12 gap-2">
+        <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] shrink-0">
+          <ArrowLeft size={24} strokeWidth={1.5} />
+        </button>
+        <span className="text-[18px] font-semibold truncate">{area.name}</span>
       </div>
 
       {/* Scheduled Days */}
