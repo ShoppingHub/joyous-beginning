@@ -122,6 +122,7 @@ export type Database = {
           baseline_initial: number | null
           biweekly_start_date: string | null
           created_at: string
+          data_retained: boolean
           frequency_per_week: number
           google_tasks_sync: boolean
           id: string
@@ -139,6 +140,7 @@ export type Database = {
           baseline_initial?: number | null
           biweekly_start_date?: string | null
           created_at?: string
+          data_retained?: boolean
           frequency_per_week: number
           google_tasks_sync?: boolean
           id?: string
@@ -156,6 +158,7 @@ export type Database = {
           baseline_initial?: number | null
           biweekly_start_date?: string | null
           created_at?: string
+          data_retained?: boolean
           frequency_per_week?: number
           google_tasks_sync?: boolean
           id?: string
