@@ -318,7 +318,8 @@ const Progress = () => {
             <span className="text-2xl font-bold text-foreground tabular-nums">{fmt(lastScore)}</span>
             {hasData && (
               <span className={`text-xs font-medium tabular-nums ${diffColor}`}>
-                {diffSign}{fmt(scoreDiff)} · {locale === "it" ? "Dall'inizio" : "From start"}
+                {diffSign}{fmt(scoreDiff)}{pctStr} · {locale === "it" ? "Dall'inizio" : "From start"}
+              </span>
               </span>
             )}
           </div>
