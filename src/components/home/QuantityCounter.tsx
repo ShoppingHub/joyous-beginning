@@ -12,7 +12,6 @@ interface QuantityCounterProps {
 
 export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterProps) {
   const { user } = useAuth();
-  const { t } = useI18n();
   const [quantity, setQuantity] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
