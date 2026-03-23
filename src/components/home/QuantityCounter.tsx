@@ -16,7 +16,7 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
   const [quantity, setQuantity] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
-  const [recorded, setRecorded] = useState(false);
+  
 
   const fetchQuantity = useCallback(async () => {
     if (!user) return;
