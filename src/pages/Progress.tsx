@@ -54,6 +54,7 @@ const Progress = () => {
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("total");
   const [areas, setAreas] = useState<Area[]>([]);
+  const [archivedRetainedAreas, setArchivedRetainedAreas] = useState<Area[]>([]);
   const [scores, setScores] = useState<Record<string, { date: string; score: number }[]>>({});
   const [checkins, setCheckins] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
