@@ -169,15 +169,28 @@ const Progress = () => {
 
   const { lineColor, firstScore, lastScore, minScore, maxScore } = useMemo(() => {
     if (viewMode === "overlay") {
-      // Calculate bounds from overlay data
-      const allValues = overlayData.data.flatMap(d =>
-        overlayData.areaKeys.map(k => d[k.id] as number).filter(v => v !== undefined)
-      );
+      const keys = overlayData.areaKeys.map(k => k.id);
+      const allValues: number[] = [];
+      for (const d of overlayData.data) {
+        for (const k of keys) {
+          const v = d[k] as number;
+          if (v !== undefined && v !== null) allValues.push(v);
+        }
+      }
       if (allValues.length === 0) return { lineColor: "#8C9496", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
+
+      // Average across areas for first and last data points
+      const avgForRow = (row: Record<string, any>) => {
+        const vals = keys.map(k => row[k] as number).filter(v => v !== undefined && v !== null);
+        return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      };
+      const firstRow = overlayData.data[0];
+      const lastRow = overlayData.data[overlayData.data.length - 1];
+
       return {
         lineColor: "#8C9496",
-        firstScore: allValues[0] ?? 0,
-        lastScore: allValues[allValues.length - 1] ?? 0,
+        firstScore: avgForRow(firstRow),
+        lastScore: avgForRow(lastRow),
         minScore: Math.min(...allValues),
         maxScore: Math.max(...allValues),
       };
