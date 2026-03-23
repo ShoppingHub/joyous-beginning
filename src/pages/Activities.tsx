@@ -8,6 +8,7 @@ import { useUserCards } from "@/hooks/useUserCards";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Plus, ChevronRight, Heart, BookOpen, TrendingDown, Wallet, Briefcase, MoreVertical, Sparkles, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
@@ -89,10 +90,16 @@ const Areas = () => {
 
   useEffect(() => { fetchAreas(); }, [fetchAreas]);
 
-  const handleArchive = async () => {
+  const [keepData, setKeepData] = useState(true);
+
+  const handleDelete = async () => {
     if (!archiveTarget) return;
-    await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", archiveTarget.id);
+    await supabase.from("areas").update({
+      archived_at: new Date().toISOString(),
+      data_retained: keepData,
+    }).eq("id", archiveTarget.id);
     setArchiveTarget(null);
+    setKeepData(true);
     fetchAreas();
   };
 
@@ -188,7 +195,7 @@ const Areas = () => {
                             className="text-destructive focus:text-destructive"
                             onClick={() => setArchiveTarget(area)}
                           >
-                            {t("areas.archive" as any)}
+                            {t("areas.delete" as any)}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -229,15 +236,26 @@ const Areas = () => {
         })}
       </div>
 
-      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => !open && setArchiveTarget(null)}>
+      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => { if (!open) { setArchiveTarget(null); setKeepData(true); } }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("areaForm.delete.confirm.title" as any)}</AlertDialogTitle>
             <AlertDialogDescription>{t("areaForm.delete.confirm.desc" as any)}</AlertDialogDescription>
           </AlertDialogHeader>
+
+          <div className="flex items-start gap-3 rounded-lg border border-muted-foreground/20 p-3 my-1">
+            <Switch checked={keepData} onCheckedChange={setKeepData} className="mt-0.5" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium">{t("areaForm.delete.keepData" as any)}</span>
+              <span className="text-xs text-muted-foreground">{t("areaForm.delete.keepDataDesc" as any)}</span>
+            </div>
+          </div>
+
           <AlertDialogFooter>
             <AlertDialogCancel>{t("areaForm.delete.confirm.no" as any)}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleArchive}>{t("areaForm.delete.confirm.yes" as any)}</AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("areaForm.delete.confirm.yes" as any)}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

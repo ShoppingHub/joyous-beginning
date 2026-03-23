@@ -54,6 +54,7 @@ const Progress = () => {
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("total");
   const [areas, setAreas] = useState<Area[]>([]);
+  const [archivedRetainedAreas, setArchivedRetainedAreas] = useState<Area[]>([]);
   const [scores, setScores] = useState<Record<string, { date: string; score: number }[]>>({});
   const [checkins, setCheckins] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
@@ -68,14 +69,22 @@ const Progress = () => {
       return;
     }
     if (!user) return;
+    // Fetch active areas
     const { data: areasData } = await supabase
       .from("areas").select("*").eq("user_id", user.id)
       .is("archived_at", null).order("created_at", { ascending: true });
+    // Fetch archived areas that retained data (for total/type scores)
+    const { data: archivedData } = await supabase
+      .from("areas").select("*").eq("user_id", user.id)
+      .not("archived_at", "is", null).eq("data_retained", true)
+      .order("created_at", { ascending: true });
     if (!areasData) { setLoading(false); return; }
     setAreas(areasData);
-    if (areasData.length === 0) { setLoading(false); return; }
+    setArchivedRetainedAreas(archivedData || []);
+    const allAreasForScores = [...areasData, ...(archivedData || [])];
+    if (allAreasForScores.length === 0) { setLoading(false); return; }
 
-    const areaIds = areasData.map((a) => a.id);
+    const areaIds = allAreasForScores.map((a) => a.id);
     const days = rangeToDays[timeRange];
     const startDate = format(subDays(new Date(), days), "yyyy-MM-dd");
 
@@ -111,12 +120,14 @@ const Progress = () => {
   useEffect(() => { setActiveDate(null); fetchData(); }, [fetchData]);
 
   // Filtered areas based on filter selection
+  // For "all" and "type" modes, include archived areas with retained data in score calculations
   const filteredAreas = useMemo(() => {
-    if (filterMode === "all") return areas;
-    if (filterMode === "type" && selectedType) return areas.filter((a) => a.type === selectedType);
+    const allWithRetained = [...areas, ...archivedRetainedAreas];
+    if (filterMode === "all") return allWithRetained;
+    if (filterMode === "type" && selectedType) return allWithRetained.filter((a) => a.type === selectedType);
     if (filterMode === "activity" && selectedAreaId) return areas.filter((a) => a.id === selectedAreaId);
-    return areas;
-  }, [areas, filterMode, selectedType, selectedAreaId]);
+    return allWithRetained;
+  }, [areas, archivedRetainedAreas, filterMode, selectedType, selectedAreaId]);
 
   // For "total" view: averaged data
   const rawAveraged = useMemo(() => {

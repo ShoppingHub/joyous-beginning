@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { ArrowLeft, Dumbbell, ChevronRight } from "lucide-react";
+import { ArrowLeft, Dumbbell, ChevronRight, Pencil, Trash2, Heart, BookOpen, TrendingDown, Wallet, Briefcase } from "lucide-react";
 import { AreaTypePill } from "@/components/AreaTypePill";
 import { ScheduledDaysSection } from "@/components/area-detail/ScheduledDaysSection";
 import { NotesHistorySection } from "@/components/area-detail/NotesHistorySection";
@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
 import { track } from "@/lib/analytics";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,9 +23,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
 import type { Database } from "@/integrations/supabase/types";
 
 type Area = Database["public"]["Tables"]["areas"]["Row"];
+type AreaType = Database["public"]["Enums"]["area_type"];
+
+const areaTypeIcons: Record<AreaType, React.ElementType> = {
+  health: Heart,
+  study: BookOpen,
+  reduce: TrendingDown,
+  finance: Wallet,
+  career: Briefcase,
+};
 
 export default function AreaDetail() {
   const { id } = useParams();
@@ -32,9 +43,11 @@ export default function AreaDetail() {
   const { isDemo } = useDemo();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [area, setArea] = useState<Area | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [keepData, setKeepData] = useState(true);
   const today = format(new Date(), "yyyy-MM-dd");
 
   const fetchData = useCallback(async () => {
@@ -53,17 +66,22 @@ export default function AreaDetail() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Track area detail viewed
   useEffect(() => {
     if (area) {
       track("area_detail_viewed", { area_type: area.type });
     }
   }, [area?.id]);
 
-  const handleArchive = async () => {
+  const handleDelete = async () => {
     if (!id) return;
-    await supabase.from("areas").update({ archived_at: new Date().toISOString() }).eq("id", id);
-    track("area_archived", { area_type: area?.type });
+    if (keepData) {
+      // Archive but keep data for progress
+      await supabase.from("areas").update({ archived_at: new Date().toISOString(), data_retained: true }).eq("id", id);
+    } else {
+      // Archive and mark data as not retained
+      await supabase.from("areas").update({ archived_at: new Date().toISOString(), data_retained: false }).eq("id", id);
+    }
+    track("area_deleted", { area_type: area?.type, data_retained: keepData });
     navigate("/activities", { replace: true });
   };
 
@@ -91,42 +109,48 @@ export default function AreaDetail() {
   }
 
   const isGymArea = area.type === "health" && /^(gym|palestra)$/i.test(area.name);
-
-  const handleAutoCheckIn = async () => {
-    if (!user || !id) return;
-    try {
-      await supabase.from("checkins").upsert(
-        { area_id: id, user_id: user.id, date: today, completed: true },
-        { onConflict: "area_id,date" }
-      );
-      const { data: sessionData } = await supabase.auth.getSession();
-      await supabase.functions.invoke("calculate-score", {
-        body: { area_id: id, date: today },
-        headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
-      });
-    } catch { /* silent */ }
-  };
+  const AreaIcon = areaTypeIcons[area.type];
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="flex flex-col px-4 pt-2 pb-8">
       {/* Header */}
-      <div className="flex items-center justify-between h-14">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
-            <ArrowLeft size={24} strokeWidth={1.5} />
-          </button>
-          <span className="text-[18px] font-semibold">{area.name}</span>
-          <AreaTypePill type={area.type} />
+      <div className="flex items-center h-14">
+        {/* Back button - fixed left */}
+        <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
+          <ArrowLeft size={24} strokeWidth={1.5} />
+        </button>
+
+        {/* Center area: name + icon, takes remaining space */}
+        <div className="flex-1 flex items-center justify-center gap-2">
+          {isMobile ? (
+            <AreaIcon size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+          ) : (
+            <AreaTypePill type={area.type} />
+          )}
+          <span className="text-[18px] font-semibold truncate max-w-[200px]">{area.name}</span>
         </div>
-        {!isDemo && (
-          <div className="flex items-center gap-2">
-            <button onClick={() => navigate(`/activities/${id}/edit`)} className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center">
-              {t("areas.edit" as any)}
+
+        {/* Right actions: edit + delete icons */}
+        {!isDemo ? (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => navigate(`/activities/${id}/edit`)}
+              className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground transition-colors"
+              title={t("areas.edit" as any)}
+            >
+              <Pencil size={18} strokeWidth={1.5} />
             </button>
-            <button onClick={() => setShowArchiveDialog(true)} className="text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] flex items-center">
-              {t("areas.archive" as any)}
+            <button
+              onClick={() => setShowDeleteDialog(true)}
+              className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] text-destructive hover:opacity-80 transition-opacity"
+              title={t("areas.delete" as any)}
+            >
+              <Trash2 size={18} strokeWidth={1.5} />
             </button>
           </div>
+        ) : (
+          /* Spacer to keep name centered when no actions */
+          <div className="w-10 min-w-[44px]" />
         )}
       </div>
 
@@ -161,16 +185,28 @@ export default function AreaDetail() {
         <NotesHistorySection areaId={id!} isDemo={isDemo} />
       </div>
 
-      {/* Archive confirmation */}
-      <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+      {/* Delete confirmation */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("areaForm.delete.confirm.title" as any)}</AlertDialogTitle>
             <AlertDialogDescription>{t("areaForm.delete.confirm.desc" as any)}</AlertDialogDescription>
           </AlertDialogHeader>
+
+          {/* Keep data toggle */}
+          <div className="flex items-start gap-3 rounded-lg border border-muted-foreground/20 p-3 my-1">
+            <Switch checked={keepData} onCheckedChange={setKeepData} className="mt-0.5" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium">{t("areaForm.delete.keepData" as any)}</span>
+              <span className="text-xs text-muted-foreground">{t("areaForm.delete.keepDataDesc" as any)}</span>
+            </div>
+          </div>
+
           <AlertDialogFooter>
             <AlertDialogCancel>{t("areaForm.delete.confirm.no" as any)}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleArchive}>{t("areaForm.delete.confirm.yes" as any)}</AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("areaForm.delete.confirm.yes" as any)}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

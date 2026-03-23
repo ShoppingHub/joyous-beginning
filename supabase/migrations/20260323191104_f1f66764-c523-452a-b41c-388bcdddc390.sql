@@ -1,0 +1,1 @@
+ALTER TABLE public.areas ADD COLUMN data_retained boolean NOT NULL DEFAULT true;
