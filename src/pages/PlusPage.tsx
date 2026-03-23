@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { ArrowLeft, Sparkles, LayoutGrid, TrendingDown, Palette, Loader2, CreditCard } from "lucide-react";
+import { ArrowLeft, Sparkles, LayoutGrid, SlidersHorizontal, Palette, Loader2, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/hooks/useI18n";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
