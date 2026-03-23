@@ -113,44 +113,47 @@ export default function AreaDetail() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="flex flex-col px-4 pt-2 pb-8">
-      {/* Header */}
+      {/* Header row 1: back + name centered */}
       <div className="flex items-center h-14">
-        {/* Back button - fixed left */}
         <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px]">
           <ArrowLeft size={24} strokeWidth={1.5} />
         </button>
+        <div className="flex-1 flex items-center justify-center">
+          <span className="text-[18px] font-semibold truncate max-w-[220px]">{area.name}</span>
+        </div>
+        {/* Spacer to balance back button */}
+        <div className="w-10 min-w-[44px]" />
+      </div>
 
-        {/* Center area: name + icon, takes remaining space */}
-        <div className="flex-1 flex items-center justify-center gap-2">
+      {/* Header row 2: area type pill left + action icons right */}
+      <div className="flex items-center justify-between -mt-1 mb-1">
+        <div className="flex items-center gap-2 pl-1">
           {isMobile ? (
-            <AreaIcon size={16} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
+            <AreaIcon size={16} strokeWidth={1.5} className="text-muted-foreground" />
           ) : (
             <AreaTypePill type={area.type} />
           )}
-          <span className="text-[18px] font-semibold truncate max-w-[200px]">{area.name}</span>
+          <span className="text-xs text-muted-foreground">
+            {isMobile ? t(`areaType.${area.type}` as any) : ""}
+          </span>
         </div>
-
-        {/* Right actions: edit + delete icons */}
-        {!isDemo ? (
-          <div className="flex items-center gap-1">
+        {!isDemo && (
+          <div className="flex items-center gap-0.5">
             <button
               onClick={() => navigate(`/activities/${id}/edit`)}
-              className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center justify-center h-9 w-9 min-h-[40px] min-w-[40px] rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               title={t("areas.edit" as any)}
             >
-              <Pencil size={18} strokeWidth={1.5} />
+              <Pencil size={16} strokeWidth={1.5} />
             </button>
             <button
               onClick={() => setShowDeleteDialog(true)}
-              className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] text-destructive hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center h-9 w-9 min-h-[40px] min-w-[40px] rounded-lg text-destructive hover:opacity-80 hover:bg-destructive/10 transition-colors"
               title={t("areas.delete" as any)}
             >
-              <Trash2 size={18} strokeWidth={1.5} />
+              <Trash2 size={16} strokeWidth={1.5} />
             </button>
           </div>
-        ) : (
-          /* Spacer to keep name centered when no actions */
-          <div className="w-10 min-w-[44px]" />
         )}
       </div>
 
