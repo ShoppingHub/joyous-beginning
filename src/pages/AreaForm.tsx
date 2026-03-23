@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Loader2, Dumbbell, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Dumbbell, Check, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -29,6 +29,14 @@ const typeLabelKeys: Record<AreaType, TranslationKey> = {
   reduce: "areaType.reduce",
   finance: "areaType.finance",
   career: "areaType.career",
+};
+
+const typeIcons: Record<AreaType, React.ElementType> = {
+  health: Heart,
+  study: Brain,
+  reduce: SlidersHorizontal,
+  finance: TrendingUp,
+  career: Briefcase,
 };
 
 // Day labels (1=Mon..7=Sun)
@@ -308,11 +316,17 @@ export default function AreaForm({ mode }: AreaFormProps) {
               <SelectValue placeholder={t("areaForm.typePlaceholder" as any)} />
             </SelectTrigger>
             <SelectContent>
-              {typeOptions.map((tp) => (
-                <SelectItem key={tp} value={tp}>
-                  {t(typeLabelKeys[tp])}
-                </SelectItem>
-              ))}
+              {typeOptions.map((tp) => {
+                const Icon = typeIcons[tp];
+                return (
+                  <SelectItem key={tp} value={tp}>
+                    <span className="flex items-center gap-2">
+                      <Icon size={16} strokeWidth={1.5} />
+                      {t(typeLabelKeys[tp])}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           {typeError && <p className="text-sm text-destructive">{typeError}</p>}
