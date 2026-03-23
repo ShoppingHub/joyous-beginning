@@ -141,8 +141,8 @@ const translations = {
 
   // Area types
   "areaType.health": { en: "Health", it: "Salute" },
-  "areaType.study": { en: "Study", it: "Studio" },
-  "areaType.reduce": { en: "Reduce", it: "Ridurre" },
+  "areaType.study": { en: "Mind", it: "Cultura" },
+  "areaType.reduce": { en: "Control", it: "Controllo" },
   "areaType.finance": { en: "Finance", it: "Finanza" },
   "areaType.career": { en: "Career", it: "Carriera" },
 
