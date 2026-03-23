@@ -320,7 +320,6 @@ const Progress = () => {
               <span className={`text-xs font-medium tabular-nums ${diffColor}`}>
                 {diffSign}{fmt(scoreDiff)}{pctStr} · {locale === "it" ? "Dall'inizio" : "From start"}
               </span>
-              </span>
             )}
           </div>
           <div className="flex items-center rounded-full bg-card p-0.5 border border-muted-foreground/20">
