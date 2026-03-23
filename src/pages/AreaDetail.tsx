@@ -137,11 +137,13 @@ export default function AreaDetail() {
       </div>
 
       {/* Row 2: back + activity name */}
-      <div className="flex items-center h-12 gap-2">
+      <div className="flex items-center h-12">
         <button onClick={() => navigate("/activities")} className="flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] shrink-0">
           <ArrowLeft size={24} strokeWidth={1.5} />
         </button>
-        <span className="text-[18px] font-semibold truncate">{area.name}</span>
+        <div className="flex-1 flex items-center justify-center -ml-10">
+          <span className="text-[18px] font-semibold truncate max-w-[260px]">{area.name}</span>
+        </div>
       </div>
 
       {/* Scheduled Days */}
