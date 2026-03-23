@@ -31,9 +31,9 @@ type AreaType = Database["public"]["Enums"]["area_type"];
 
 const areaTypeIcons: Record<AreaType, React.ElementType> = {
   health: Heart,
-  study: BookOpen,
-  reduce: TrendingDown,
-  finance: Wallet,
+  study: Brain,
+  reduce: SlidersHorizontal,
+  finance: TrendingUp,
   career: Briefcase,
 };
 

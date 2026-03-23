@@ -37,9 +37,9 @@ type AreaType = Database["public"]["Enums"]["area_type"];
 
 const sections: { type: AreaType; labelKey: TranslationKey; icon: typeof Heart }[] = [
   { type: "health", labelKey: "areas.section.health", icon: Heart },
-  { type: "study", labelKey: "areas.section.study", icon: BookOpen },
-  { type: "reduce", labelKey: "areas.section.reduce", icon: TrendingDown },
-  { type: "finance", labelKey: "areas.section.finance", icon: Wallet },
+  { type: "study", labelKey: "areas.section.study", icon: Brain },
+  { type: "reduce", labelKey: "areas.section.reduce", icon: SlidersHorizontal },
+  { type: "finance", labelKey: "areas.section.finance", icon: TrendingUp },
   { type: "career", labelKey: "areas.section.career" as TranslationKey, icon: Briefcase },
 ];
 

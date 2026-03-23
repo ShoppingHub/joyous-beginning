@@ -176,9 +176,9 @@ const translations = {
   // Areas page
   "areas.title": { en: "Activities", it: "Attività" },
   "areas.section.health": { en: "Health", it: "Salute" },
-  "areas.section.study": { en: "Study", it: "Studio" },
-  "areas.section.reduce": { en: "Reduce", it: "Riduci" },
-  "areas.section.finance": { en: "Finance", it: "Finanze" },
+  "areas.section.study": { en: "Mind", it: "Cultura" },
+  "areas.section.reduce": { en: "Control", it: "Controllo" },
+  "areas.section.finance": { en: "Finance", it: "Finanza" },
   "areas.section.career": { en: "Career", it: "Carriera" },
   "areas.add": { en: "+ Add", it: "+ Aggiungi" },
   "areas.discoverCards": { en: "Discover activity cards", it: "Scopri le schede attività" },
