@@ -288,6 +288,8 @@ const Progress = () => {
   const scoreDiff = lastScore - firstScore;
   const diffSign = scoreDiff >= 0 ? "+" : "";
   const diffColor = scoreDiff > 0.1 ? "text-[hsl(var(--graph-positive))]" : scoreDiff < -0.1 ? "text-destructive" : "text-muted-foreground";
+  const diffPct = firstScore !== 0 ? ((scoreDiff / Math.abs(firstScore)) * 100) : 0;
+  const pctStr = Math.abs(diffPct) < 0.01 ? "" : ` (${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)}%)`;
 
   // Header
   const header = (
@@ -316,7 +318,7 @@ const Progress = () => {
             <span className="text-2xl font-bold text-foreground tabular-nums">{fmt(lastScore)}</span>
             {hasData && (
               <span className={`text-xs font-medium tabular-nums ${diffColor}`}>
-                {diffSign}{fmt(scoreDiff)} · {locale === "it" ? "Dall'inizio" : "From start"}
+                {diffSign}{fmt(scoreDiff)}{pctStr} · {locale === "it" ? "Dall'inizio" : "From start"}
               </span>
             )}
           </div>
