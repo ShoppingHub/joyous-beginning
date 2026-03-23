@@ -82,9 +82,10 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
       <button
         onClick={handleMinus}
         disabled={isFutureDay || quantity <= 0}
-        className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity"
+        className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center rounded-xl border border-border text-foreground hover:bg-card disabled:opacity-30 transition-opacity gap-0"
       >
-        <Minus size={18} />
+        <ChevronDown size={14} className="-mb-1" />
+        <Minus size={12} />
       </button>
 
       {/* Quantity display / edit */}
