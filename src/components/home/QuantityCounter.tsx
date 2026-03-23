@@ -115,15 +115,11 @@ export function QuantityCounter({ areaId, date, isFutureDay }: QuantityCounterPr
       <button
         onClick={handlePlus}
         disabled={isFutureDay}
-        className="flex h-11 min-h-[44px] px-3 items-center justify-center rounded-xl border border-[#BFA37A] text-[#BFA37A] font-medium hover:bg-[#BFA37A]/10 disabled:opacity-30 transition-opacity"
+        className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center rounded-xl border border-primary text-primary hover:bg-primary/10 disabled:opacity-30 transition-opacity gap-0"
       >
-        +1
+        <ChevronUp size={14} className="-mb-1" />
+        <Plus size={12} />
       </button>
-
-      {/* Recorded feedback */}
-      {recorded && (
-        <span className="text-xs text-muted-foreground animate-pulse">{t("reduce.recorded")}</span>
-      )}
     </div>
   );
 }
