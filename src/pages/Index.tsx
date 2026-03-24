@@ -23,6 +23,7 @@ interface GymDayInfo {
   dayName: string;
   hasProgram: boolean;
   dayOfWeek?: number | null;
+  dayId?: string;
 }
 
 interface ScheduledDay {
@@ -289,7 +290,7 @@ const Index = () => {
       const dayNumber = targetDay.order + 1;
       const dayLabel = locale === "it" ? `Giorno ${dayNumber}` : `Day ${dayNumber}`;
 
-      setGymDayInfo({ areaId: gymAreaId, dayLabel, dayName: targetDay.name || dayLabel, hasProgram: true, dayOfWeek: targetDay.day_of_week ?? null });
+      setGymDayInfo({ areaId: gymAreaId, dayLabel, dayName: targetDay.name || dayLabel, hasProgram: true, dayOfWeek: targetDay.day_of_week ?? null, dayId: targetDay.id });
     })();
   }, [gymAreaId, gymProgramDays, gymLastSessionDayId, selectedDayOfWeek, locale]);
 
@@ -455,6 +456,7 @@ const Index = () => {
                 gymDayLabel={gymDayInfo?.areaId === area.id ? gymDayInfo.dayLabel : undefined}
                 gymDayName={gymDayInfo?.areaId === area.id ? gymDayInfo.dayName : undefined}
                 gymDayOfWeek={gymDayInfo?.areaId === area.id ? gymDayInfo.dayOfWeek : undefined}
+                gymDayId={gymDayInfo?.areaId === area.id ? gymDayInfo.dayId : undefined}
                 note={notes[area.id] || ""}
                 onSaveNote={handleSaveNote}
               />

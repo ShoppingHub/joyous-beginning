@@ -30,6 +30,7 @@ interface ActivityCardProps {
   gymDayLabel?: string;
   gymDayName?: string;
   gymDayOfWeek?: number | null;
+  gymDayId?: string;
   note: string;
   onSaveNote: (areaId: string, content: string) => void;
 }
@@ -47,6 +48,7 @@ export function ActivityCard({
   gymDayLabel,
   gymDayName,
   gymDayOfWeek,
+  gymDayId,
   note,
   onSaveNote,
 }: ActivityCardProps) {
@@ -197,7 +199,7 @@ export function ActivityCard({
       {/* Gym day CTA - centered below name, with weekday badge */}
       {showGymDay && (
         <button
-          onClick={() => isCardEnabled("gym") ? navigate("/cards/gym") : navigate(`/activities/${area.id}`)}
+          onClick={() => isCardEnabled("gym") ? navigate(gymDayId ? `/cards/gym/${gymDayId}` : "/cards/gym") : navigate(`/activities/${area.id}`)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
         >
           {gymDayOfWeek != null && (
