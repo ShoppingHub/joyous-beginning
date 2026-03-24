@@ -64,21 +64,31 @@ export function GymSessionView({ programId, areaId, onAutoCheckIn }: GymSessionP
       currentDayId = (todaySession as any).day_id;
       setSession(todaySession as any);
     } else {
-      // Auto-select next day based on last session
-      const { data: lastSession } = await supabase
-        .from("gym_sessions" as any)
-        .select("day_id")
-        .eq("area_id", areaId)
-        .eq("user_id", user.id)
-        .order("date", { ascending: false })
-        .limit(1)
-        .single();
+      // First try to match today's weekday (ISO: 1=Mon..7=Sun)
+      const { getISODay } = await import("date-fns");
+      const todayWeekday = getISODay(new Date());
+      const hasWeekdayAssignments = allDays.some(d => d.day_of_week != null);
+      const weekdayMatch = hasWeekdayAssignments ? allDays.find(d => d.day_of_week === todayWeekday) : null;
 
-      if (lastSession) {
-        const lastIdx = allDays.findIndex(d => d.id === (lastSession as any).day_id);
-        currentDayId = allDays[(lastIdx + 1) % allDays.length].id;
+      if (weekdayMatch) {
+        currentDayId = weekdayMatch.id;
       } else {
-        currentDayId = allDays[0].id;
+        // Fallback to rotation
+        const { data: lastSession } = await supabase
+          .from("gym_sessions" as any)
+          .select("day_id")
+          .eq("area_id", areaId)
+          .eq("user_id", user.id)
+          .order("date", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (lastSession) {
+          const lastIdx = allDays.findIndex(d => d.id === (lastSession as any).day_id);
+          currentDayId = allDays[(lastIdx + 1) % allDays.length].id;
+        } else {
+          currentDayId = allDays[0].id;
+        }
       }
       setSession(null);
     }
