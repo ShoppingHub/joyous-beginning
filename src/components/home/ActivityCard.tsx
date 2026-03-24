@@ -48,6 +48,7 @@ export function ActivityCard({
   gymDayLabel,
   gymDayName,
   gymDayOfWeek,
+  gymDayId,
   note,
   onSaveNote,
 }: ActivityCardProps) {
