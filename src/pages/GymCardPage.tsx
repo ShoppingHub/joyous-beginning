@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Dumbbell, Plus, ChevronDown, ChevronUp, Pencil, X, Trash2, Check, Calendar } from "lucide-react";
+import { ArrowLeft, Dumbbell, Pencil, ChevronDown, ChevronUp, Settings, Calendar, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import { track } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { GymProgram, GymProgramDay, GymMuscleGroup, GymProgramExercise, GymSession, GymSessionExercise } from "@/components/gym/types";
 import { GymWizard } from "@/components/gym/GymWizard";
