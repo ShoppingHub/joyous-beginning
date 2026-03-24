@@ -411,6 +411,11 @@ const GymEditPage = () => {
             </button>
           )
         )}
+
+        {/* Session history */}
+        {program && areaId && (
+          <GymHistory areaId={areaId} programId={program.id} />
+        )}
       </div>
     </motion.div>
   );
