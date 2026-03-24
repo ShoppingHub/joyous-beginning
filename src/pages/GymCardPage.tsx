@@ -36,14 +36,6 @@ const GymCardPage = () => {
   const [session, setSession] = useState<GymSession | null>(null);
   const [sessionExercises, setSessionExercises] = useState<Record<string, GymSessionExercise>>({});
 
-  // Edit mode state
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
-  const [editGroupName, setEditGroupName] = useState("");
-  const [addingGroupDayId, setAddingGroupDayId] = useState<string | null>(null);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [editingExercise, setEditingExercise] = useState<{ groupId: string; exercise?: GymProgramExercise } | null>(null);
-  const [exForm, setExForm] = useState({ name: "", sets: "", reps: "", weight: "", daily: false, exerciseType: "strength" as "strength" | "cardio", duration: "", intensity: "" });
-  const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<string | null>(null);
 
   // Weekly summary
   const [weekSessions, setWeekSessions] = useState<number>(0);
