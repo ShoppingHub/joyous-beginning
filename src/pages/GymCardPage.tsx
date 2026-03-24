@@ -53,11 +53,22 @@ const GymCardPage = () => {
 
     const { data: todaySession } = await supabase.from("gym_sessions" as any).select("*").eq("area_id", areaId).eq("date", today).single();
     let currentDayId: string;
-    if (todaySession) {
+    
+    // Priority 1: Route param dayId
+    if (routeDayId && allDays.some(d => d.id === routeDayId)) {
+      currentDayId = routeDayId;
+      // Load existing session for today if it matches this day
+      if (todaySession && (todaySession as any).day_id === routeDayId) {
+        setSession(todaySession as any);
+      } else {
+        setSession(null);
+      }
+    } else if (todaySession) {
+      // Priority 2: Existing today session
       currentDayId = (todaySession as any).day_id;
       setSession(todaySession as any);
     } else {
-      // First try to match today's weekday (ISO: 1=Mon..7=Sun)
+      // Priority 3: Match today's weekday
       const { getISODay } = await import("date-fns");
       const todayWeekday = getISODay(new Date());
       const hasWeekdayAssignments = allDays.some(d => d.day_of_week != null);
@@ -66,7 +77,7 @@ const GymCardPage = () => {
       if (weekdayMatch) {
         currentDayId = weekdayMatch.id;
       } else {
-        // Fallback to rotation
+        // Priority 4: Rotation fallback
         const { data: lastSession } = await supabase.from("gym_sessions" as any).select("day_id").eq("area_id", areaId).eq("user_id", user.id).order("date", { ascending: false }).limit(1).single();
         if (lastSession) {
           const lastIdx = allDays.findIndex(d => d.id === (lastSession as any).day_id);
