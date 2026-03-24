@@ -16,6 +16,7 @@ const GymCardPage = () => {
   const { user } = useAuth();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const { dayId: routeDayId } = useParams<{ dayId?: string }>();
   const { getUserCard } = useUserCards();
   const userCard = getUserCard("gym");
   const areaId = userCard?.area_id;
