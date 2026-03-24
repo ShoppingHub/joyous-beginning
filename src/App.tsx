@@ -26,6 +26,7 @@ import OnboardingFrequency from "./pages/OnboardingFrequency";
 import AreaForm from "./pages/AreaForm";
 import AreaDetail from "./pages/AreaDetail";
 import GymCardPage from "./pages/GymCardPage";
+import GymEditPage from "./pages/GymEditPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
 import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
