@@ -30,6 +30,7 @@ interface ActivityCardProps {
   gymDayLabel?: string;
   gymDayName?: string;
   gymDayOfWeek?: number | null;
+  gymDayId?: string;
   note: string;
   onSaveNote: (areaId: string, content: string) => void;
 }
