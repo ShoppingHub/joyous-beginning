@@ -26,6 +26,7 @@ import OnboardingFrequency from "./pages/OnboardingFrequency";
 import AreaForm from "./pages/AreaForm";
 import AreaDetail from "./pages/AreaDetail";
 import GymCardPage from "./pages/GymCardPage";
+import GymEditPage from "./pages/GymEditPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
 import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="/activities/:id/edit" element={<AreaForm mode="edit" />} />
               <Route path="/cards" element={<CardsHub />} />
               <Route path="/cards/gym" element={<GymCardPage />} />
+              <Route path="/cards/gym/edit" element={<GymEditPage />} />
               <Route path="/cards/finance" element={<FinanceCardPage />} />
               <Route path="/plus" element={<PlusPage />} />
               {/* Legacy redirects */}

@@ -75,7 +75,11 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
               <DrawerHeader className="p-0 text-center">
                 <DrawerTitle className="text-lg">{getCardName(previewCard, locale)}</DrawerTitle>
                 <DrawerDescription className="text-sm text-muted-foreground mt-1">
-                  {getCardDescription(previewCard, locale)}
+                  {previewCard.id === "gym"
+                    ? (locale === "it"
+                      ? "Registra la sessione di oggi o modifica il tuo piano di allenamento."
+                      : "Log today's session or edit your workout plan.")
+                    : getCardDescription(previewCard, locale)}
                 </DrawerDescription>
               </DrawerHeader>
 
@@ -99,6 +103,8 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
                   <span className={`text-xs ${isConfigured(previewCard) ? "text-primary" : "text-accent"}`}>
                     {isConfigured(previewCard) ? t("cards.configured") : t("cards.notConfigured")}
                   </span>
+
+                  {/* Primary CTA */}
                   <button
                     onClick={() => {
                       setPreviewCard(null);
@@ -106,8 +112,23 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
                     }}
                     className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
                   >
-                    {t("cards.open")}
+                    {previewCard.id === "gym"
+                      ? (locale === "it" ? "Allenati oggi" : "Train today")
+                      : t("cards.open")}
                   </button>
+
+                  {/* Secondary CTA for gym only */}
+                  {previewCard.id === "gym" && (
+                    <button
+                      onClick={() => {
+                        setPreviewCard(null);
+                        navigate("/cards/gym/edit");
+                      }}
+                      className="w-full h-12 rounded-xl ring-1 ring-border text-foreground font-medium text-base hover:opacity-90 transition-opacity min-h-[44px]"
+                    >
+                      {locale === "it" ? "Modifica piano" : "Edit plan"}
+                    </button>
+                  )}
                 </>
               )}
             </div>
