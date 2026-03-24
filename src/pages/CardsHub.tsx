@@ -25,7 +25,7 @@ const CardsHub = () => {
           return (
             <button
               key={card.id}
-              onClick={() => navigate(card.route)}
+              onClick={() => navigate(card.id === "gym" ? "/cards/gym/edit" : card.route)}
               className="flex items-center gap-3 rounded-xl bg-card ring-1 ring-border px-4 py-4 text-left hover:opacity-90 transition-opacity min-h-[44px]"
             >
               <Icon size={24} strokeWidth={1.5} className="text-primary shrink-0" />

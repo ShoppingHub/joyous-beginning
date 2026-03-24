@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import type { GymProgram, GymProgramDay, GymMuscleGroup, GymProgramExercise } from "@/components/gym/types";
 import { GymWizard } from "@/components/gym/GymWizard";
+import { GymHistory } from "@/components/gym/GymHistory";
 
 const WEEKDAY_KEYS = ["gym.weekday.mon", "gym.weekday.tue", "gym.weekday.wed", "gym.weekday.thu", "gym.weekday.fri", "gym.weekday.sat", "gym.weekday.sun"] as const;
 
