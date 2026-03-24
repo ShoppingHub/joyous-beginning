@@ -4,15 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Dumbbell, Pencil, Settings, Calendar, Check } from "lucide-react";
+import { ArrowLeft, Dumbbell, Settings, Check, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, startOfWeek, endOfWeek } from "date-fns";
+import { format } from "date-fns";
 import { track } from "@/lib/analytics";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import type { GymProgram, GymProgramDay, GymMuscleGroup, GymProgramExercise, GymSession, GymSessionExercise } from "@/components/gym/types";
 import { GymWizard } from "@/components/gym/GymWizard";
-import { GymHistory } from "@/components/gym/GymHistory";
 
 const GymCardPage = () => {
   const { user } = useAuth();
@@ -28,12 +26,11 @@ const GymCardPage = () => {
   const today = format(new Date(), "yyyy-MM-dd");
   const [days, setDays] = useState<GymProgramDay[]>([]);
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
+  const [selectedDayName, setSelectedDayName] = useState<string>("");
   const [groups, setGroups] = useState<(GymMuscleGroup & { exercises: GymProgramExercise[] })[]>([]);
   const [dailyExercises, setDailyExercises] = useState<GymProgramExercise[]>([]);
   const [session, setSession] = useState<GymSession | null>(null);
   const [sessionExercises, setSessionExercises] = useState<Record<string, GymSessionExercise>>({});
-  const [weekSessions, setWeekSessions] = useState<number>(0);
-  const [weekTotal, setWeekTotal] = useState<number>(0);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const title = locale === "it" ? "Scheda Palestra" : "Gym Card";
@@ -69,6 +66,8 @@ const GymCardPage = () => {
       setSession(null);
     }
     setSelectedDayId(currentDayId);
+    const dayObj = allDays.find(d => d.id === currentDayId);
+    setSelectedDayName(dayObj?.name || "");
     await loadDayData(currentDayId, todaySession as any);
   }, [user, program, areaId, today]);
 
@@ -105,19 +104,6 @@ const GymCardPage = () => {
 
   useEffect(() => { fetchProgram(); track("card_opened", { card_type: "gym" }); }, [fetchProgram]);
   useEffect(() => { if (program) fetchSession(); }, [program, fetchSession]);
-
-  const fetchWeeklySummary = useCallback(async () => {
-    if (!user || !areaId || !program) return;
-    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
-    const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
-    const { count } = await supabase.from("gym_sessions" as any)
-      .select("id", { count: "exact" }).eq("area_id", areaId).eq("user_id", user.id)
-      .gte("date", weekStart).lte("date", weekEnd);
-    setWeekSessions(count ?? 0);
-    setWeekTotal(days.length || 0);
-  }, [user, areaId, program, days.length]);
-
-  useEffect(() => { fetchWeeklySummary(); }, [fetchWeeklySummary]);
 
   // ─── Session actions ───
   const ensureSession = async (dayId: string): Promise<string | null> => {
@@ -170,21 +156,6 @@ const GymCardPage = () => {
     }
   };
 
-  const handleSelectDay = async (dayId: string) => {
-    if (!user || dayId === selectedDayId) return;
-    setSelectedDayId(dayId);
-    if (session && session.day_id !== dayId) {
-      await supabase.from("gym_sessions" as any).delete().eq("id", session.id);
-      setSession(null);
-      setSessionExercises({});
-    }
-    const { data } = await supabase.from("gym_sessions" as any)
-      .upsert({ area_id: areaId, user_id: user.id, day_id: dayId, date: today } as any, { onConflict: "area_id,date" })
-      .select("*").single();
-    if (data) setSession(data as any);
-    await loadDayData(dayId, data as any);
-  };
-
   const autoSaveSessionValue = async (exercise: GymProgramExercise, field: string, value: number | null) => {
     if (!selectedDayId) return;
     const sessionId = await ensureSession(selectedDayId);
@@ -207,12 +178,6 @@ const GymCardPage = () => {
     saveTimerRef.current = setTimeout(() => autoSaveSessionValue(exercise, field, value), 600);
   };
 
-  const getWeekdayLabel = (dow: number | null): string => {
-    if (dow === null || dow === undefined) return "";
-    const keys = ["gym.weekday.mon", "gym.weekday.tue", "gym.weekday.wed", "gym.weekday.thu", "gym.weekday.fri", "gym.weekday.sat", "gym.weekday.sun"] as const;
-    return t(keys[dow - 1] as any);
-  };
-
   const formatExSession = (ex: GymProgramExercise) => {
     const se = sessionExercises[ex.id];
     if (ex.exercise_type === "cardio") {
@@ -224,8 +189,8 @@ const GymCardPage = () => {
       return parts.join(" · ") || "Cardio";
     }
     const w = se?.weight_used ?? ex.default_weight;
-    if (w && w > 0) return `${ex.sets} × ${w}kg`;
-    return `${ex.sets} × ${ex.reps}`;
+    if (w && w > 0) return `${ex.sets}×${w}kg`;
+    return `${ex.sets}×${ex.reps}`;
   };
 
   // ─── Header ───
@@ -287,36 +252,14 @@ const GymCardPage = () => {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="flex flex-col px-4 pt-2 pb-24">
       <PageHeader />
 
-      {/* Day tabs */}
-      {days.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
-          {days.map(day => (
-            <button key={day.id} onClick={() => handleSelectDay(day.id)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] flex items-center gap-1 ${
-                day.id === selectedDayId ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground ring-1 ring-border"
-              }`}>
-              {day.name}
-              {day.day_of_week !== null && day.day_of_week !== undefined && (
-                <span className={`text-[10px] font-normal ${day.id === selectedDayId ? "text-primary-foreground/70" : "text-muted-foreground/60"}`}>
-                  {getWeekdayLabel(day.day_of_week)}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Day label — read-only */}
+      {selectedDayName && (
+        <div className="mb-4 mt-1">
+          <span className="text-sm font-semibold text-foreground">{selectedDayName}</span>
         </div>
       )}
 
-      {/* Weekly summary */}
-      {weekTotal > 0 && (
-        <div className="flex items-center gap-2 mb-3 px-1">
-          <Calendar size={14} className="text-muted-foreground" strokeWidth={1.5} />
-          <span className="text-xs text-muted-foreground">
-            {t("gym.weeklySummary")}: <span className="font-semibold text-foreground">{weekSessions}/{weekTotal}</span> {t("gym.weeklySessions")}
-          </span>
-        </div>
-      )}
-
-      {/* Session checklist */}
+      {/* Session checklist — mini-cards */}
       {allExercises.length === 0 ? (
         <div className="rounded-xl bg-card flex flex-col items-center justify-center py-6 gap-2 px-4">
           <p className="text-sm text-muted-foreground text-center">{t("gym.session.noExercises")}</p>
@@ -325,20 +268,20 @@ const GymCardPage = () => {
       ) : (
         <div className="flex flex-col gap-3">
           {dailyExercises.length > 0 && (
-            <div>
-              <p className="text-xs text-muted-foreground font-medium mb-1.5">{t("gym.daily")}</p>
+            <div className="flex flex-col gap-2">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{t("gym.daily")}</p>
               {dailyExercises.map(ex => (
-                <SessionExerciseRow key={ex.id} exercise={ex} sessionEx={sessionExercises[ex.id]}
+                <ExerciseMiniCard key={ex.id} exercise={ex} sessionEx={sessionExercises[ex.id]}
                   onToggle={() => handleToggleExercise(ex)} formatEx={formatExSession}
                   onValueChange={(field, val) => debouncedSave(ex, field, val)} />
               ))}
             </div>
           )}
           {groups.filter(g => g.exercises.length > 0).map(group => (
-            <div key={group.id}>
-              <p className="text-xs text-muted-foreground font-medium mb-1.5">{group.name}</p>
+            <div key={group.id} className="flex flex-col gap-2">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{group.name}</p>
               {group.exercises.map(ex => (
-                <SessionExerciseRow key={ex.id} exercise={ex} sessionEx={sessionExercises[ex.id]}
+                <ExerciseMiniCard key={ex.id} exercise={ex} sessionEx={sessionExercises[ex.id]}
                   onToggle={() => handleToggleExercise(ex)} formatEx={formatExSession}
                   onValueChange={(field, val) => debouncedSave(ex, field, val)} />
               ))}
@@ -346,14 +289,12 @@ const GymCardPage = () => {
           ))}
         </div>
       )}
-
-      {program && areaId && <GymHistory areaId={areaId} programId={program.id} />}
     </motion.div>
   );
 };
 
-// ─── Session exercise row ───
-function SessionExerciseRow({ exercise, sessionEx, onToggle, formatEx, onValueChange }: {
+// ─── Exercise mini-card ───
+function ExerciseMiniCard({ exercise, sessionEx, onToggle, formatEx, onValueChange }: {
   exercise: GymProgramExercise; sessionEx?: GymSessionExercise;
   onToggle: () => void; formatEx: (ex: GymProgramExercise) => string;
   onValueChange: (field: string, value: number | null) => void;
@@ -363,7 +304,7 @@ function SessionExerciseRow({ exercise, sessionEx, onToggle, formatEx, onValueCh
   const [localWeight, setLocalWeight] = useState<string>("");
   const [localDuration, setLocalDuration] = useState<string>("");
   const [localIntensity, setLocalIntensity] = useState<string>("");
-  const [expandedField, setExpandedField] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     setLocalWeight(String(sessionEx?.weight_used ?? exercise.default_weight ?? ""));
@@ -378,21 +319,35 @@ function SessionExerciseRow({ exercise, sessionEx, onToggle, formatEx, onValueCh
   };
 
   return (
-    <div className={`flex flex-col rounded-lg min-h-[44px] ${completed ? "opacity-50" : ""}`}>
-      <div className="flex items-center gap-3 px-3 py-2.5">
-        <Checkbox checked={completed} onCheckedChange={onToggle} />
-        <span className="text-sm font-medium flex-1">{exercise.name}</span>
-        <button onClick={() => setExpandedField(expandedField ? null : (isCardio ? "duration" : "weight"))}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground min-h-[32px] px-1">
-          {formatEx(exercise)}
-          <Pencil size={12} />
+    <div className="rounded-xl bg-card border border-border p-3 flex flex-col gap-2">
+      {/* Top row: name + detail + done */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium flex-1 truncate">{exercise.name}</span>
+        <button
+          onClick={() => setEditing(!editing)}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded-md min-h-[28px]"
+        >
+          <span>{formatEx(exercise)}</span>
+          <Pencil size={11} />
+        </button>
+        <button
+          onClick={onToggle}
+          className={`flex items-center justify-center w-8 h-8 rounded-lg border transition-colors ${
+            completed
+              ? "bg-primary/15 border-primary text-primary"
+              : "border-border text-muted-foreground hover:border-primary/50"
+          }`}
+        >
+          <Check size={16} strokeWidth={completed ? 2.5 : 1.5} />
         </button>
       </div>
+
+      {/* Inline edit */}
       <AnimatePresence>
-        {expandedField && (
+        {editing && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.15 }} className="overflow-hidden">
-            <div className="flex items-center gap-2 px-3 pb-2.5 pl-10">
+            <div className="flex items-center gap-2 pt-1">
               {isCardio ? (
                 <>
                   <div className="flex items-center gap-1">
@@ -416,7 +371,7 @@ function SessionExerciseRow({ exercise, sessionEx, onToggle, formatEx, onValueCh
                   <span className="text-[11px] text-muted-foreground">kg</span>
                 </div>
               )}
-              <button onClick={() => setExpandedField(null)} className="text-primary text-xs font-medium px-1 min-h-[28px]">
+              <button onClick={() => setEditing(false)} className="text-primary text-xs font-medium px-1 min-h-[28px]">
                 <Check size={14} />
               </button>
             </div>
