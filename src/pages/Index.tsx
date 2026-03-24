@@ -456,6 +456,7 @@ const Index = () => {
                 gymDayLabel={gymDayInfo?.areaId === area.id ? gymDayInfo.dayLabel : undefined}
                 gymDayName={gymDayInfo?.areaId === area.id ? gymDayInfo.dayName : undefined}
                 gymDayOfWeek={gymDayInfo?.areaId === area.id ? gymDayInfo.dayOfWeek : undefined}
+                gymDayId={gymDayInfo?.areaId === area.id ? gymDayInfo.dayId : undefined}
                 note={notes[area.id] || ""}
                 onSaveNote={handleSaveNote}
               />
