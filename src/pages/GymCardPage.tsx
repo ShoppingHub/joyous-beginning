@@ -26,7 +26,6 @@ const GymCardPage = () => {
 
   const [program, setProgram] = useState<GymProgram | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
 
   // Session state
   const today = format(new Date(), "yyyy-MM-dd");
