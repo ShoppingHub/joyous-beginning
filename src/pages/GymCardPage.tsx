@@ -92,7 +92,7 @@ const GymCardPage = () => {
     const dayObj = allDays.find(d => d.id === currentDayId);
     setSelectedDayName(dayObj?.name || "");
     await loadDayData(currentDayId, todaySession as any);
-  }, [user, program, areaId, today]);
+  }, [user, program, areaId, today, routeDayId]);
 
   const loadDayData = async (dayId: string, existingSession?: GymSession | null) => {
     if (!program) return;
