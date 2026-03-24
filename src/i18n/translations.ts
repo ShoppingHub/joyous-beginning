@@ -269,6 +269,10 @@ const translations = {
   "gym.weekday.sun": { en: "Sun", it: "Dom" },
   "gym.weeklySummary": { en: "This week", it: "Questa settimana" },
   "gym.weeklySessions": { en: "sessions completed", it: "sessioni completate" },
+  "gym.session.pageTitle": { en: "Session", it: "Sessione" },
+  "gym.session.setupPlan": { en: "Manage plan", it: "Gestisci scheda" },
+  "gym.session.completed": { en: "completed", it: "completati" },
+  "gym.management.startSession": { en: "Start session", it: "Avvia sessione" },
 
   // Reduce tracking
   "reduce.trackingLabel": { en: "How do you want to track this?", it: "Come vuoi tracciare?" },
