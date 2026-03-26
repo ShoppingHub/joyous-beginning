@@ -326,7 +326,7 @@ const translations = {
   "settings.colors.teal": { en: "Teal", it: "Teal" },
   "settings.colors.ocean": { en: "Ocean", it: "Oceano" },
   "settings.colors.sunset": { en: "Rose Gold", it: "Oro Rosa" },
-  "settings.colors.forest": { en: "Forest", it: "Foresta" },
+  "settings.colors.forest": { en: "Digital Fluo", it: "Digital Fluo" },
 
   // Plus
   "plus.banner.title": { en: "Observe more with Plus", it: "Osserva di più con Plus" },
