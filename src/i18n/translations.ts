@@ -325,7 +325,7 @@ const translations = {
   "settings.colors": { en: "Colors", it: "Colori" },
   "settings.colors.teal": { en: "Teal", it: "Teal" },
   "settings.colors.ocean": { en: "Ocean", it: "Oceano" },
-  "settings.colors.sunset": { en: "Sunset", it: "Tramonto" },
+  "settings.colors.sunset": { en: "Rose Gold", it: "Oro Rosa" },
   "settings.colors.forest": { en: "Forest", it: "Foresta" },
 
   // Plus
@@ -338,7 +338,7 @@ const translations = {
   "plus.feature.reduce": { en: "Habit reduction", it: "Riduzione abitudini" },
   "plus.feature.reduce.desc": { en: "Track the daily reduction of what you want to observe.", it: "Traccia la riduzione giornaliera di ciò che vuoi osservare." },
   "plus.feature.themes": { en: "Themes", it: "Temi" },
-  "plus.feature.themes.desc": { en: "Ocean, Sunset, Forest — customize the look.", it: "Ocean, Sunset, Forest — personalizza l'aspetto." },
+  "plus.feature.themes.desc": { en: "Ocean, Rose Gold, Forest — customize the look.", it: "Ocean, Oro Rosa, Forest — personalizza l'aspetto." },
   "plus.cta": { en: "Activate Plus", it: "Attiva Plus" },
   "plus.comingSoon": { en: "Coming soon.", it: "Disponibile a breve." },
   "plus.restore": { en: "Already Plus? Restore purchase", it: "Già Plus? Ripristina acquisto" },

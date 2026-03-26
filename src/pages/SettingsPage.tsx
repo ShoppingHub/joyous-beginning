@@ -23,7 +23,7 @@ type GoogleStatus = "loading" | "disconnected" | "active" | "auth_error";
 const PALETTE_COLORS: Record<ColorPalette, string> = {
   teal: "hsl(174, 30%, 40%)",
   ocean: "hsl(210, 50%, 55%)",
-  sunset: "hsl(25, 80%, 55%)",
+  sunset: "hsl(350, 35%, 65%)",
   forest: "hsl(140, 40%, 50%)",
 };
 
