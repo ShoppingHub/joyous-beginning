@@ -24,6 +24,8 @@ const PlusContext = createContext<PlusContextType>({
   enablePlus: async () => {},
 });
 
+const DEMO_PLUS_STORAGE_KEY = "demo_plus_active";
+
 export function PlusProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isDemo } = useDemo();
@@ -60,26 +62,27 @@ export function PlusProvider({ children }: { children: ReactNode }) {
     const active = (data as any)?.plus_active ?? false;
     setIsPlusActive(active);
     resetIfLocked(active);
-    // Don't set manuallyDisabledRef here — it should only be set by explicit disablePlus()
   }, [user, resetIfLocked]);
 
   useEffect(() => {
     if (isDemo) {
-      setIsPlusActive(false);
+      const demoPlusActive = sessionStorage.getItem(DEMO_PLUS_STORAGE_KEY) === "true";
+      setIsPlusActive(demoPlusActive);
+      resetIfLocked(demoPlusActive);
       setLoading(false);
       return;
     }
+
     if (!user) {
-      // Reset state on logout
       setIsPlusActive(false);
       setLoading(false);
       manuallyDisabledRef.current = false;
       return;
     }
+
     (async () => {
       await loadFromDB();
       setLoading(false);
-      // Only background-check if not manually disabled
       if (!manuallyDisabledRef.current) {
         checkSubscription();
       }
@@ -87,20 +90,33 @@ export function PlusProvider({ children }: { children: ReactNode }) {
 
     const interval = setInterval(checkSubscription, 60000);
     return () => clearInterval(interval);
-  }, [user, isDemo, loadFromDB, checkSubscription]);
+  }, [user, isDemo, loadFromDB, checkSubscription, resetIfLocked]);
 
   const refreshPlusStatus = useCallback(async () => {
-    // Explicit refresh clears the manual disable flag
     manuallyDisabledRef.current = false;
+
+    if (isDemo) {
+      const demoPlusActive = sessionStorage.getItem(DEMO_PLUS_STORAGE_KEY) === "true";
+      setIsPlusActive(demoPlusActive);
+      resetIfLocked(demoPlusActive);
+      return;
+    }
+
     await checkSubscription();
-  }, [checkSubscription]);
+  }, [checkSubscription, isDemo, resetIfLocked]);
 
   const disablePlus = useCallback(async () => {
     if (!user && !isDemo) return;
     manuallyDisabledRef.current = true;
+
+    if (isDemo) {
+      sessionStorage.setItem(DEMO_PLUS_STORAGE_KEY, "false");
+    }
+
     if (user) {
       await supabase.from("users").update({ plus_active: false } as any).eq("user_id", user.id);
     }
+
     setIsPlusActive(false);
     resetIfLocked(false);
   }, [user, isDemo, resetIfLocked]);
@@ -108,6 +124,11 @@ export function PlusProvider({ children }: { children: ReactNode }) {
   const enablePlus = useCallback(async () => {
     if (!user && !isDemo) return;
     manuallyDisabledRef.current = false;
+
+    if (isDemo) {
+      sessionStorage.setItem(DEMO_PLUS_STORAGE_KEY, "true");
+    }
+
     if (user) {
       await supabase.from("users").update({
         plus_active: true,
@@ -115,10 +136,11 @@ export function PlusProvider({ children }: { children: ReactNode }) {
         plus_provider: "promo",
       } as any).eq("user_id", user.id);
     }
+
     setIsPlusActive(true);
   }, [user, isDemo]);
 
-  const isFeatureLocked = (feature: PlusFeature) => !isPlusActive;
+  const isFeatureLocked = () => !isPlusActive;
 
   return (
     <PlusContext.Provider value={{ isPlusActive, loading, isFeatureLocked, refreshPlusStatus, disablePlus, enablePlus }}>
