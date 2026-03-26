@@ -33,14 +33,16 @@ const AREA_TYPE_KEYS: { value: AreaType; labelKey: TranslationKey }[] = [
 ];
 
 const OVERLAY_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--destructive))",
-  "hsl(var(--graph-positive))",
-  "hsl(var(--graph-decline))",
-  "hsl(var(--ring))",
-  "hsl(var(--accent))",
-  "hsl(var(--graph-neutral))",
-  "hsl(var(--sidebar-primary))",
+  "hsl(210, 90%, 60%)",   // vivid blue
+  "hsl(350, 80%, 60%)",   // coral red
+  "hsl(145, 65%, 50%)",   // emerald green
+  "hsl(35, 95%, 58%)",    // warm orange
+  "hsl(280, 65%, 65%)",   // purple
+  "hsl(0, 0%, 92%)",      // near-white (high contrast on dark)
+  "hsl(180, 70%, 50%)",   // cyan / teal
+  "hsl(55, 85%, 55%)",    // golden yellow
+  "hsl(320, 70%, 65%)",   // pink / magenta
+  "hsl(195, 80%, 45%)",   // deep sky blue
 ];
 
 const Progress = () => {
