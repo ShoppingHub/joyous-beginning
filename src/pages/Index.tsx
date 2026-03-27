@@ -122,6 +122,7 @@ const Index = () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) return;
         await supabase.functions.invoke("auto-complete-reduction", {
+          body: { today: new Date().toLocaleDateString("en-CA") },
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
       } catch (err) {
