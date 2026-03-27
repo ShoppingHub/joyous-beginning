@@ -40,9 +40,10 @@ serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get today in Rome timezone
-    const now = new Date();
-    const romeDateStr = now.toLocaleDateString("en-CA", { timeZone: "Europe/Rome" });
+    // Get today's date from request body (client sends their local date) or fallback to UTC
+    let body: any = {};
+    try { body = await req.json(); } catch {}
+    const todayStr = body.today || new Date().toISOString().split("T")[0];
 
     // Fetch user's active reduction areas
     const { data: reductionAreas, error: areasError } = await admin
@@ -81,7 +82,7 @@ serve(async (req) => {
         : areaCreatedDate;
 
       // Process each missing day up to yesterday (today is still in progress)
-      const yesterday = prevDay(romeDateStr);
+      const yesterday = prevDay(todayStr);
       let currentDate = startDate;
 
       while (currentDate <= yesterday) {
