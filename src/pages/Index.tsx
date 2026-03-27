@@ -110,6 +110,26 @@ const Index = () => {
     })();
   }, [user, isDemo]);
 
+  // Auto-complete reduction activities for past days (once per session)
+  useEffect(() => {
+    if (isDemo || !user) return;
+    const sessionKey = "opad_reduction_autocomplete_done";
+    if (sessionStorage.getItem(sessionKey)) return;
+    sessionStorage.setItem(sessionKey, "1");
+
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        await supabase.functions.invoke("auto-complete-reduction", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+      } catch (err) {
+        console.error("Auto-complete reduction failed:", err);
+      }
+    })();
+  }, [user, isDemo]);
+
   // Filter areas by scheduled day, recurrence type
   const filteredAreas = useMemo(() => {
     const selectedDayOfMonth = getDate(selectedDate);
