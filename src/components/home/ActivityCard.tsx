@@ -92,7 +92,7 @@ export function ActivityCard({
       return;
     }
     if (isGym && hasGymProgram) {
-      if (isPlusActive && isCardEnabled("gym")) {
+      if (isCardEnabled("gym")) {
         navigate("/cards/gym");
       } else {
         onCheckIn(area.id);
@@ -112,8 +112,8 @@ export function ActivityCard({
     }
   };
 
-  const showGymDay = isGym && hasGymProgram && gymDayLabel && isPlusActive && isCardEnabled("gym");
-  const showDietMeals = isDiet && isPlusActive && isCardEnabled("diet") && dietDayInfo?.hasProgram && (dietDayInfo?.meals?.length ?? 0) > 0;
+  const showGymDay = isGym && hasGymProgram && gymDayLabel && isCardEnabled("gym");
+  const showDietMeals = isDiet && isCardEnabled("diet") && dietDayInfo?.hasProgram && (dietDayInfo?.meals?.length ?? 0) > 0;
   const sortedDietMeals = showDietMeals
     ? [...(dietDayInfo!.meals)].sort((a, b) => MEAL_ORDER.indexOf(a.mealType as MealType) - MEAL_ORDER.indexOf(b.mealType as MealType))
     : [];
