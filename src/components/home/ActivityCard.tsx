@@ -222,8 +222,7 @@ export function ActivityCard({
         >
           {locale === "it" ? "Registra pasti" : "Log meals"} →
         </button>
-
-      {/* Note toggle icon */}
+      )}
       <div className="flex justify-end">
         <button
           onClick={() => {
