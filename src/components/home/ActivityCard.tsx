@@ -31,6 +31,7 @@ interface ActivityCardProps {
   gymDayName?: string;
   gymDayOfWeek?: number | null;
   gymDayId?: string;
+  isDiet?: boolean;
   note: string;
   onSaveNote: (areaId: string, content: string) => void;
 }
@@ -49,6 +50,7 @@ export function ActivityCard({
   gymDayName,
   gymDayOfWeek,
   gymDayId,
+  isDiet,
   note,
   onSaveNote,
 }: ActivityCardProps) {
@@ -106,6 +108,7 @@ export function ActivityCard({
   };
 
   const showGymDay = isGym && hasGymProgram && gymDayLabel && isPlusActive && isCardEnabled("gym");
+  const showDietCTA = isDiet && isPlusActive && isCardEnabled("diet");
 
   // Done button (shared across card types)
   const doneButton = (
@@ -211,7 +214,15 @@ export function ActivityCard({
         </button>
       )}
 
-      {/* Note toggle icon */}
+      {/* Diet CTA */}
+      {showDietCTA && (
+        <button
+          onClick={() => navigate("/cards/diet")}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+        >
+          {locale === "it" ? "Registra pasti" : "Log meals"} →
+        </button>
+      )}
       <div className="flex justify-end">
         <button
           onClick={() => {

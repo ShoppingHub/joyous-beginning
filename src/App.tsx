@@ -28,6 +28,8 @@ import AreaDetail from "./pages/AreaDetail";
 import GymCardPage from "./pages/GymCardPage";
 import GymEditPage from "./pages/GymEditPage";
 import FinanceCardPage from "./pages/FinanceCardPage";
+import DietCardPage from "./pages/DietCardPage";
+import DietPlanPage from "./pages/DietPlanPage";
 import CardsHub from "./pages/CardsHub";
 import NotFound from "./pages/NotFound";
 import PlusPage from "./pages/PlusPage";
@@ -73,6 +75,8 @@ const App = () => (
               <Route path="/cards/gym/:dayId" element={<GymCardPage />} />
               <Route path="/cards/gym/edit" element={<GymEditPage />} />
               <Route path="/cards/finance" element={<FinanceCardPage />} />
+              <Route path="/cards/diet" element={<DietCardPage />} />
+              <Route path="/cards/diet/edit" element={<DietPlanPage />} />
               <Route path="/plus" element={<PlusPage />} />
               {/* Legacy redirects */}
               <Route path="/progress" element={<Progress />} />
