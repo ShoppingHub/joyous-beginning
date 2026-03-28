@@ -108,6 +108,7 @@ export function ActivityCard({
   };
 
   const showGymDay = isGym && hasGymProgram && gymDayLabel && isPlusActive && isCardEnabled("gym");
+  const showDietCTA = isDiet && isPlusActive && isCardEnabled("diet");
 
   // Done button (shared across card types)
   const doneButton = (
@@ -212,6 +213,15 @@ export function ActivityCard({
           {gymDayLabel} →
         </button>
       )}
+
+      {/* Diet CTA */}
+      {showDietCTA && (
+        <button
+          onClick={() => navigate("/cards/diet")}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+        >
+          {locale === "it" ? "Registra pasti" : "Log meals"} →
+        </button>
 
       {/* Note toggle icon */}
       <div className="flex justify-end">
