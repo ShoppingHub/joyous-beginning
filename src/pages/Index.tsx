@@ -65,6 +65,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [checkInLoadingId, setCheckInLoadingId] = useState<string | null>(null);
   const [gymDayInfo, setGymDayInfo] = useState<GymDayInfo | null>(null);
+  const [dietDayInfo, setDietDayInfo] = useState<DietDayInfo | null>(null);
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   const [scheduledDays, setScheduledDays] = useState<ScheduledDay[]>([]);
   const [monthlyDays, setMonthlyDays] = useState<MonthlyDay[]>([]);
@@ -473,6 +474,8 @@ const Index = () => {
           {filteredAreas.map((area) => {
             const isGym =
               area.type === "health" && /^(gym|palestra)$/i.test(area.name);
+            const isDiet =
+              area.type === "health" && /dieta|diet|alimentazione|nutrition/i.test(area.name);
             const hasGymProgram = isGym && (gymDayInfo?.areaId === area.id) && (gymDayInfo?.hasProgram ?? false);
 
             return (
@@ -491,6 +494,7 @@ const Index = () => {
                 gymDayName={gymDayInfo?.areaId === area.id ? gymDayInfo.dayName : undefined}
                 gymDayOfWeek={gymDayInfo?.areaId === area.id ? gymDayInfo.dayOfWeek : undefined}
                 gymDayId={gymDayInfo?.areaId === area.id ? gymDayInfo.dayId : undefined}
+                isDiet={isDiet}
                 note={notes[area.id] || ""}
                 onSaveNote={handleSaveNote}
               />
