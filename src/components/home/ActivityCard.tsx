@@ -64,7 +64,7 @@ export function ActivityCard({
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { isCardEnabled } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
+  
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);

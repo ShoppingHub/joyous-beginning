@@ -49,7 +49,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { t, locale } = useI18n();
-  const { isPlusActive } = usePlusStatus();
+  
   const navigate = useNavigate();
   const { isCardEnabled, toggleCard, refetch: refetchCards } = useUserCards();
 

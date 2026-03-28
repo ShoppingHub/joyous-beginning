@@ -25,7 +25,7 @@ interface CardEntryPointsProps {
 export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
   const { locale, t } = useI18n();
   const { getCardsForSection, getUserCard } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
+  
   const navigate = useNavigate();
   const [previewCard, setPreviewCard] = useState<CardDefinition | null>(null);
 
