@@ -10,6 +10,8 @@ import { track } from "@/lib/analytics";
 
 const PRESET_KEYS: { nameKey: TranslationKey; type: "health" | "study" | "reduce" | "finance" }[] = [
   { nameKey: "onboarding.areas.preset.morning", type: "health" },
+  { nameKey: "onboarding.areas.preset.gym", type: "health" },
+  { nameKey: "onboarding.areas.preset.diet", type: "health" },
   { nameKey: "onboarding.areas.preset.reading", type: "study" },
   { nameKey: "onboarding.areas.preset.screen", type: "reduce" },
   { nameKey: "onboarding.areas.preset.saving", type: "finance" },
