@@ -375,6 +375,15 @@ const translations = {
   "progress.filter.byActivity": { en: "By activity", it: "Per attività" },
   "progress.view.total": { en: "Total", it: "Totale" },
   "progress.view.overlay": { en: "Overlay", it: "Sovrapposizione" },
+
+  // Diet Card
+  "diet.wizard.title": { en: "Set up your diet plan", it: "Configura la tua dieta" },
+  "diet.wizard.subtitle": { en: "Define the meals and components of your diet plan.", it: "Definisci i pasti e i componenti del tuo schema alimentare." },
+  "diet.wizard.cta": { en: "Get started", it: "Inizia" },
+  "diet.wizard.createPlan": { en: "Create plan", it: "Crea schema" },
+  "diet.empty": { en: "No diet area found.", it: "Nessuna area dieta trovata." },
+  "diet.emptySub": { en: "Create a Health area named 'Diet' to get started.", it: "Crea un'area Salute con nome 'Dieta' per iniziare." },
+  "diet.createArea": { en: "Create area", it: "Crea area" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

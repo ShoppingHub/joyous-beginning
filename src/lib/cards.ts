@@ -1,4 +1,4 @@
-import { Dumbbell, TrendingUp } from "lucide-react";
+import { Dumbbell, TrendingUp, Apple } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type AreaType = Database["public"]["Enums"]["area_type"];
@@ -31,6 +31,18 @@ export const AVAILABLE_CARDS: CardDefinition[] = [
     route: "/cards/gym",
     requiresArea: true,
     areaDetection: { type: "health", namePattern: /gym|palestra/i },
+  },
+  {
+    id: "diet",
+    section: "health",
+    nameIT: "Scheda Dieta",
+    nameEN: "Diet Card",
+    descriptionIT: "Gestisci il tuo schema alimentare e registra i pasti.",
+    descriptionEN: "Manage your diet plan and log your meals.",
+    icon: Apple,
+    route: "/cards/diet",
+    requiresArea: true,
+    areaDetection: { type: "health", namePattern: /dieta|diet|alimentazione|nutrition/i },
   },
   {
     id: "finance_projection",
