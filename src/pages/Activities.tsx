@@ -203,7 +203,7 @@ const Areas = () => {
                   </div>
                 );
               })}
-              {anyCardEnabled && <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />}
+              <CardEntryPoints section={type} areas={items.map(a => ({ id: a.id, name: a.name }))} />
               {!isDemo && !isMobile && (
                 <button onClick={() => navigate(`/activities/new?type=${type}&source=activities_tab`)}
                   className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] flex items-center">
@@ -211,25 +211,14 @@ const Areas = () => {
                 </button>
               )}
               {isLastVisible && !isDemo && (
-                isPlusActive ? (
-                  <button
-                    onClick={() => navigate("/cards")}
-                    className="flex items-center gap-3 rounded-lg border border-dashed border-primary/20 bg-primary/5 px-4 min-h-[48px] hover:opacity-90 transition-opacity mt-2"
-                  >
-                    <LayoutGrid size={20} strokeWidth={1.5} className="text-primary flex-shrink-0" />
-                    <span className="text-base text-foreground flex-1 text-left">{t("areas.discoverCards" as any)}</span>
-                    <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground flex-shrink-0" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => navigate("/plus")}
-                    className="flex items-center gap-3 rounded-lg border border-dashed border-accent/30 bg-accent/5 px-4 min-h-[48px] hover:opacity-90 transition-opacity mt-2"
-                  >
-                    <Sparkles size={20} strokeWidth={1.5} className="text-accent flex-shrink-0" />
-                    <span className="text-base text-foreground flex-1 text-left">{t("areas.activatePlus" as any)}</span>
-                    <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground flex-shrink-0" />
-                  </button>
-                )
+                <button
+                  onClick={() => navigate("/cards")}
+                  className="flex items-center gap-3 rounded-lg border border-dashed border-primary/20 bg-primary/5 px-4 min-h-[48px] hover:opacity-90 transition-opacity mt-2"
+                >
+                  <LayoutGrid size={20} strokeWidth={1.5} className="text-primary flex-shrink-0" />
+                  <span className="text-base text-foreground flex-1 text-left">{t("areas.discoverCards" as any)}</span>
+                  <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground flex-shrink-0" />
+                </button>
               )}
             </div>
           );

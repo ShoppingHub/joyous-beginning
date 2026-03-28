@@ -70,10 +70,8 @@ export function ActivityCard({
   const [undoConfirm, setUndoConfirm] = useState(false);
 
   const hasNote = note.length > 0;
-  // Quantity reduce requires Plus
-  const isQuantityReduce = isPlusActive && area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
-  const isQuantityNoQuickAdd = isPlusActive && area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
-  const isQuantityLocked = !isPlusActive && area.tracking_mode === "quantity_reduce";
+  const isQuantityReduce = area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
+  const isQuantityNoQuickAdd = area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
 
   const todayDow = getISODay(new Date());
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
@@ -196,15 +194,6 @@ export function ActivityCard({
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium truncate">{area.name}</p>
           {recurrenceBadge}
-          {/* Plus locked badge for quantity_reduce areas */}
-          {isQuantityLocked && (
-            <button
-              onClick={() => navigate("/plus")}
-              className="text-xs text-primary mt-0.5 hover:opacity-80 transition-opacity"
-            >
-              {t("plus.quantityLocked" as any)}
-            </button>
-          )}
         </div>
         {doneButton}
       </div>

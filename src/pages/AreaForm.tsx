@@ -378,9 +378,6 @@ export default function AreaForm({ mode }: AreaFormProps) {
 
             {isQuantity && (
               <div className="space-y-4 mt-2">
-                {!isPlusActive && (
-                  <p className="text-sm text-primary">{t("plus.quantityFormWarning" as any)}</p>
-                )}
                 <div className="space-y-1">
                   <label className="text-sm text-muted-foreground">{t("reduce.unitLabelLabel")}</label>
                   <input

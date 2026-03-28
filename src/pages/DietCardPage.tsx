@@ -243,22 +243,6 @@ const DietCardPage = () => {
     setNoteOpen(false);
   };
 
-  // Plus gating
-  if (!isPlusActive) {
-    return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-8">
-        <PageHeader title={title} locale={locale} onBack={() => navigate("/activities")} onSettings={() => navigate("/cards/diet/edit")} />
-        <div className="flex flex-col items-center justify-center gap-4 py-16">
-          <Apple size={48} className="text-primary" strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground text-center">{t("plus.cardLocked")}</p>
-          <button onClick={() => navigate("/plus")}
-            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium min-h-[44px]">
-            {t("plus.discoverPlus")}
-          </button>
-        </div>
-      </motion.div>
-    );
-  }
 
   if (loading) {
     return (
