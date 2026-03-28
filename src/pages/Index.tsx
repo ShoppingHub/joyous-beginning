@@ -26,6 +26,19 @@ interface GymDayInfo {
   dayId?: string;
 }
 
+interface DietMealInfo {
+  mealId: string;
+  mealType: string;
+  completed: boolean;
+  isFree: boolean;
+}
+
+interface DietDayInfo {
+  areaId: string;
+  hasProgram: boolean;
+  meals: DietMealInfo[];
+}
+
 interface ScheduledDay {
   area_id: string;
   day_of_week: number;
