@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { ArrowLeft, Apple, Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ const DietPlanPage = () => {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { getUserCard } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
+  
   const userCard = getUserCard("diet");
   const areaId = userCard?.area_id;
 

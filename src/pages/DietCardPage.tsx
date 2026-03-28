@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { ArrowLeft, Apple, Settings, ChevronDown, ChevronRight, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, addDays } from "date-fns";
@@ -18,7 +18,7 @@ const DietCardPage = () => {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { getUserCard } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
+  
   const [searchParams] = useSearchParams();
   const userCard = getUserCard("diet");
   const areaId = userCard?.area_id;
