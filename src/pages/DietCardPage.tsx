@@ -222,6 +222,17 @@ const DietCardPage = () => {
   const sortedMeals = [...meals].sort((a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type));
   const canUseFree = program ? freeMealsUsed < program.free_meals_per_week : false;
 
+  const handleSaveNote = async () => {
+    if (!session && !user) return;
+    setNoteSaving(true);
+    const sessionId = await ensureSession();
+    if (sessionId) {
+      await supabase.from("diet_sessions" as any).update({ notes: noteText.trim() || null } as any).eq("id", sessionId);
+    }
+    setNoteSaving(false);
+    setNoteOpen(false);
+  };
+
   // Plus gating
   if (!isPlusActive) {
     return (
