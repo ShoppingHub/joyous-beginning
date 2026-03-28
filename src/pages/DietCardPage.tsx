@@ -35,6 +35,9 @@ const DietCardPage = () => {
   const [historySessions, setHistorySessions] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
   const [weeklyItemCounts, setWeeklyItemCounts] = useState<Record<string, number>>({});
+  const [noteText, setNoteText] = useState("");
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteSaving, setNoteSaving] = useState(false);
 
   const title = locale === "it" ? "Scheda Dieta" : "Diet Card";
 
