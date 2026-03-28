@@ -65,6 +65,7 @@ const DietCardPage = () => {
     const { data: sessData } = await supabase.from("diet_sessions" as any).select("*").eq("area_id", areaId).eq("date", today).single();
     const sess = sessData as any as DietSession | null;
     setSession(sess);
+    setNoteText(sess?.notes || "");
 
     if (sess) {
       const { data: smData } = await supabase.from("diet_session_meals" as any).select("*").eq("session_id", sess.id);
