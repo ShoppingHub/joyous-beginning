@@ -119,7 +119,6 @@ export function UserCardsProvider({ children }: { children: ReactNode }) {
   const getCardsForSection = useCallback((section: AreaType) => {
     return AVAILABLE_CARDS
       .filter((c) => c.section === section)
-      .filter((c) => userCards.some((uc) => uc.card_type === c.id && uc.enabled))
       .map((c) => ({ ...c, userCard: userCards.find((uc) => uc.card_type === c.id) }));
   }, [userCards]);
 
