@@ -35,6 +35,9 @@ const DietCardPage = () => {
   const [historySessions, setHistorySessions] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
   const [weeklyItemCounts, setWeeklyItemCounts] = useState<Record<string, number>>({});
+  const [noteText, setNoteText] = useState("");
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteSaving, setNoteSaving] = useState(false);
 
   const title = locale === "it" ? "Scheda Dieta" : "Diet Card";
 
@@ -62,6 +65,7 @@ const DietCardPage = () => {
     const { data: sessData } = await supabase.from("diet_sessions" as any).select("*").eq("area_id", areaId).eq("date", today).single();
     const sess = sessData as any as DietSession | null;
     setSession(sess);
+    setNoteText(sess?.notes || "");
 
     if (sess) {
       const { data: smData } = await supabase.from("diet_session_meals" as any).select("*").eq("session_id", sess.id);
@@ -218,6 +222,17 @@ const DietCardPage = () => {
   const sortedMeals = [...meals].sort((a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type));
   const canUseFree = program ? freeMealsUsed < program.free_meals_per_week : false;
 
+  const handleSaveNote = async () => {
+    if (!session && !user) return;
+    setNoteSaving(true);
+    const sessionId = await ensureSession();
+    if (sessionId) {
+      await supabase.from("diet_sessions" as any).update({ notes: noteText.trim() || null } as any).eq("id", sessionId);
+    }
+    setNoteSaving(false);
+    setNoteOpen(false);
+  };
+
   // Plus gating
   if (!isPlusActive) {
     return (
@@ -365,6 +380,40 @@ const DietCardPage = () => {
           )}
         </div>
       )}
+
+      {/* Notes */}
+      <div className="mt-4">
+        <button onClick={() => setNoteOpen(!noteOpen)}
+          className="flex items-center gap-2 text-sm font-semibold mb-2 min-h-[36px]">
+          {noteOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          {locale === "it" ? "Note" : "Notes"}
+          {noteText.trim() && !noteOpen && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+        </button>
+        <AnimatePresence>
+          {noteOpen && (
+            <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
+              <div className="flex flex-col gap-2">
+                <textarea
+                  value={noteText}
+                  onChange={(e) => { if (e.target.value.length <= 1500) setNoteText(e.target.value); }}
+                  rows={3}
+                  className="w-full rounded-lg bg-card border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary resize-none"
+                  placeholder={locale === "it" ? "Aggiungi note sulla giornata..." : "Add notes about your day..."}
+                />
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs ${1500 - noteText.length <= 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                    {1500 - noteText.length}
+                  </span>
+                  <button onClick={handleSaveNote} disabled={noteSaving}
+                    className="text-sm font-medium text-primary hover:opacity-80 transition-opacity min-h-[36px] px-3">
+                    {noteSaving ? "..." : (locale === "it" ? "Salva" : "Save")}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* History */}
       {historySessions.length > 0 && (
