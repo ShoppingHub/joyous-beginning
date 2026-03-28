@@ -48,9 +48,7 @@ const Areas = () => {
   const { isDemo } = useDemo();
   const { t } = useI18n();
   const { enabledCards } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
   const isMobile = useIsMobile();
-  const anyCardEnabled = isPlusActive && enabledCards.length > 0;
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
