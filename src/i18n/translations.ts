@@ -158,6 +158,8 @@ const translations = {
   "onboarding.areas.preset.reading": { en: "Daily reading", it: "Lettura quotidiana" },
   "onboarding.areas.preset.screen": { en: "Screen time control", it: "Controllo tempo schermo" },
   "onboarding.areas.preset.saving": { en: "Monthly saving", it: "Risparmio mensile" },
+  "onboarding.areas.preset.diet": { en: "Diet", it: "Dieta" },
+  "onboarding.areas.preset.gym": { en: "Gym", it: "Palestra" },
   "onboarding.areas.addCustom": { en: "Add custom", it: "Aggiungi personalizzata" },
   "onboarding.areas.addButton": { en: "Add", it: "Aggiungi" },
   "onboarding.areas.namePlaceholder": { en: "Area name", it: "Nome area" },
