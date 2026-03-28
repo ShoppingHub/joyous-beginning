@@ -65,7 +65,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [checkInLoadingId, setCheckInLoadingId] = useState<string | null>(null);
   const [gymDayInfo, setGymDayInfo] = useState<GymDayInfo | null>(null);
-  const [dietDayInfo, setDietDayInfo] = useState<DietDayInfo | null>(null);
+  const [dietDayInfoMap, setDietDayInfoMap] = useState<Record<string, DietDayInfo>>({});
   const [checkedDates, setCheckedDates] = useState<Set<string>>(new Set());
   const [scheduledDays, setScheduledDays] = useState<ScheduledDay[]>([]);
   const [monthlyDays, setMonthlyDays] = useState<MonthlyDay[]>([]);
@@ -287,6 +287,49 @@ const Index = () => {
     })();
   }, [user, isDemo, areas]);
 
+  // Fetch diet day info for diet areas
+  useEffect(() => {
+    if (isDemo || !user || areas.length === 0) return;
+    const dietAreas = areas.filter(
+      (a) => a.type === "health" && /dieta|diet|alimentazione|nutrition/i.test(a.name)
+    );
+    if (dietAreas.length === 0) { setDietDayInfoMap({}); return; }
+
+    (async () => {
+      const todayStr = format(new Date(), "yyyy-MM-dd");
+      const map: Record<string, DietDayInfo> = {};
+
+      for (const da of dietAreas) {
+        const { data: prog } = await supabase.from("diet_programs").select("id").eq("area_id", da.id).single();
+        if (!prog) { map[da.id] = { areaId: da.id, hasProgram: false, meals: [] }; continue; }
+
+        const { data: mealsData } = await supabase.from("diet_program_meals").select("id, meal_type, order").eq("program_id", prog.id).eq("active", true).order("order");
+        const activeMeals = (mealsData || []) as { id: string; meal_type: string; order: number }[];
+        if (activeMeals.length === 0) { map[da.id] = { areaId: da.id, hasProgram: true, meals: [] }; continue; }
+
+        // Get today's session
+        const { data: sess } = await supabase.from("diet_sessions").select("id").eq("area_id", da.id).eq("date", todayStr).single();
+        let smMap: Record<string, { completed: boolean; is_free: boolean }> = {};
+        if (sess) {
+          const { data: smData } = await supabase.from("diet_session_meals").select("program_meal_id, completed, is_free").eq("session_id", sess.id);
+          for (const sm of (smData || []) as any[]) smMap[sm.program_meal_id] = { completed: sm.completed, is_free: sm.is_free };
+        }
+
+        map[da.id] = {
+          areaId: da.id,
+          hasProgram: true,
+          meals: activeMeals.map(m => ({
+            mealId: m.id,
+            mealType: m.meal_type,
+            completed: smMap[m.id]?.completed ?? false,
+            isFree: smMap[m.id]?.is_free ?? false,
+          })),
+        };
+      }
+      setDietDayInfoMap(map);
+    })();
+  }, [user, isDemo, areas, selectedDateStr]);
+
   // Compute gym day info based on selected weekday
   useEffect(() => {
     if (!gymAreaId || !gymProgramDays || gymProgramDays.length === 0) return;
@@ -495,6 +538,7 @@ const Index = () => {
                 gymDayOfWeek={gymDayInfo?.areaId === area.id ? gymDayInfo.dayOfWeek : undefined}
                 gymDayId={gymDayInfo?.areaId === area.id ? gymDayInfo.dayId : undefined}
                 isDiet={isDiet}
+                dietDayInfo={isDiet ? dietDayInfoMap[area.id] : undefined}
                 note={notes[area.id] || ""}
                 onSaveNote={handleSaveNote}
               />

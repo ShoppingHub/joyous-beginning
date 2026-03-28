@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
@@ -19,6 +19,7 @@ const DietCardPage = () => {
   const navigate = useNavigate();
   const { getUserCard } = useUserCards();
   const { isPlusActive } = usePlusStatus();
+  const [searchParams] = useSearchParams();
   const userCard = getUserCard("diet");
   const areaId = userCard?.area_id;
 
@@ -129,6 +130,15 @@ const DietCardPage = () => {
   }, [user, areaId, today]);
 
   useEffect(() => { fetchAll(); track("card_opened", { card_type: "diet" }); }, [fetchAll]);
+
+  // Auto-expand meal from query param
+  useEffect(() => {
+    const mealParam = searchParams.get("meal");
+    if (mealParam && meals.length > 0 && !expandedMeal) {
+      const target = meals.find(m => m.meal_type === mealParam);
+      if (target) setExpandedMeal(target.id);
+    }
+  }, [searchParams, meals, expandedMeal]);
 
   const ensureSession = async (): Promise<string | null> => {
     if (session) return session.id;
