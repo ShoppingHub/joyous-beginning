@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { AVAILABLE_CARDS, getCardName, getCardDescription } from "@/lib/cards";
 import { ChevronRight } from "lucide-react";
 import {

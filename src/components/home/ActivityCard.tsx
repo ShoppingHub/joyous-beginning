@@ -4,7 +4,7 @@ import { FileText, Pencil, Check, Repeat, CalendarDays } from "lucide-react";
 import { getISODay } from "date-fns";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { QuantityCounter } from "./QuantityCounter";
 import { MEAL_ORDER, MEAL_LABELS, type MealType } from "@/components/diet/types";
 import type { Database } from "@/integrations/supabase/types";
