@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek, differenceInWeeks, getDate } from "date-fns";
@@ -53,7 +52,7 @@ const Index = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale } = useI18n();
-  const { isPlusActive } = usePlusStatus();
+  const navigate = useNavigate();
   const navigate = useNavigate();
 
   const today = useMemo(() => new Date(), []);
