@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { useUserCards } from "@/hooks/useUserCards";
 import { ArrowLeft, Loader2, Dumbbell, Check, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,7 +49,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { t, locale } = useI18n();
-  const { isPlusActive } = usePlusStatus();
+  
   const navigate = useNavigate();
   const { isCardEnabled, toggleCard, refetch: refetchCards } = useUserCards();
 
@@ -378,9 +378,6 @@ export default function AreaForm({ mode }: AreaFormProps) {
 
             {isQuantity && (
               <div className="space-y-4 mt-2">
-                {!isPlusActive && (
-                  <p className="text-sm text-primary">{t("plus.quantityFormWarning" as any)}</p>
-                )}
                 <div className="space-y-1">
                   <label className="text-sm text-muted-foreground">{t("reduce.unitLabelLabel")}</label>
                   <input

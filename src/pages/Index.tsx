@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { format, isAfter, isSameDay, getISODay, addDays, startOfWeek, differenceInWeeks, getDate } from "date-fns";
@@ -53,7 +52,6 @@ const Index = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale } = useI18n();
-  const { isPlusActive } = usePlusStatus();
   const navigate = useNavigate();
 
   const today = useMemo(() => new Date(), []);
@@ -551,20 +549,6 @@ const Index = () => {
             </p>
           )}
 
-          {/* Plus banner */}
-          {!isPlusActive && (
-            <button
-              onClick={() => navigate("/plus", { state: { source: "banner" } })}
-              className="flex items-center gap-4 rounded-xl bg-card ring-1 ring-primary/20 p-4 mt-2 text-left hover:opacity-90 transition-opacity"
-            >
-              <Sparkles size={24} strokeWidth={1.5} className="text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{t("plus.banner.title" as any)}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("plus.banner.subtitle" as any)}</p>
-              </div>
-              <span className="text-xs font-medium text-primary flex-shrink-0">{t("plus.banner.cta" as any)}</span>
-            </button>
-          )}
         </motion.div>
       )}
     </div>

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { ArrowLeft, Apple, Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ const DietPlanPage = () => {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { getUserCard } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
+  
   const userCard = getUserCard("diet");
   const areaId = userCard?.area_id;
 
@@ -102,22 +102,6 @@ const DietPlanPage = () => {
     if (program) await fetchMeals(program.id);
   };
 
-  // Plus gating
-  if (!isPlusActive) {
-    return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-8">
-        <Header title={title} onBack={() => navigate("/activities")} />
-        <div className="flex flex-col items-center justify-center gap-4 py-16">
-          <Apple size={48} className="text-primary" strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground text-center">{t("plus.cardLocked")}</p>
-          <button onClick={() => navigate("/plus")}
-            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium min-h-[44px]">
-            {t("plus.discoverPlus")}
-          </button>
-        </div>
-      </motion.div>
-    );
-  }
 
   if (loading) {
     return (

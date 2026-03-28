@@ -3,12 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { track, updateUserProperties } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid, ChevronRight } from "lucide-react";
+import { Loader2, AlertTriangle, Sun, Moon, Monitor } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -31,17 +29,7 @@ const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale, setLocale } = useI18n();
-  const { enabledCards, allUserCards, toggleAllCards, isCardEnabled } = useUserCards();
-  const anyCardEnabled = enabledCards.length > 0;
-  const handleCardsToggle = (checked: boolean) => {
-    toggleAllCards(checked);
-    track(checked ? "card_enabled" : "card_disabled", { card_type: "all" });
-    if (user) updateUserProperties(user.id, { cards_enabled: checked ? enabledCards.map(c => c.userCard.card_type) : [] });
-  };
   const { mode, setMode, palette, setPalette } = useTheme();
-  const { isPlusActive, disablePlus, refreshPlusStatus } = usePlusStatus();
-  const [disablingPlus, setDisablingPlus] = useState(false);
-  const [showCardsAlert, setShowCardsAlert] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [scoreVisible, setScoreVisible] = useState(false);
@@ -225,43 +213,30 @@ const SettingsPage = () => {
           </div>
         </div>
 
-        {/* Color palette */}
         <div className="flex flex-col gap-2">
           <span className="text-base">{t("settings.colors")}</span>
           <div className="flex gap-3">
             {paletteOptions.map((opt) => {
-              const isExtra = opt.value !== "teal";
-              const locked = isExtra && !isPlusActive;
               return (
                 <button
                   key={opt.value}
                    onClick={() => {
-                     if (locked) return;
                      setPalette(opt.value);
                      track("settings_theme_changed", { theme: mode, palette: opt.value });
                    }}
                   className={`flex flex-col items-center gap-1.5 flex-1 py-2 rounded-xl transition-all min-h-[44px] ${
                     palette === opt.value ? "ring-2 ring-primary bg-card" : "hover:bg-card/50"
-                  } ${locked ? "opacity-50" : ""}`}
+                  }`}
                 >
                   <div
                     className="w-8 h-8 rounded-full ring-1 ring-border"
                     style={{ backgroundColor: PALETTE_COLORS[opt.value] }}
                   />
                   <span className="text-xs font-medium text-muted-foreground">{opt.label}</span>
-                  {locked && <span className="text-[10px] text-primary">Plus</span>}
                 </button>
               );
             })}
           </div>
-          {!isPlusActive && palette !== "teal" && (
-            <p className="text-xs text-muted-foreground mt-1">{t("plus.themeLocked" as any)}</p>
-          )}
-          {!isPlusActive && (
-             <button onClick={() => navigate("/plus", { state: { source: "settings" } })} className="text-xs text-primary hover:opacity-80 transition-opacity">
-              {t("plus.discoverPlus" as any)}
-            </button>
-          )}
         </div>
       </div>
 
@@ -304,55 +279,6 @@ const SettingsPage = () => {
 
       </div>
 
-      {/* Cards section */}
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground font-medium">{t("settings.cards")}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{t("settings.cardsSub")}</p>
-        </div>
-        {isPlusActive ? (
-          <div className="flex items-center justify-between min-h-[44px]">
-            <div className="flex items-center gap-3">
-              <LayoutGrid size={20} strokeWidth={1.5} className={anyCardEnabled ? "text-primary" : "text-muted-foreground"} />
-              <span className="text-base">{t("settings.cardsToggle")}</span>
-            </div>
-            <Switch checked={anyCardEnabled} onCheckedChange={handleCardsToggle} className="data-[state=checked]:bg-primary" />
-          </div>
-        ) : (
-          <div className="flex items-center justify-between min-h-[44px]">
-            <div className="flex items-center gap-3">
-              <LayoutGrid size={20} strokeWidth={1.5} className="text-muted-foreground" />
-              <span className="text-base text-muted-foreground">{t("settings.cardsToggle")}</span>
-              <span className="text-xs text-primary font-medium">{t("plus.badge" as any)}</span>
-            </div>
-            <Switch checked={false} onCheckedChange={() => setShowCardsAlert(true)} className="opacity-40" />
-          </div>
-        )}
-        {!isPlusActive && (
-          <button onClick={() => navigate("/plus", { state: { source: "settings" } })} className="text-xs text-primary hover:opacity-80 transition-opacity">
-            {t("plus.discoverPlus" as any)}
-          </button>
-        )}
-
-        {/* Alert: cards require Plus */}
-        <AlertDialog open={showCardsAlert} onOpenChange={setShowCardsAlert}>
-          <AlertDialogContent className="max-w-[340px] bg-card border-border">
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("plus.required.title" as any)}</AlertDialogTitle>
-              <AlertDialogDescription className="text-muted-foreground">{t("plus.required.desc" as any)}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
-              <AlertDialogAction onClick={() => { setShowCardsAlert(false); navigate("/plus"); }}
-                className="bg-primary text-primary-foreground hover:bg-primary/90">
-                {t("plus.discoverPlus" as any)}
-              </AlertDialogAction>
-              <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
-                {t("areaForm.delete.confirm.no" as any)}
-              </AlertDialogCancel>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
 
       {/* Google Tasks */}
       {!isDemo && googleStatus !== "loading" && (
@@ -434,57 +360,6 @@ const SettingsPage = () => {
       <div className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground font-medium">{t("settings.account")}</p>
 
-        {/* Plus entry */}
-        <button
-          onClick={() => navigate("/plus")}
-          className="w-full flex items-center justify-between rounded-xl bg-card ring-1 ring-border px-4 min-h-[48px] hover:opacity-90 transition-opacity"
-        >
-          <span className="text-base">{t("plus.settings.label" as any)}</span>
-          <div className="flex items-center gap-2">
-            <span className={`text-sm ${isPlusActive ? "text-primary" : "text-muted-foreground"}`}>
-              {isPlusActive ? t("plus.settings.active" as any) : t("plus.settings.notActive" as any)}
-            </span>
-            <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground" />
-          </div>
-        </button>
-
-        {/* Disable Plus toggle (test mode) */}
-        {isPlusActive && (
-          <div className="flex items-center justify-between rounded-xl bg-card ring-1 ring-border px-4 min-h-[48px]">
-            <div className="flex flex-col">
-              <span className="text-base">{t("plus.settings.disableLabel" as any)}</span>
-              <span className="text-xs text-muted-foreground">{t("plus.settings.disableDesc" as any)}</span>
-            </div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button className="text-sm text-destructive hover:opacity-80 transition-opacity min-h-[44px] px-2">
-                  {disablingPlus ? <Loader2 size={16} className="animate-spin" /> : t("plus.settings.disableBtn" as any)}
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-[340px] bg-card border-border">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t("plus.settings.disableConfirmTitle" as any)}</AlertDialogTitle>
-                  <AlertDialogDescription className="text-muted-foreground">{t("plus.settings.disableConfirmDesc" as any)}</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
-                  <AlertDialogAction
-                    onClick={async () => {
-                      setDisablingPlus(true);
-                      await disablePlus();
-                      setDisablingPlus(false);
-                    }}
-                    className="bg-transparent text-destructive hover:bg-destructive/10 border-0 shadow-none"
-                  >
-                    {t("plus.settings.disableBtn" as any)}
-                  </AlertDialogAction>
-                  <AlertDialogCancel className="bg-transparent border-0 shadow-none text-muted-foreground hover:text-foreground">
-                    {t("areaForm.delete.confirm.no" as any)}
-                  </AlertDialogCancel>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        )}
 
         <button onClick={handleSignOut} disabled={signingOut}
           className="w-full h-12 rounded-xl bg-card ring-1 ring-border font-medium text-base flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[44px]">

@@ -4,7 +4,7 @@ import { FileText, Pencil, Check, Repeat, CalendarDays } from "lucide-react";
 import { getISODay } from "date-fns";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { QuantityCounter } from "./QuantityCounter";
 import { MEAL_ORDER, MEAL_LABELS, type MealType } from "@/components/diet/types";
 import type { Database } from "@/integrations/supabase/types";
@@ -64,16 +64,14 @@ export function ActivityCard({
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { isCardEnabled } = useUserCards();
-  const { isPlusActive } = usePlusStatus();
+  
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(note);
   const [undoConfirm, setUndoConfirm] = useState(false);
 
   const hasNote = note.length > 0;
-  // Quantity reduce requires Plus
-  const isQuantityReduce = isPlusActive && area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
-  const isQuantityNoQuickAdd = isPlusActive && area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
-  const isQuantityLocked = !isPlusActive && area.tracking_mode === "quantity_reduce";
+  const isQuantityReduce = area.tracking_mode === "quantity_reduce" && area.show_quick_add_home;
+  const isQuantityNoQuickAdd = area.tracking_mode === "quantity_reduce" && !area.show_quick_add_home;
 
   const todayDow = getISODay(new Date());
   const isGymToday = gymDayOfWeek != null && gymDayOfWeek === todayDow;
@@ -94,7 +92,7 @@ export function ActivityCard({
       return;
     }
     if (isGym && hasGymProgram) {
-      if (isPlusActive && isCardEnabled("gym")) {
+      if (isCardEnabled("gym")) {
         navigate("/cards/gym");
       } else {
         onCheckIn(area.id);
@@ -114,8 +112,8 @@ export function ActivityCard({
     }
   };
 
-  const showGymDay = isGym && hasGymProgram && gymDayLabel && isPlusActive && isCardEnabled("gym");
-  const showDietMeals = isDiet && isPlusActive && isCardEnabled("diet") && dietDayInfo?.hasProgram && (dietDayInfo?.meals?.length ?? 0) > 0;
+  const showGymDay = isGym && hasGymProgram && gymDayLabel && isCardEnabled("gym");
+  const showDietMeals = isDiet && isCardEnabled("diet") && dietDayInfo?.hasProgram && (dietDayInfo?.meals?.length ?? 0) > 0;
   const sortedDietMeals = showDietMeals
     ? [...(dietDayInfo!.meals)].sort((a, b) => MEAL_ORDER.indexOf(a.mealType as MealType) - MEAL_ORDER.indexOf(b.mealType as MealType))
     : [];
@@ -196,15 +194,6 @@ export function ActivityCard({
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium truncate">{area.name}</p>
           {recurrenceBadge}
-          {/* Plus locked badge for quantity_reduce areas */}
-          {isQuantityLocked && (
-            <button
-              onClick={() => navigate("/plus")}
-              className="text-xs text-primary mt-0.5 hover:opacity-80 transition-opacity"
-            >
-              {t("plus.quantityLocked" as any)}
-            </button>
-          )}
         </div>
         {doneButton}
       </div>

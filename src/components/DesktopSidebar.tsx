@@ -3,8 +3,6 @@ import { NavLink } from "@/components/NavLink";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { useI18n } from "@/hooks/useI18n";
 import { useNavConfig } from "@/hooks/useNavConfig";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
-import { Sparkles } from "lucide-react";
 import logoOpadme from "@/assets/logo-opadme.svg";
 import { track } from "@/lib/analytics";
 
@@ -12,7 +10,7 @@ export function DesktopSidebar() {
   const location = useLocation();
   const { t } = useI18n();
   const { visibleItems } = useNavConfig();
-  const { isPlusActive } = usePlusStatus();
+  
 
   const isActive = (to: string) =>
     to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
@@ -69,12 +67,6 @@ export function DesktopSidebar() {
       <div className="px-4 pb-6 pt-2 border-t border-foreground/10">
         <div className="flex items-center gap-3 px-2 py-2">
           <ProfileAvatar size="md" />
-          {isPlusActive && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-accent/15 text-accent text-[11px] font-medium">
-              <Sparkles className="w-3 h-3" />
-              Plus
-            </span>
-          )}
         </div>
       </div>
     </aside>
