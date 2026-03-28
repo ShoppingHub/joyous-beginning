@@ -31,6 +31,7 @@ interface ActivityCardProps {
   gymDayName?: string;
   gymDayOfWeek?: number | null;
   gymDayId?: string;
+  isDiet?: boolean;
   note: string;
   onSaveNote: (areaId: string, content: string) => void;
 }
@@ -49,6 +50,7 @@ export function ActivityCard({
   gymDayName,
   gymDayOfWeek,
   gymDayId,
+  isDiet,
   note,
   onSaveNote,
 }: ActivityCardProps) {
