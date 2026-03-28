@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Loader2, Dumbbell, Check, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase } from "lucide-react";
+import { ArrowLeft, Loader2, Dumbbell, Apple, Check, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -71,6 +71,7 @@ export default function AreaForm({ mode }: AreaFormProps) {
   const [baselineError, setBaselineError] = useState("");
   const [showQuickAddHome, setShowQuickAddHome] = useState(true);
   const [isGymTemplate, setIsGymTemplate] = useState(false);
+  const [isDietTemplate, setIsDietTemplate] = useState(false);
   const [cardSuggestion, setCardSuggestion] = useState<{ cardType: string; cardName: string; route: string; areaId: string } | null>(null);
 
   // Recurrence
@@ -331,25 +332,44 @@ export default function AreaForm({ mode }: AreaFormProps) {
           </Select>
           {typeError && <p className="text-sm text-destructive">{typeError}</p>}
 
-          {/* Gym template - only for Health in add mode */}
+          {/* Health templates - only in add mode */}
           {mode === "add" && type === "health" && (
-            <button
-              onClick={() => {
-                const newVal = !isGymTemplate;
-                setIsGymTemplate(newVal);
-                if (newVal) setName(t("areaForm.gymTemplate" as any));
-                else if (name === t("areaForm.gymTemplate" as any)) setName("");
-              }}
-              className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors mt-2 w-full ${
-                isGymTemplate ? "bg-primary/10 border-primary text-foreground" : "bg-transparent border-border text-muted-foreground"
-              }`}
-            >
-              <Dumbbell size={18} strokeWidth={1.5} />
-              <div className="text-left">
-                <p className="text-sm font-medium">{t("areaForm.gymTemplate" as any)}</p>
-                <p className="text-xs text-muted-foreground">{t("areaForm.gymTemplateDesc" as any)}</p>
-              </div>
-            </button>
+            <div className="flex flex-col gap-2 mt-2">
+              <button
+                onClick={() => {
+                  const newVal = !isGymTemplate;
+                  setIsGymTemplate(newVal);
+                  if (newVal) { setIsDietTemplate(false); setName(t("areaForm.gymTemplate" as any)); }
+                  else if (name === t("areaForm.gymTemplate" as any)) setName("");
+                }}
+                className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors w-full ${
+                  isGymTemplate ? "bg-primary/10 border-primary text-foreground" : "bg-transparent border-border text-muted-foreground"
+                }`}
+              >
+                <Dumbbell size={18} strokeWidth={1.5} />
+                <div className="text-left">
+                  <p className="text-sm font-medium">{t("areaForm.gymTemplate" as any)}</p>
+                  <p className="text-xs text-muted-foreground">{t("areaForm.gymTemplateDesc" as any)}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  const newVal = !isDietTemplate;
+                  setIsDietTemplate(newVal);
+                  if (newVal) { setIsGymTemplate(false); setName(t("areaForm.dietTemplate" as any)); }
+                  else if (name === t("areaForm.dietTemplate" as any)) setName("");
+                }}
+                className={`flex items-center gap-2 rounded-lg px-4 py-3 border transition-colors w-full ${
+                  isDietTemplate ? "bg-primary/10 border-primary text-foreground" : "bg-transparent border-border text-muted-foreground"
+                }`}
+              >
+                <Apple size={18} strokeWidth={1.5} />
+                <div className="text-left">
+                  <p className="text-sm font-medium">{t("areaForm.dietTemplate" as any)}</p>
+                  <p className="text-xs text-muted-foreground">{t("areaForm.dietTemplateDesc" as any)}</p>
+                </div>
+              </button>
+            </div>
           )}
         </div>
 

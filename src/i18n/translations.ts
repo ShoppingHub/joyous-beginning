@@ -317,6 +317,8 @@ const translations = {
   "areas.delete": { en: "Delete", it: "Elimina" },
   "areaForm.gymTemplate": { en: "Gym", it: "Palestra" },
   "areaForm.gymTemplateDesc": { en: "Use gym template with program tracking", it: "Usa il template palestra con tracciamento scheda" },
+  "areaForm.dietTemplate": { en: "Diet", it: "Dieta" },
+  "areaForm.dietTemplateDesc": { en: "Use diet template with meal tracking", it: "Usa il template dieta con tracciamento pasti" },
 
   // Profile / Theme
   "settings.appearance": { en: "Appearance", it: "Aspetto" },
