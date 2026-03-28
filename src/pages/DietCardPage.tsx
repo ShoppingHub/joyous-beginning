@@ -21,7 +21,30 @@ const DietCardPage = () => {
   
   const [searchParams] = useSearchParams();
   const userCard = getUserCard("diet");
-  const areaId = userCard?.area_id;
+  const [resolvedAreaId, setResolvedAreaId] = useState<string | null>(userCard?.area_id ?? null);
+
+  // Fallback: if no user_cards record links to an area, find it by pattern
+  useEffect(() => {
+    if (resolvedAreaId || !user) return;
+    if (userCard?.area_id) { setResolvedAreaId(userCard.area_id); return; }
+    (async () => {
+      const { data } = await supabase.from("areas").select("id, name")
+        .eq("user_id", user.id).eq("type", "health").is("archived_at", null);
+      if (data) {
+        const match = (data as any[]).find((a: any) => /dieta|diet|alimentazione|nutrition/i.test(a.name));
+        if (match) {
+          setResolvedAreaId(match.id);
+          // Also upsert user_cards for future use
+          await supabase.from("user_cards" as any).upsert(
+            { user_id: user.id, card_type: "diet", area_id: match.id, enabled: true } as any,
+            { onConflict: "user_id,card_type" } as any
+          );
+        }
+      }
+    })();
+  }, [user, userCard, resolvedAreaId]);
+
+  const areaId = resolvedAreaId;
 
   const today = format(new Date(), "yyyy-MM-dd");
   const [program, setProgram] = useState<DietProgram | null>(null);

@@ -249,9 +249,14 @@ export default function AreaForm({ mode }: AreaFormProps) {
         track("area_created", { area_type: type, tracking_mode: isReduce ? trackingMode : "binary", source, category_count: categoryCount });
         if (user) updateUserProperties(user.id, { areas_count: undefined });
         const matchedCard = matchCardForArea(type, name.trim());
-        if (matchedCard && !isCardEnabled(matchedCard.id)) {
-          setCardSuggestion({ cardType: matchedCard.id, cardName: getCardName(matchedCard, locale), route: matchedCard.route, areaId: savedAreaId });
-          setSaving(false);
+        if (matchedCard) {
+          // Auto-link the card to this area
+          await supabase.from("user_cards" as any).upsert(
+            { user_id: user.id, card_type: matchedCard.id, area_id: savedAreaId, enabled: true } as any,
+            { onConflict: "user_id,card_type" } as any
+          );
+          refetchCards();
+          navigate(matchedCard.route, { replace: true });
           return;
         }
         navigate("/", { replace: true });
