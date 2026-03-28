@@ -5,9 +5,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
+
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Plus, ChevronRight, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase, MoreVertical, Sparkles, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
+import { Plus, ChevronRight, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase, MoreVertical, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
