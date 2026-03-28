@@ -3,12 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { useUserCards } from "@/hooks/useUserCards";
 import { useTheme, type ThemeMode, type ColorPalette } from "@/hooks/useTheme";
-import { usePlusStatus } from "@/hooks/usePlusStatus";
 import { track, updateUserProperties } from "@/lib/analytics";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertTriangle, Sun, Moon, Monitor, LayoutGrid, ChevronRight } from "lucide-react";
+import { Loader2, AlertTriangle, Sun, Moon, Monitor } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -31,17 +29,7 @@ const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const { isDemo } = useDemo();
   const { t, locale, setLocale } = useI18n();
-  const { enabledCards, allUserCards, toggleAllCards, isCardEnabled } = useUserCards();
-  const anyCardEnabled = enabledCards.length > 0;
-  const handleCardsToggle = (checked: boolean) => {
-    toggleAllCards(checked);
-    track(checked ? "card_enabled" : "card_disabled", { card_type: "all" });
-    if (user) updateUserProperties(user.id, { cards_enabled: checked ? enabledCards.map(c => c.userCard.card_type) : [] });
-  };
   const { mode, setMode, palette, setPalette } = useTheme();
-  const { isPlusActive, disablePlus, refreshPlusStatus } = usePlusStatus();
-  const [disablingPlus, setDisablingPlus] = useState(false);
-  const [showCardsAlert, setShowCardsAlert] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [scoreVisible, setScoreVisible] = useState(false);
