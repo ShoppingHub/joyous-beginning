@@ -10,7 +10,7 @@ export function DesktopSidebar() {
   const location = useLocation();
   const { t } = useI18n();
   const { visibleItems } = useNavConfig();
-  const { isPlusActive } = usePlusStatus();
+  
 
   const isActive = (to: string) =>
     to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
