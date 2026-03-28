@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 import { usePlusStatus } from "@/hooks/usePlusStatus";
-import { ArrowLeft, Apple, Plus, X, Check } from "lucide-react";
+import { ArrowLeft, Apple, Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -26,29 +26,24 @@ const DietPlanPage = () => {
   const [meals, setMeals] = useState<(DietProgramMeal & { items: DietMealItem[] })[]>([]);
   const [loading, setLoading] = useState(true);
   const [freeMeals, setFreeMeals] = useState(0);
-
-  // Item editor
   const [editingItem, setEditingItem] = useState<{ mealId: string; item?: DietMealItem } | null>(null);
   const [itemForm, setItemForm] = useState({ name: "", maxPerWeek: "" });
 
   const title = locale === "it" ? "Schema dieta" : "Diet plan";
 
-  // Plus gating
-  if (!isPlusActive) {
-    return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-8">
-        <Header title={title} onBack={() => navigate("/activities")} />
-        <div className="flex flex-col items-center justify-center gap-4 py-16">
-          <Apple size={48} className="text-primary" strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground text-center">{t("plus.cardLocked")}</p>
-          <button onClick={() => navigate("/plus")}
-            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium min-h-[44px]">
-            {t("plus.discoverPlus")}
-          </button>
-        </div>
-      </motion.div>
-    );
-  }
+  const fetchMeals = async (programId: string) => {
+    const { data: mealsData } = await supabase
+      .from("diet_program_meals" as any).select("*").eq("program_id", programId).order("order", { ascending: true });
+    const allMeals = (mealsData as any[] || []) as DietProgramMeal[];
+    const mealIds = allMeals.map(m => m.id);
+    let allItems: DietMealItem[] = [];
+    if (mealIds.length > 0) {
+      const { data: itemsData } = await supabase
+        .from("diet_meal_items" as any).select("*").in("meal_id", mealIds).eq("active", true).order("order", { ascending: true });
+      allItems = (itemsData as any[] || []) as DietMealItem[];
+    }
+    setMeals(allMeals.map(m => ({ ...m, items: allItems.filter(i => i.meal_id === m.id) })));
+  };
 
   const fetchProgram = useCallback(async () => {
     if (!user || !areaId) { setLoading(false); return; }
@@ -63,33 +58,6 @@ const DietPlanPage = () => {
     }
     setLoading(false);
   }, [user, areaId]);
-
-  const fetchMeals = async (programId: string) => {
-    const { data: mealsData } = await supabase
-      .from("diet_program_meals" as any)
-      .select("*")
-      .eq("program_id", programId)
-      .order("order", { ascending: true });
-    
-    const allMeals = (mealsData as any[] || []) as DietProgramMeal[];
-    const mealIds = allMeals.map(m => m.id);
-    
-    let allItems: DietMealItem[] = [];
-    if (mealIds.length > 0) {
-      const { data: itemsData } = await supabase
-        .from("diet_meal_items" as any)
-        .select("*")
-        .in("meal_id", mealIds)
-        .eq("active", true)
-        .order("order", { ascending: true });
-      allItems = (itemsData as any[] || []) as DietMealItem[];
-    }
-
-    setMeals(allMeals.map(m => ({
-      ...m,
-      items: allItems.filter(i => i.meal_id === m.id),
-    })));
-  };
 
   useEffect(() => { fetchProgram(); }, [fetchProgram]);
 
@@ -111,26 +79,18 @@ const DietPlanPage = () => {
 
   const openItemForm = (mealId: string, item?: DietMealItem) => {
     setEditingItem({ mealId, item });
-    setItemForm({
-      name: item?.name || "",
-      maxPerWeek: item?.max_per_week != null ? String(item.max_per_week) : "",
-    });
+    setItemForm({ name: item?.name || "", maxPerWeek: item?.max_per_week != null ? String(item.max_per_week) : "" });
   };
 
   const handleSaveItem = async () => {
     if (!editingItem || !itemForm.name.trim()) return;
     const maxPW = itemForm.maxPerWeek ? parseInt(itemForm.maxPerWeek) : null;
-
     if (editingItem.item) {
-      await supabase.from("diet_meal_items" as any)
-        .update({ name: itemForm.name.trim(), max_per_week: maxPW } as any)
-        .eq("id", editingItem.item.id);
+      await supabase.from("diet_meal_items" as any).update({ name: itemForm.name.trim(), max_per_week: maxPW } as any).eq("id", editingItem.item.id);
     } else {
       const currentItems = meals.find(m => m.id === editingItem.mealId)?.items.length || 0;
-      await supabase.from("diet_meal_items" as any)
-        .insert({ meal_id: editingItem.mealId, name: itemForm.name.trim(), max_per_week: maxPW, order: currentItems } as any);
+      await supabase.from("diet_meal_items" as any).insert({ meal_id: editingItem.mealId, name: itemForm.name.trim(), max_per_week: maxPW, order: currentItems } as any);
     }
-
     setEditingItem(null);
     if (program) await fetchMeals(program.id);
   };
@@ -141,6 +101,23 @@ const DietPlanPage = () => {
     setEditingItem(null);
     if (program) await fetchMeals(program.id);
   };
+
+  // Plus gating
+  if (!isPlusActive) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-8">
+        <Header title={title} onBack={() => navigate("/activities")} />
+        <div className="flex flex-col items-center justify-center gap-4 py-16">
+          <Apple size={48} className="text-primary" strokeWidth={1.5} />
+          <p className="text-sm text-muted-foreground text-center">{t("plus.cardLocked")}</p>
+          <button onClick={() => navigate("/plus")}
+            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium min-h-[44px]">
+            {t("plus.discoverPlus")}
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (loading) {
     return (
@@ -177,30 +154,24 @@ const DietPlanPage = () => {
     );
   }
 
-  // Sort meals by MEAL_ORDER
   const sortedMeals = [...meals].sort((a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type));
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-24">
       <Header title={title} onBack={() => navigate("/activities")} />
 
-      {/* CTA: Log today */}
       <button onClick={() => navigate("/cards/diet")}
         className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-medium text-base mb-4 min-h-[44px] hover:opacity-90 transition-opacity">
         {locale === "it" ? "Registra oggi" : "Log today"}
       </button>
 
-      {/* Meals list */}
       <div className="flex flex-col gap-3">
         {sortedMeals.map(meal => (
           <div key={meal.id} className={`rounded-xl bg-card p-3 ${!meal.active ? "opacity-50" : ""}`}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                {getMealLabel(meal.meal_type)}
-              </p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{getMealLabel(meal.meal_type)}</p>
               <Switch checked={meal.active} onCheckedChange={() => handleToggleMeal(meal)} />
             </div>
-
             {meal.active && (
               <>
                 {meal.items.length === 0 ? (
@@ -231,7 +202,6 @@ const DietPlanPage = () => {
           </div>
         ))}
 
-        {/* Free meals */}
         <div className="rounded-xl bg-card p-3">
           <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">
             {locale === "it" ? "Pasti liberi a settimana" : "Free meals per week"}
@@ -246,32 +216,25 @@ const DietPlanPage = () => {
         </div>
       </div>
 
-      {/* Item editor drawer */}
       <Drawer open={!!editingItem} onOpenChange={(o) => !o && setEditingItem(null)}>
         <DrawerContent className="bg-card border-border">
           <DrawerHeader>
             <DrawerTitle>
-              {editingItem?.item
-                ? (locale === "it" ? "Modifica componente" : "Edit component")
-                : (locale === "it" ? "Aggiungi componente" : "Add component")}
+              {editingItem?.item ? (locale === "it" ? "Modifica componente" : "Edit component") : (locale === "it" ? "Aggiungi componente" : "Add component")}
             </DrawerTitle>
           </DrawerHeader>
           <div className="px-4 flex flex-col gap-3">
             <div>
-              <label className="text-[11px] text-muted-foreground mb-1 block">
-                {locale === "it" ? "Nome" : "Name"}
-              </label>
+              <label className="text-[11px] text-muted-foreground mb-1 block">{locale === "it" ? "Nome" : "Name"}</label>
               <Input value={itemForm.name} onChange={e => setItemForm(f => ({ ...f, name: e.target.value }))}
-                placeholder={locale === "it" ? "es. Yogurt" : "e.g. Yogurt"}
-                className="bg-background border-border" autoFocus />
+                placeholder={locale === "it" ? "es. Yogurt" : "e.g. Yogurt"} className="bg-background border-border" autoFocus />
             </div>
             <div>
               <label className="text-[11px] text-muted-foreground mb-1 block">
                 {locale === "it" ? "Max a settimana" : "Max per week"} ({locale === "it" ? "opzionale" : "optional"})
               </label>
               <Input type="number" inputMode="numeric" value={itemForm.maxPerWeek}
-                onChange={e => setItemForm(f => ({ ...f, maxPerWeek: e.target.value }))}
-                placeholder="—" className="bg-background border-border" />
+                onChange={e => setItemForm(f => ({ ...f, maxPerWeek: e.target.value }))} placeholder="—" className="bg-background border-border" />
             </div>
           </div>
           <DrawerFooter className="flex flex-col gap-2">
@@ -285,8 +248,7 @@ const DietPlanPage = () => {
                 {locale === "it" ? "Disattiva componente" : "Deactivate component"}
               </button>
             )}
-            <button onClick={() => setEditingItem(null)}
-              className="w-full min-h-[44px] text-sm text-muted-foreground">
+            <button onClick={() => setEditingItem(null)} className="w-full min-h-[44px] text-sm text-muted-foreground">
               {locale === "it" ? "Annulla" : "Cancel"}
             </button>
           </DrawerFooter>

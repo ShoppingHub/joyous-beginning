@@ -31,44 +31,21 @@ const DietCardPage = () => {
   const [loading, setLoading] = useState(true);
   const [expandedMeal, setExpandedMeal] = useState<string | null>(null);
   const [freeMealsUsed, setFreeMealsUsed] = useState(0);
-
-  // History
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historySessions, setHistorySessions] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
-
-  // Weekly item counts for frequency badges
   const [weeklyItemCounts, setWeeklyItemCounts] = useState<Record<string, number>>({});
 
   const title = locale === "it" ? "Scheda Dieta" : "Diet Card";
 
-  // Plus gating
-  if (!isPlusActive) {
-    return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-8">
-        <PageHeader title={title} locale={locale} onBack={() => navigate("/activities")} onSettings={() => navigate("/cards/diet/edit")} />
-        <div className="flex flex-col items-center justify-center gap-4 py-16">
-          <Apple size={48} className="text-primary" strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground text-center">{t("plus.cardLocked")}</p>
-          <button onClick={() => navigate("/plus")}
-            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium min-h-[44px]">
-            {t("plus.discoverPlus")}
-          </button>
-        </div>
-      </motion.div>
-    );
-  }
-
   const fetchAll = useCallback(async () => {
     if (!user || !areaId) { setLoading(false); return; }
     
-    // Fetch program
     const { data: progData } = await supabase.from("diet_programs" as any).select("*").eq("area_id", areaId).single();
     if (!progData) { setProgram(null); setLoading(false); return; }
     const prog = progData as any as DietProgram;
     setProgram(prog);
 
-    // Fetch meals + items
     const { data: mealsData } = await supabase.from("diet_program_meals" as any).select("*").eq("program_id", prog.id).eq("active", true).order("order", { ascending: true });
     const allMeals = (mealsData as any[] || []) as DietProgramMeal[];
     const mealIds = allMeals.map(m => m.id);
@@ -82,19 +59,16 @@ const DietCardPage = () => {
     const mealsWithItems = allMeals.map(m => ({ ...m, items: allItems.filter(i => i.meal_id === m.id) }));
     setMeals(mealsWithItems);
 
-    // Fetch today's session
     const { data: sessData } = await supabase.from("diet_sessions" as any).select("*").eq("area_id", areaId).eq("date", today).single();
     const sess = sessData as any as DietSession | null;
     setSession(sess);
 
     if (sess) {
-      // Session meals
       const { data: smData } = await supabase.from("diet_session_meals" as any).select("*").eq("session_id", sess.id);
       const smMap: Record<string, DietSessionMeal> = {};
       for (const sm of (smData as any[] || [])) smMap[sm.program_meal_id] = sm;
       setSessionMeals(smMap);
 
-      // Session items
       const smIds = (smData as any[] || []).map((sm: any) => sm.id);
       if (smIds.length > 0) {
         const { data: siData } = await supabase.from("diet_session_items" as any).select("*").in("session_meal_id", smIds);
@@ -104,7 +78,7 @@ const DietCardPage = () => {
       }
     }
 
-    // Weekly free meals count
+    // Weekly counts
     const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
     const weekEnd = format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 6), "yyyy-MM-dd");
     const { data: weekSessions } = await supabase.from("diet_sessions" as any).select("id").eq("area_id", areaId).gte("date", weekStart).lte("date", weekEnd);
@@ -113,47 +87,38 @@ const DietCardPage = () => {
       const { data: weekSM } = await supabase.from("diet_session_meals" as any).select("*").in("session_id", weekSessIds).eq("is_free", true);
       setFreeMealsUsed((weekSM as any[] || []).length);
 
-      // Weekly item consumed counts
       const { data: allWeekSM } = await supabase.from("diet_session_meals" as any).select("id").in("session_id", weekSessIds);
       if (allWeekSM && (allWeekSM as any[]).length > 0) {
         const allWeekSMIds = (allWeekSM as any[]).map((sm: any) => sm.id);
         const { data: weekSI } = await supabase.from("diet_session_items" as any).select("meal_item_id").in("session_meal_id", allWeekSMIds).eq("consumed", true);
         const counts: Record<string, number> = {};
-        for (const si of (weekSI as any[] || [])) {
-          counts[si.meal_item_id] = (counts[si.meal_item_id] || 0) + 1;
-        }
+        for (const si of (weekSI as any[] || [])) counts[si.meal_item_id] = (counts[si.meal_item_id] || 0) + 1;
         setWeeklyItemCounts(counts);
       }
     }
 
     // History
     const { data: histData } = await supabase.from("diet_sessions" as any).select("*").eq("area_id", areaId).neq("date", today).order("date", { ascending: false }).limit(20);
-    if (histData) {
-      // Filter sessions with completed meals
-      const histSessions = (histData as any[]);
+    if (histData && (histData as any[]).length > 0) {
+      const histSessions = histData as any[];
       const histSessIds = histSessions.map(s => s.id);
-      if (histSessIds.length > 0) {
-        const { data: histSM } = await supabase.from("diet_session_meals" as any).select("*").in("session_id", histSessIds);
-        const completedSessions = histSessions.filter(s => 
-          (histSM as any[] || []).some(sm => sm.session_id === s.id && (sm.completed || sm.is_free))
-        );
-        
-        // Fetch items for history
-        const histSMIds = (histSM as any[] || []).map((sm: any) => sm.id);
-        let histSI: any[] = [];
-        if (histSMIds.length > 0) {
-          const { data } = await supabase.from("diet_session_items" as any).select("*").in("session_meal_id", histSMIds).eq("consumed", true);
-          histSI = (data as any[] || []);
-        }
-
-        setHistorySessions(completedSessions.map(s => ({
-          ...s,
-          sessionMeals: (histSM as any[] || []).filter((sm: any) => sm.session_id === s.id),
-          sessionItems: histSI.filter((si: any) => 
-            (histSM as any[] || []).some((sm: any) => sm.id === si.session_meal_id && sm.session_id === s.id)
-          ),
-        })));
+      const { data: histSM } = await supabase.from("diet_session_meals" as any).select("*").in("session_id", histSessIds);
+      const completedSessions = histSessions.filter(s =>
+        (histSM as any[] || []).some(sm => sm.session_id === s.id && (sm.completed || sm.is_free))
+      );
+      const histSMIds = (histSM as any[] || []).map((sm: any) => sm.id);
+      let histSI: any[] = [];
+      if (histSMIds.length > 0) {
+        const { data } = await supabase.from("diet_session_items" as any).select("*").in("session_meal_id", histSMIds).eq("consumed", true);
+        histSI = (data as any[] || []);
       }
+      setHistorySessions(completedSessions.map(s => ({
+        ...s,
+        sessionMeals: (histSM as any[] || []).filter((sm: any) => sm.session_id === s.id),
+        sessionItems: histSI.filter((si: any) =>
+          (histSM as any[] || []).some((sm: any) => sm.id === si.session_meal_id && sm.session_id === s.id)
+        ),
+      })));
     }
 
     setLoading(false);
@@ -161,7 +126,6 @@ const DietCardPage = () => {
 
   useEffect(() => { fetchAll(); track("card_opened", { card_type: "diet" }); }, [fetchAll]);
 
-  // ─── Session actions ───
   const ensureSession = async (): Promise<string | null> => {
     if (session) return session.id;
     if (!user || !areaId) return null;
@@ -188,7 +152,6 @@ const DietCardPage = () => {
   const handleToggleItem = async (mealId: string, itemId: string) => {
     const sessionMealId = await ensureSessionMeal(mealId);
     if (!sessionMealId) return;
-
     const existing = sessionItems[itemId];
     if (existing) {
       const newConsumed = !existing.consumed;
@@ -205,22 +168,21 @@ const DietCardPage = () => {
   const handleCompleteMeal = async (mealId: string) => {
     const sm = sessionMeals[mealId];
     if (sm?.completed) {
-      // Undo
       await supabase.from("diet_session_meals" as any).update({ completed: false } as any).eq("id", sm.id);
       setSessionMeals(prev => ({ ...prev, [mealId]: { ...prev[mealId], completed: false } }));
     } else {
       const sessionMealId = await ensureSessionMeal(mealId);
       if (!sessionMealId) return;
       await supabase.from("diet_session_meals" as any).update({ completed: true } as any).eq("id", sessionMealId);
-      setSessionMeals(prev => ({ ...prev, [mealId]: { ...prev[mealId], completed: true } }));
-      checkAutoCheckIn({ ...sessionMeals, [mealId]: { ...sessionMeals[mealId], completed: true } });
+      const updated = { ...sessionMeals, [mealId]: { ...sessionMeals[mealId], completed: true, id: sessionMealId, session_id: "", program_meal_id: mealId, is_free: sessionMeals[mealId]?.is_free ?? false } };
+      setSessionMeals(updated);
+      checkAutoCheckIn(updated);
     }
   };
 
   const handleFreeMeal = async (mealId: string) => {
     const sm = sessionMeals[mealId];
     if (sm?.is_free) {
-      // Undo
       await supabase.from("diet_session_meals" as any).update({ is_free: false } as any).eq("id", sm.id);
       setSessionMeals(prev => ({ ...prev, [mealId]: { ...prev[mealId], is_free: false } }));
       setFreeMealsUsed(prev => prev - 1);
@@ -228,9 +190,10 @@ const DietCardPage = () => {
       const sessionMealId = await ensureSessionMeal(mealId);
       if (!sessionMealId) return;
       await supabase.from("diet_session_meals" as any).update({ is_free: true } as any).eq("id", sessionMealId);
-      setSessionMeals(prev => ({ ...prev, [mealId]: { ...prev[mealId], is_free: true } }));
+      const updated = { ...sessionMeals, [mealId]: { ...sessionMeals[mealId], is_free: true, id: sessionMealId, session_id: "", program_meal_id: mealId, completed: sessionMeals[mealId]?.completed ?? false } };
+      setSessionMeals(updated);
       setFreeMealsUsed(prev => prev + 1);
-      checkAutoCheckIn({ ...sessionMeals, [mealId]: { ...sessionMeals[mealId], is_free: true } });
+      checkAutoCheckIn(updated);
     }
   };
 
@@ -252,10 +215,25 @@ const DietCardPage = () => {
   };
 
   const getMealLabel = (m: MealType) => MEAL_LABELS[m]?.[locale as "en" | "it"] || MEAL_LABELS[m]?.en || m;
-
-  // Sort meals
   const sortedMeals = [...meals].sort((a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type));
   const canUseFree = program ? freeMealsUsed < program.free_meals_per_week : false;
+
+  // Plus gating
+  if (!isPlusActive) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col px-4 pt-2 pb-8">
+        <PageHeader title={title} locale={locale} onBack={() => navigate("/activities")} onSettings={() => navigate("/cards/diet/edit")} />
+        <div className="flex flex-col items-center justify-center gap-4 py-16">
+          <Apple size={48} className="text-primary" strokeWidth={1.5} />
+          <p className="text-sm text-muted-foreground text-center">{t("plus.cardLocked")}</p>
+          <button onClick={() => navigate("/plus")}
+            className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-medium min-h-[44px]">
+            {t("plus.discoverPlus")}
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (loading) {
     return (
@@ -309,11 +287,8 @@ const DietCardPage = () => {
 
             return (
               <div key={meal.id} className={`rounded-xl bg-card border border-border overflow-hidden ${isDone ? "opacity-50" : ""}`}>
-                {/* Meal header */}
-                <button
-                  onClick={() => setExpandedMeal(isExpanded ? null : meal.id)}
-                  className="w-full flex items-center justify-between p-3 min-h-[44px]"
-                >
+                <button onClick={() => setExpandedMeal(isExpanded ? null : meal.id)}
+                  className="w-full flex items-center justify-between p-3 min-h-[44px]">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold">{getMealLabel(meal.meal_type)}</span>
                     {isCompleted && <Check size={14} className="text-primary" />}
@@ -326,7 +301,6 @@ const DietCardPage = () => {
                   {isExpanded ? <ChevronDown size={16} className="text-muted-foreground" /> : <ChevronRight size={16} className="text-muted-foreground" />}
                 </button>
 
-                {/* Expanded content */}
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
@@ -347,7 +321,6 @@ const DietCardPage = () => {
                             const weekCount = weeklyItemCounts[item.id] || 0;
                             const hasMax = item.max_per_week != null;
                             const overLimit = hasMax && weekCount >= item.max_per_week!;
-
                             return (
                               <div key={item.id} className="flex items-center gap-3 min-h-[36px]">
                                 <Checkbox checked={consumed} onCheckedChange={() => handleToggleItem(meal.id, item.id)} />
@@ -361,25 +334,17 @@ const DietCardPage = () => {
                             );
                           })
                         )}
-
-                        {/* Actions */}
                         <div className="flex gap-2 mt-1">
                           <button onClick={() => handleCompleteMeal(meal.id)}
                             className={`flex-1 min-h-[40px] rounded-lg text-sm font-medium transition-colors ${
-                              isCompleted
-                                ? "bg-primary/15 text-primary"
-                                : "bg-primary text-primary-foreground"
+                              isCompleted ? "bg-primary/15 text-primary" : "bg-primary text-primary-foreground"
                             }`}>
-                            {isCompleted
-                              ? (locale === "it" ? "Completato" : "Completed")
-                              : (locale === "it" ? "Completa" : "Complete")}
+                            {isCompleted ? (locale === "it" ? "Completato" : "Completed") : (locale === "it" ? "Completa" : "Complete")}
                           </button>
                           {(canUseFree || isFree) && (
                             <button onClick={() => handleFreeMeal(meal.id)}
                               className={`min-h-[40px] px-3 rounded-lg text-sm font-medium transition-colors ${
-                                isFree
-                                  ? "bg-primary/15 text-primary"
-                                  : "ring-1 ring-border text-muted-foreground hover:text-foreground"
+                                isFree ? "bg-primary/15 text-primary" : "ring-1 ring-border text-muted-foreground hover:text-foreground"
                               }`}>
                               {locale === "it" ? "Pasto libero" : "Free meal"}
                             </button>
@@ -393,7 +358,6 @@ const DietCardPage = () => {
             );
           })}
 
-          {/* Free meals counter */}
           {program.free_meals_per_week > 0 && (
             <p className="text-xs text-muted-foreground text-center mt-1">
               {locale === "it" ? "Pasti liberi" : "Free meals"}: {freeMealsUsed}/{program.free_meals_per_week} {locale === "it" ? "usati" : "used"}
@@ -410,7 +374,6 @@ const DietCardPage = () => {
             {historyOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             {locale === "it" ? "Storico" : "History"}
           </button>
-
           <AnimatePresence>
             {historyOpen && (
               <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
@@ -420,20 +383,16 @@ const DietCardPage = () => {
                     const totalCount = meals.length;
                     const isExpanded = expandedHistory === hs.id;
                     const dateLabel = new Date(hs.date).toLocaleDateString(locale === "it" ? "it-IT" : "en-US", { weekday: "short", day: "numeric", month: "short" });
-
                     return (
                       <div key={hs.id} className="rounded-xl bg-card border border-border overflow-hidden">
                         <button onClick={() => setExpandedHistory(isExpanded ? null : hs.id)}
                           className="w-full flex items-center justify-between p-3 min-h-[44px]">
                           <span className="text-sm font-medium">{dateLabel}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">
-                              {completedCount}/{totalCount} {locale === "it" ? "pasti" : "meals"}
-                            </span>
+                            <span className="text-xs text-muted-foreground">{completedCount}/{totalCount} {locale === "it" ? "pasti" : "meals"}</span>
                             {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                           </div>
                         </button>
-
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
@@ -441,9 +400,7 @@ const DietCardPage = () => {
                                 {hs.sessionMeals.filter((sm: any) => sm.completed || sm.is_free).map((sm: any) => {
                                   const mealDef = meals.find(m => m.id === sm.program_meal_id);
                                   if (!mealDef) return null;
-                                  const consumedItems = hs.sessionItems.filter((si: any) =>
-                                    si.session_meal_id === sm.id && si.consumed
-                                  );
+                                  const consumedItems = hs.sessionItems.filter((si: any) => si.session_meal_id === sm.id && si.consumed);
                                   return (
                                     <div key={sm.id}>
                                       <div className="flex items-center gap-2">
@@ -458,9 +415,7 @@ const DietCardPage = () => {
                                         <div className="ml-2 mt-1 flex flex-col gap-0.5">
                                           {consumedItems.map((si: any) => {
                                             const itemDef = mealDef.items.find(i => i.id === si.meal_item_id);
-                                            return itemDef ? (
-                                              <span key={si.id} className="text-xs text-muted-foreground">• {itemDef.name}</span>
-                                            ) : null;
+                                            return itemDef ? <span key={si.id} className="text-xs text-muted-foreground">• {itemDef.name}</span> : null;
                                           })}
                                         </div>
                                       )}
@@ -494,8 +449,7 @@ function PageHeader({ title, locale, onBack, onSettings }: { title: string; loca
         <Apple size={20} strokeWidth={1.5} className="text-primary" />
         <h1 className="text-[17px] font-semibold">{title}</h1>
       </div>
-      <button onClick={onSettings}
-        className="absolute right-0 flex items-center justify-center min-h-[44px] min-w-[44px]">
+      <button onClick={onSettings} className="absolute right-0 flex items-center justify-center min-h-[44px] min-w-[44px]">
         <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
       </button>
     </div>
