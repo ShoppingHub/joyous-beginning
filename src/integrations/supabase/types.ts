@@ -208,6 +208,221 @@ export type Database = {
           },
         ]
       }
+      diet_meal_items: {
+        Row: {
+          active: boolean
+          id: string
+          max_per_week: number | null
+          meal_id: string
+          name: string
+          order: number
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          max_per_week?: number | null
+          meal_id: string
+          name: string
+          order?: number
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          max_per_week?: number | null
+          meal_id?: string
+          name?: string
+          order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_meal_items_meal_id_fkey"
+            columns: ["meal_id"]
+            isOneToOne: false
+            referencedRelation: "diet_program_meals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diet_program_meals: {
+        Row: {
+          active: boolean
+          id: string
+          meal_type: string
+          order: number
+          program_id: string
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          meal_type: string
+          order?: number
+          program_id: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          meal_type?: string
+          order?: number
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_program_meals_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "diet_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diet_programs: {
+        Row: {
+          area_id: string
+          created_at: string
+          free_meals_per_week: number
+          id: string
+          mode: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          area_id: string
+          created_at?: string
+          free_meals_per_week?: number
+          id?: string
+          mode?: string
+          name?: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string
+          created_at?: string
+          free_meals_per_week?: number
+          id?: string
+          mode?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_programs_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diet_session_items: {
+        Row: {
+          consumed: boolean
+          id: string
+          meal_item_id: string
+          session_meal_id: string
+        }
+        Insert: {
+          consumed?: boolean
+          id?: string
+          meal_item_id: string
+          session_meal_id: string
+        }
+        Update: {
+          consumed?: boolean
+          id?: string
+          meal_item_id?: string
+          session_meal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_session_items_meal_item_id_fkey"
+            columns: ["meal_item_id"]
+            isOneToOne: false
+            referencedRelation: "diet_meal_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diet_session_items_session_meal_id_fkey"
+            columns: ["session_meal_id"]
+            isOneToOne: false
+            referencedRelation: "diet_session_meals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diet_session_meals: {
+        Row: {
+          completed: boolean
+          id: string
+          is_free: boolean
+          program_meal_id: string
+          session_id: string
+        }
+        Insert: {
+          completed?: boolean
+          id?: string
+          is_free?: boolean
+          program_meal_id: string
+          session_id: string
+        }
+        Update: {
+          completed?: boolean
+          id?: string
+          is_free?: boolean
+          program_meal_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_session_meals_program_meal_id_fkey"
+            columns: ["program_meal_id"]
+            isOneToOne: false
+            referencedRelation: "diet_program_meals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diet_session_meals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "diet_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diet_sessions: {
+        Row: {
+          area_id: string
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          area_id: string
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          area_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_sessions_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       google_oauth_tokens: {
         Row: {
           access_token: string
