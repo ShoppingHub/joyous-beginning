@@ -77,9 +77,6 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
                 </DrawerDescription>
               </DrawerHeader>
 
-              <span className={`text-xs ${isConfigured(previewCard) ? "text-primary" : "text-accent"}`}>
-                {isConfigured(previewCard) ? t("cards.configured") : t("cards.notConfigured")}
-              </span>
 
               {/* Primary CTA */}
               <button
