@@ -6,7 +6,6 @@ import { useI18n } from "@/hooks/useI18n";
 import { useUserCards } from "@/hooks/useUserCards";
 
 import { QuantityCounter } from "./QuantityCounter";
-import type { MealType } from "@/components/diet/types";
 import type { Database } from "@/integrations/supabase/types";
 
 type Area = Database["public"]["Tables"]["areas"]["Row"];
