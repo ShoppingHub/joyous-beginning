@@ -114,9 +114,11 @@ export function ActivityCard({
 
   const showGymDay = isGym && hasGymProgram && gymDayLabel && isCardEnabled("gym");
   const showDietMeals = isDiet && isCardEnabled("diet") && dietDayInfo?.hasProgram && (dietDayInfo?.meals?.length ?? 0) > 0;
-  const sortedDietMeals = showDietMeals
-    ? [...(dietDayInfo!.meals)].sort((a, b) => MEAL_ORDER.indexOf(a.mealType as MealType) - MEAL_ORDER.indexOf(b.mealType as MealType))
-    : [];
+
+  // Diet progress: completed or free meals count
+  const dietTotal = showDietMeals ? dietDayInfo!.meals.length : 0;
+  const dietCompleted = showDietMeals ? dietDayInfo!.meals.filter(m => m.completed || m.isFree).length : 0;
+  const dietAllDone = showDietMeals && dietTotal > 0 && dietCompleted === dietTotal;
 
   // Done button (shared across card types)
   const doneButton = (
