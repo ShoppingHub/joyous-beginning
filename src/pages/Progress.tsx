@@ -405,6 +405,16 @@ const Progress = () => {
               <Layers size={13} />
               <span>{t("progress.view.overlay")}</span>
             </button>
+            {showCounterTab && (
+              <button
+                onClick={() => setViewMode("counter")}
+                className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors min-h-[32px] ${viewMode === "counter" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                title={t("progress.view.counter")}
+              >
+                <Hash size={13} />
+                <span>{t("progress.view.counter")}</span>
+              </button>
+            )}
           </div>
         </div>
       )}
