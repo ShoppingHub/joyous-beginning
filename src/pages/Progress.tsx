@@ -297,7 +297,9 @@ const Progress = () => {
   const effectiveDataLength = viewMode === "counter" ? counterAdaptiveData.length : viewMode === "overlay" ? overlayData.data.length : chartData.length;
   const tickInterval = getTickInterval(effectiveGranularity, effectiveDataLength);
 
+  const fmtCounter = (n: number) => Math.round(n).toString();
   const fmt = (n: number) => {
+    if (viewMode === "counter") return fmtCounter(n);
     if (Math.abs(n) >= 1000) return n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return n.toFixed(2);
   };
