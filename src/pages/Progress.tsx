@@ -22,7 +22,7 @@ type Area = Database["public"]["Tables"]["areas"]["Row"];
 type AreaType = Database["public"]["Enums"]["area_type"];
 
 type FilterMode = "all" | "type" | "activity";
-type ViewMode = "total" | "overlay";
+type ViewMode = "total" | "overlay" | "counter";
 
 const AREA_TYPE_KEYS: { value: AreaType; labelKey: TranslationKey }[] = [
   { value: "health", labelKey: "areaType.health" },
