@@ -44,12 +44,8 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
 
   return (
     <>
-      {sectionCards.map((card) => {
-        const configured = isConfigured(card);
+      {unlinkedCards.map((card) => {
         const Icon = card.icon;
-
-        const badgeLabel = configured ? t("cards.configured") : t("cards.notConfigured");
-        const badgeColor = configured ? "text-primary" : "text-accent";
 
         return (
           <button
@@ -59,7 +55,6 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
           >
             <Icon size={20} strokeWidth={1.5} className="text-primary flex-shrink-0" />
             <span className="text-base text-foreground truncate flex-1 text-left">{getCardName(card, locale)}</span>
-            <span className={`text-xs flex-shrink-0 ${badgeColor}`}>{badgeLabel}</span>
             <ChevronRight size={18} strokeWidth={1.5} className="text-muted-foreground flex-shrink-0" />
           </button>
         );
