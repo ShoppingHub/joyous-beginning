@@ -204,7 +204,14 @@ export function ActivityCard({
           <p className="text-base font-medium truncate">{area.name}</p>
           {recurrenceBadge}
         </div>
-        {doneButton}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {showDietMeals && (
+            <span className={`text-xs font-medium ${dietAllDone ? "text-primary" : "text-muted-foreground"}`}>
+              {dietCompleted}/{dietTotal}
+            </span>
+          )}
+          {doneButton}
+        </div>
       </div>
 
       {/* Gym day CTA - centered below name, with weekday badge */}
