@@ -357,6 +357,9 @@ const DietCardPage = () => {
                               <div key={item.id} className="flex items-center gap-3 min-h-[36px]">
                                 <Checkbox checked={consumed} onCheckedChange={() => handleToggleItem(meal.id, item.id)} />
                                 <span className="text-sm flex-1">{item.name}</span>
+                                {item.grams != null && (
+                                  <span className="text-[11px] text-muted-foreground">{item.grams}g</span>
+                                )}
                                 {hasMax && (
                                   <span className={`text-[11px] font-medium ${overLimit ? "text-[#BFA37A]" : "text-muted-foreground"}`}>
                                     {weekCount}/{item.max_per_week}
