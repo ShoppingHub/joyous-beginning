@@ -1,0 +1,2 @@
+ALTER TABLE public.user_cards DROP CONSTRAINT user_cards_card_type_check;
+ALTER TABLE public.user_cards ADD CONSTRAINT user_cards_card_type_check CHECK (card_type = ANY (ARRAY['gym'::text, 'finance_projection'::text, 'diet'::text]));
