@@ -117,6 +117,29 @@ const Progress = () => {
       }
     }
     setCheckins(checkinMap);
+
+    // Fetch quantity data for reduce/quantity_reduce areas
+    const quantityAreas = allAreasForScores.filter(a => a.type === "reduce" && a.tracking_mode === "quantity_reduce");
+    if (quantityAreas.length > 0) {
+      const qIds = quantityAreas.map(a => a.id);
+      const { data: qData } = await supabase
+        .from("habit_quantity_daily")
+        .select("area_id, date, quantity")
+        .in("area_id", qIds)
+        .gte("date", startDate)
+        .order("date", { ascending: true });
+      const qMap: Record<string, { date: string; quantity: number }[]> = {};
+      for (const a of quantityAreas) { qMap[a.id] = []; }
+      if (qData) {
+        for (const q of qData) {
+          if (qMap[q.area_id]) qMap[q.area_id].push({ date: q.date, quantity: q.quantity });
+        }
+      }
+      setQuantityData(qMap);
+    } else {
+      setQuantityData({});
+    }
+
     setLoading(false);
   }, [user, isDemo, timeRange]);
 
