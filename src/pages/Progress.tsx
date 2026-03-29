@@ -542,6 +542,26 @@ const Progress = () => {
                       }}
                       cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
                     />
+                  ) : isCounter ? (
+                    <Tooltip
+                      content={(props: any) => {
+                        if (!props.active || !props.payload?.length) return null;
+                        const point = props.payload[0]?.payload;
+                        if (!point) return null;
+                        const label = formatTooltipLabel(point.date, effectiveGranularity, locale);
+                        // Get unit label from first filtered area
+                        const unitLabel = filteredAreas[0]?.unit_label || "";
+                        return (
+                          <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
+                            <p className="text-muted-foreground tabular-nums">{label}</p>
+                            <p className="text-foreground font-medium mt-0.5 tabular-nums">
+                              {Math.round(point.score)} {unitLabel}
+                            </p>
+                          </div>
+                        );
+                      }}
+                      cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                    />
                   ) : (
                     <Tooltip
                       content={(props: any) => (
