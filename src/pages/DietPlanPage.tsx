@@ -49,7 +49,7 @@ const DietPlanPage = () => {
   const [loading, setLoading] = useState(true);
   const [freeMeals, setFreeMeals] = useState(0);
   const [editingItem, setEditingItem] = useState<{ mealId: string; item?: DietMealItem } | null>(null);
-  const [itemForm, setItemForm] = useState({ name: "", maxPerWeek: "" });
+  const [itemForm, setItemForm] = useState({ name: "", maxPerWeek: "", grams: "" });
 
   const title = locale === "it" ? "Schema dieta" : "Diet plan";
 
@@ -101,17 +101,18 @@ const DietPlanPage = () => {
 
   const openItemForm = (mealId: string, item?: DietMealItem) => {
     setEditingItem({ mealId, item });
-    setItemForm({ name: item?.name || "", maxPerWeek: item?.max_per_week != null ? String(item.max_per_week) : "" });
+    setItemForm({ name: item?.name || "", maxPerWeek: item?.max_per_week != null ? String(item.max_per_week) : "", grams: item?.grams != null ? String(item.grams) : "" });
   };
 
   const handleSaveItem = async () => {
     if (!editingItem || !itemForm.name.trim()) return;
     const maxPW = itemForm.maxPerWeek ? parseInt(itemForm.maxPerWeek) : null;
+    const gramsVal = itemForm.grams ? parseInt(itemForm.grams) : null;
     if (editingItem.item) {
-      await supabase.from("diet_meal_items" as any).update({ name: itemForm.name.trim(), max_per_week: maxPW } as any).eq("id", editingItem.item.id);
+      await supabase.from("diet_meal_items" as any).update({ name: itemForm.name.trim(), max_per_week: maxPW, grams: gramsVal } as any).eq("id", editingItem.item.id);
     } else {
       const currentItems = meals.find(m => m.id === editingItem.mealId)?.items.length || 0;
-      await supabase.from("diet_meal_items" as any).insert({ meal_id: editingItem.mealId, name: itemForm.name.trim(), max_per_week: maxPW, order: currentItems } as any);
+      await supabase.from("diet_meal_items" as any).insert({ meal_id: editingItem.mealId, name: itemForm.name.trim(), max_per_week: maxPW, grams: gramsVal, order: currentItems } as any);
     }
     setEditingItem(null);
     if (program) await fetchMeals(program.id);
@@ -190,11 +191,18 @@ const DietPlanPage = () => {
                       <button key={item.id} onClick={() => openItemForm(meal.id, item)}
                         className="flex items-center justify-between py-1.5 text-left hover:opacity-80 min-h-[36px]">
                         <span className="text-sm font-medium">{item.name}</span>
-                        {item.max_per_week != null && (
-                          <span className="text-[11px] text-muted-foreground bg-background px-1.5 py-0.5 rounded-md">
-                            max {item.max_per_week}/{locale === "it" ? "sett" : "wk"}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          {item.grams != null && (
+                            <span className="text-[11px] text-muted-foreground bg-background px-1.5 py-0.5 rounded-md">
+                              {item.grams}g
+                            </span>
+                          )}
+                          {item.max_per_week != null && (
+                            <span className="text-[11px] text-muted-foreground bg-background px-1.5 py-0.5 rounded-md">
+                              max {item.max_per_week}/{locale === "it" ? "sett" : "wk"}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -234,6 +242,13 @@ const DietPlanPage = () => {
               <label className="text-[11px] text-muted-foreground mb-1 block">{locale === "it" ? "Nome" : "Name"}</label>
               <Input value={itemForm.name} onChange={e => setItemForm(f => ({ ...f, name: e.target.value }))}
                 placeholder={locale === "it" ? "es. Yogurt" : "e.g. Yogurt"} className="bg-background border-border" autoFocus />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground mb-1 block">
+                {locale === "it" ? "Grammi" : "Grams"}
+              </label>
+              <Input type="number" inputMode="numeric" value={itemForm.grams}
+                onChange={e => setItemForm(f => ({ ...f, grams: e.target.value }))} placeholder="—" className="bg-background border-border" />
             </div>
             <div>
               <label className="text-[11px] text-muted-foreground mb-1 block">

@@ -1,0 +1,1 @@
+ALTER TABLE public.diet_meal_items ADD COLUMN grams integer NULL;

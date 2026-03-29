@@ -211,6 +211,7 @@ export type Database = {
       diet_meal_items: {
         Row: {
           active: boolean
+          grams: number | null
           id: string
           max_per_week: number | null
           meal_id: string
@@ -219,6 +220,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          grams?: number | null
           id?: string
           max_per_week?: number | null
           meal_id: string
@@ -227,6 +229,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          grams?: number | null
           id?: string
           max_per_week?: number | null
           meal_id?: string
