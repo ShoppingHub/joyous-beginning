@@ -191,11 +191,18 @@ const DietPlanPage = () => {
                       <button key={item.id} onClick={() => openItemForm(meal.id, item)}
                         className="flex items-center justify-between py-1.5 text-left hover:opacity-80 min-h-[36px]">
                         <span className="text-sm font-medium">{item.name}</span>
-                        {item.max_per_week != null && (
-                          <span className="text-[11px] text-muted-foreground bg-background px-1.5 py-0.5 rounded-md">
-                            max {item.max_per_week}/{locale === "it" ? "sett" : "wk"}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          {item.grams != null && (
+                            <span className="text-[11px] text-muted-foreground bg-background px-1.5 py-0.5 rounded-md">
+                              {item.grams}g
+                            </span>
+                          )}
+                          {item.max_per_week != null && (
+                            <span className="text-[11px] text-muted-foreground bg-background px-1.5 py-0.5 rounded-md">
+                              max {item.max_per_week}/{locale === "it" ? "sett" : "wk"}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     ))}
                   </div>
