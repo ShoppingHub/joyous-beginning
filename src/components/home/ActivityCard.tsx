@@ -213,34 +213,14 @@ export function ActivityCard({
         </button>
       )}
 
-      {/* Diet per-meal sub-activities */}
+      {/* Diet CTA - like Gym, single button to /cards/diet + progress counter */}
       {showDietMeals && (
-        <div className="flex flex-col gap-1">
-          {sortedDietMeals.map((meal) => {
-            const isDone = meal.completed || meal.isFree;
-            const label = MEAL_LABELS[meal.mealType as MealType]?.[locale as "en" | "it"] || meal.mealType;
-            return (
-              <button
-                key={meal.mealId}
-                onClick={() => navigate(`/cards/diet?meal=${meal.mealType}`)}
-                className={`w-full flex items-center justify-between px-3 min-h-[36px] rounded-lg hover:bg-primary/5 transition-colors ${isDone ? "opacity-50" : ""}`}
-              >
-                <span className="text-sm">{label}</span>
-                {meal.completed ? (
-                  <Check size={14} className="text-primary" />
-                ) : meal.isFree ? (
-                  <span className="text-[10px] bg-primary/15 text-primary px-1.5 py-0.5 rounded-full font-medium">
-                    {locale === "it" ? "Libero" : "Free"}
-                  </span>
-                ) : (
-                  <span className="text-xs text-primary font-medium">
-                    {locale === "it" ? "Registra" : "Log"}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        <button
+          onClick={() => navigate("/cards/diet")}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+        >
+          {locale === "it" ? "Registra pasti" : "Log meals"} →
+        </button>
       )}
       <div className="flex justify-end">
         <button
