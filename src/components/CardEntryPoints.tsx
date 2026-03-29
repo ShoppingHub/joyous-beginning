@@ -38,6 +38,10 @@ export function CardEntryPoints({ section, areas }: CardEntryPointsProps) {
     return true;
   };
 
+  // Hide cards that are already linked to an activity
+  const unlinkedCards = sectionCards.filter((card) => !isConfigured(card));
+  if (unlinkedCards.length === 0) return null;
+
   return (
     <>
       {sectionCards.map((card) => {
