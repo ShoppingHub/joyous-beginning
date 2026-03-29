@@ -48,8 +48,20 @@ const Areas = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t } = useI18n();
-  const { enabledCards } = useUserCards();
+  const { enabledCards, allUserCards } = useUserCards();
   const isMobile = useIsMobile();
+
+  // Map area_id → card icon for linked cards
+  const areaCardIconMap = useMemo(() => {
+    const map: Record<string, typeof Heart> = {};
+    for (const uc of allUserCards) {
+      if (uc.area_id && uc.enabled) {
+        const cardDef = AVAILABLE_CARDS.find(c => c.id === uc.card_type);
+        if (cardDef) map[uc.area_id] = cardDef.icon;
+      }
+    }
+    return map;
+  }, [allUserCards]);
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
