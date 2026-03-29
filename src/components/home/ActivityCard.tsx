@@ -120,7 +120,14 @@ export function ActivityCard({
   const dietCompleted = showDietMeals ? dietDayInfo!.meals.filter(m => m.completed || m.isFree).length : 0;
   const dietAllDone = showDietMeals && dietTotal > 0 && dietCompleted === dietTotal;
 
-  // Done button (shared across card types)
+  // Auto check-in when all diet meals are completed
+  useEffect(() => {
+    if (dietAllDone && !isCheckedIn && !isFutureDay && !isLoading) {
+      onCheckIn(area.id);
+    }
+  }, [dietAllDone, isCheckedIn, isFutureDay, isLoading, area.id, onCheckIn]);
+
+
   const doneButton = (
     undoConfirm ? (
       <div className="flex items-center gap-2 flex-shrink-0">
