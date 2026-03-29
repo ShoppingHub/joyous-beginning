@@ -59,7 +59,7 @@ export function DietWizard({ areaId, onCreated }: DietWizardProps) {
 
   const activeWithItems = MEAL_ORDER.filter(m => activeMeals[m]);
   const allMealsHaveItems = activeWithItems.every(
-    m => mealItems[m].some(v => v.trim().length > 0)
+    m => mealItems[m].some(v => v.name.trim().length > 0)
   );
 
   const handleCreate = async () => {
@@ -88,11 +88,12 @@ export function DietWizard({ areaId, onCreated }: DietWizardProps) {
       if (!meal) continue;
       const mealId = (meal as any).id;
 
-      const items = mealItems[mealType].filter(v => v.trim());
+      const items = mealItems[mealType].filter(v => v.name.trim());
       for (let j = 0; j < items.length; j++) {
+        const gramsVal = items[j].grams ? parseInt(items[j].grams) : null;
         await supabase
           .from("diet_meal_items" as any)
-          .insert({ meal_id: mealId, name: items[j].trim(), order: j } as any);
+          .insert({ meal_id: mealId, name: items[j].name.trim(), grams: gramsVal, order: j } as any);
       }
     }
 
@@ -140,10 +141,18 @@ export function DietWizard({ areaId, onCreated }: DietWizardProps) {
               {mealItems[m].map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <Input
-                    value={item}
-                    onChange={e => updateItem(m, idx, e.target.value)}
+                    value={item.name}
+                    onChange={e => updateItem(m, idx, "name", e.target.value)}
                     placeholder={locale === "it" ? "es. Yogurt" : "e.g. Yogurt"}
                     className="bg-background border-border h-9 text-sm flex-1"
+                  />
+                  <Input
+                    value={item.grams}
+                    onChange={e => updateItem(m, idx, "grams", e.target.value)}
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="g"
+                    className="bg-background border-border h-9 text-sm w-16 text-center"
                   />
                   {mealItems[m].length > 1 && (
                     <button
