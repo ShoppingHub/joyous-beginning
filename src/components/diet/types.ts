@@ -20,6 +20,7 @@ export interface DietMealItem {
   id: string;
   meal_id: string;
   name: string;
+  grams: number | null;
   max_per_week: number | null;
   active: boolean;
   order: number;

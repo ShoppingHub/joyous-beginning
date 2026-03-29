@@ -23,12 +23,12 @@ export function DietWizard({ areaId, onCreated }: DietWizardProps) {
     afternoon_snack: false,
     dinner: true,
   });
-  const [mealItems, setMealItems] = useState<Record<MealType, string[]>>({
-    breakfast: [""],
-    morning_snack: [""],
-    lunch: [""],
-    afternoon_snack: [""],
-    dinner: [""],
+  const [mealItems, setMealItems] = useState<Record<MealType, { name: string; grams: string }[]>>({
+    breakfast: [{ name: "", grams: "" }],
+    morning_snack: [{ name: "", grams: "" }],
+    lunch: [{ name: "", grams: "" }],
+    afternoon_snack: [{ name: "", grams: "" }],
+    dinner: [{ name: "", grams: "" }],
   });
   const [freeMeals, setFreeMeals] = useState(0);
   const [step, setStep] = useState<1 | 2 | 3>(1);
