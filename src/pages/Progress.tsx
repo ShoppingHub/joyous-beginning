@@ -469,11 +469,14 @@ const Progress = () => {
   const yPadding = (maxScore - minScore) * 0.15 || 1;
   const yDomainMin = minScore - yPadding;
   const yDomainMax = maxScore + yPadding;
-  const lastPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
+  const lastPoint = viewMode === "counter"
+    ? (counterAdaptiveData.length > 0 ? counterAdaptiveData[counterAdaptiveData.length - 1] : null)
+    : (chartData.length > 0 ? chartData[chartData.length - 1] : null);
 
   // Determine which data/chart to use
   const isOverlay = viewMode === "overlay";
-  const chartDataSource = isOverlay ? overlayData.data : chartData;
+  const isCounter = viewMode === "counter";
+  const chartDataSource = isCounter ? counterAdaptiveData : isOverlay ? overlayData.data : chartData;
 
   return (
     <div className="flex flex-col min-h-full">
