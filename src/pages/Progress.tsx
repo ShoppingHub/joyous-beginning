@@ -234,6 +234,19 @@ const Progress = () => {
   const { chartData, granularity } = useAdaptiveChart(rawAveraged);
 
   const { lineColor, firstScore, lastScore, minScore, maxScore } = useMemo(() => {
+    if (viewMode === "counter") {
+      if (counterAdaptiveData.length === 0) return { lineColor: "#8C9496", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
+      const slopeWindow = getSlopeWindow(counterGranularity);
+      const slope = computeSlope(counterAdaptiveData, slopeWindow);
+      const arr = counterAdaptiveData.map(d => d.score);
+      return {
+        lineColor: getLineColor(slope),
+        firstScore: counterAdaptiveData[0].score,
+        lastScore: counterAdaptiveData[counterAdaptiveData.length - 1].score,
+        minScore: Math.min(...arr),
+        maxScore: Math.max(...arr),
+      };
+    }
     if (viewMode === "overlay") {
       const keys = overlayData.areaKeys.map(k => k.id);
       const allValues: number[] = [];
@@ -245,7 +258,6 @@ const Progress = () => {
       }
       if (allValues.length === 0) return { lineColor: "#8C9496", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
 
-      // Average across areas for first and last data points
       const avgForRow = (row: Record<string, any>) => {
         const vals = keys.map(k => row[k] as number).filter(v => v !== undefined && v !== null);
         return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
@@ -272,7 +284,7 @@ const Progress = () => {
       minScore: Math.min(...arr),
       maxScore: Math.max(...arr),
     };
-  }, [chartData, granularity, viewMode, overlayData]);
+  }, [chartData, granularity, viewMode, overlayData, counterAdaptiveData, counterGranularity]);
 
   const hasData = viewMode === "overlay"
     ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
