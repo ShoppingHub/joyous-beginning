@@ -245,6 +245,13 @@ const DietPlanPage = () => {
             </div>
             <div>
               <label className="text-[11px] text-muted-foreground mb-1 block">
+                {locale === "it" ? "Grammi" : "Grams"}
+              </label>
+              <Input type="number" inputMode="numeric" value={itemForm.grams}
+                onChange={e => setItemForm(f => ({ ...f, grams: e.target.value }))} placeholder="—" className="bg-background border-border" />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground mb-1 block">
                 {locale === "it" ? "Max a settimana" : "Max per week"} ({locale === "it" ? "opzionale" : "optional"})
               </label>
               <Input type="number" inputMode="numeric" value={itemForm.maxPerWeek}
