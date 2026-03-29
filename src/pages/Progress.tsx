@@ -398,7 +398,9 @@ const Progress = () => {
       {areas.length > 0 && (
         <div className="flex items-center justify-between px-4 pb-2">
           <div className="flex flex-col">
-            <span className="text-2xl font-bold text-foreground tabular-nums">{fmt(lastScore)}</span>
+            <span className="text-2xl font-bold text-foreground tabular-nums">
+              {fmt(lastScore)}{viewMode === "counter" && filteredAreas[0]?.unit_label ? ` ${filteredAreas[0].unit_label}` : ""}
+            </span>
             {hasData && (
               <span className={`text-xs font-medium tabular-nums ${diffColor}`}>
                 {diffSign}{fmt(scoreDiff)}{pctStr} · {locale === "it" ? "Dall'inizio" : "From start"}
