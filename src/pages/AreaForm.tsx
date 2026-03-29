@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 
 import { useUserCards } from "@/hooks/useUserCards";
-import { ArrowLeft, Loader2, Dumbbell, Apple, Check, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Loader2, Dumbbell, Apple, Check, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -403,23 +403,6 @@ export default function AreaForm({ mode }: AreaFormProps) {
 
             {isQuantity && (
               <div className="space-y-4 mt-2">
-                {/* Counter preview */}
-                <div className="flex items-center justify-center py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border text-muted-foreground">
-                      <Minus size={16} />
-                    </div>
-                    <div className="flex h-14 w-16 items-center justify-center rounded-xl bg-primary/10 border-2 border-primary">
-                      <span className="text-2xl font-bold text-primary">
-                        {baselineInitial ? parseInt(baselineInitial, 10) || 0 : 0}
-                      </span>
-                    </div>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary text-primary">
-                      <Plus size={16} />
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-1">
                   <label className="text-sm text-muted-foreground">{t("reduce.unitLabelLabel")}</label>
                   <input

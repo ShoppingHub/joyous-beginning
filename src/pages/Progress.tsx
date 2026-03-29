@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useDemo } from "@/hooks/useDemo";
 import { useI18n } from "@/hooks/useI18n";
-import { Eye, TrendingUp, Filter, Layers, BarChart3, Check } from "lucide-react";
+import { Eye, TrendingUp, Filter, Layers, BarChart3, Check, Hash } from "lucide-react";
 import { TimeRangeSelector, rangeToDays, type TimeRange } from "@/components/TimeRangeSelector";
 import { ChartDetailPanel } from "@/components/progress/ChartDetailPanel";
 import { ProgressTooltip } from "@/components/progress/ProgressTooltip";
@@ -22,7 +22,7 @@ type Area = Database["public"]["Tables"]["areas"]["Row"];
 type AreaType = Database["public"]["Enums"]["area_type"];
 
 type FilterMode = "all" | "type" | "activity";
-type ViewMode = "total" | "overlay";
+type ViewMode = "total" | "overlay" | "counter";
 
 const AREA_TYPE_KEYS: { value: AreaType; labelKey: TranslationKey }[] = [
   { value: "health", labelKey: "areaType.health" },
@@ -62,6 +62,7 @@ const Progress = () => {
   const [loading, setLoading] = useState(true);
   const [activeDate, setActiveDate] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [quantityData, setQuantityData] = useState<Record<string, { date: string; quantity: number }[]>>({});
 
   const fetchData = useCallback(async () => {
     if (isDemo) {
@@ -116,6 +117,29 @@ const Progress = () => {
       }
     }
     setCheckins(checkinMap);
+
+    // Fetch quantity data for reduce/quantity_reduce areas
+    const quantityAreas = allAreasForScores.filter(a => a.type === "reduce" && a.tracking_mode === "quantity_reduce");
+    if (quantityAreas.length > 0) {
+      const qIds = quantityAreas.map(a => a.id);
+      const { data: qData } = await supabase
+        .from("habit_quantity_daily")
+        .select("area_id, date, quantity")
+        .in("area_id", qIds)
+        .gte("date", startDate)
+        .order("date", { ascending: true });
+      const qMap: Record<string, { date: string; quantity: number }[]> = {};
+      for (const a of quantityAreas) { qMap[a.id] = []; }
+      if (qData) {
+        for (const q of qData) {
+          if (qMap[q.area_id]) qMap[q.area_id].push({ date: q.date, quantity: q.quantity });
+        }
+      }
+      setQuantityData(qMap);
+    } else {
+      setQuantityData({});
+    }
+
     setLoading(false);
   }, [user, isDemo, timeRange]);
 
@@ -130,6 +154,35 @@ const Progress = () => {
     if (filterMode === "activity" && selectedAreaId) return areas.filter((a) => a.id === selectedAreaId);
     return allWithRetained;
   }, [areas, archivedRetainedAreas, filterMode, selectedType, selectedAreaId]);
+
+  // Check if counter tab should be visible: all filtered areas must be reduce+quantity_reduce
+  const showCounterTab = useMemo(() => {
+    if (filteredAreas.length === 0) return false;
+    return filteredAreas.every(a => a.type === "reduce" && a.tracking_mode === "quantity_reduce");
+  }, [filteredAreas]);
+
+  // When counter tab is not available but selected, reset to total
+  useEffect(() => {
+    if (viewMode === "counter" && !showCounterTab) setViewMode("total");
+  }, [showCounterTab, viewMode]);
+
+  // Counter chart data: averaged quantity per day across filtered areas
+  const counterChartData = useMemo(() => {
+    if (!showCounterTab || viewMode !== "counter") return [];
+    const dateMap: Record<string, number[]> = {};
+    for (const area of filteredAreas) {
+      const areaQ = quantityData[area.id] || [];
+      for (const q of areaQ) {
+        if (!dateMap[q.date]) dateMap[q.date] = [];
+        dateMap[q.date].push(q.quantity);
+      }
+    }
+    return Object.entries(dateMap)
+      .map(([date, values]) => ({ date, score: values.reduce((a, b) => a + b, 0) / values.length }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [showCounterTab, viewMode, filteredAreas, quantityData]);
+
+  const { chartData: counterAdaptiveData, granularity: counterGranularity } = useAdaptiveChart(counterChartData);
 
   // For "total" view: averaged data
   const rawAveraged = useMemo(() => {
@@ -181,6 +234,19 @@ const Progress = () => {
   const { chartData, granularity } = useAdaptiveChart(rawAveraged);
 
   const { lineColor, firstScore, lastScore, minScore, maxScore } = useMemo(() => {
+    if (viewMode === "counter") {
+      if (counterAdaptiveData.length === 0) return { lineColor: "#8C9496", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
+      const slopeWindow = getSlopeWindow(counterGranularity);
+      const slope = computeSlope(counterAdaptiveData, slopeWindow);
+      const arr = counterAdaptiveData.map(d => d.score);
+      return {
+        lineColor: getLineColor(slope),
+        firstScore: counterAdaptiveData[0].score,
+        lastScore: counterAdaptiveData[counterAdaptiveData.length - 1].score,
+        minScore: Math.min(...arr),
+        maxScore: Math.max(...arr),
+      };
+    }
     if (viewMode === "overlay") {
       const keys = overlayData.areaKeys.map(k => k.id);
       const allValues: number[] = [];
@@ -192,7 +258,6 @@ const Progress = () => {
       }
       if (allValues.length === 0) return { lineColor: "#8C9496", firstScore: 0, lastScore: 0, minScore: 0, maxScore: 0 };
 
-      // Average across areas for first and last data points
       const avgForRow = (row: Record<string, any>) => {
         const vals = keys.map(k => row[k] as number).filter(v => v !== undefined && v !== null);
         return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
@@ -219,17 +284,22 @@ const Progress = () => {
       minScore: Math.min(...arr),
       maxScore: Math.max(...arr),
     };
-  }, [chartData, granularity, viewMode, overlayData]);
+  }, [chartData, granularity, viewMode, overlayData, counterAdaptiveData, counterGranularity]);
 
-  const hasData = viewMode === "overlay"
-    ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
-    : chartData.length > 0 && chartData.some((d) => d.score !== 0);
+  const hasData = viewMode === "counter"
+    ? counterAdaptiveData.length > 0
+    : viewMode === "overlay"
+      ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
+      : chartData.length > 0 && chartData.some((d) => d.score !== 0);
 
-  const effectiveGranularity = viewMode === "overlay" ? (overlayData.granularity ?? granularity) : granularity;
+  const effectiveGranularity = viewMode === "counter" ? counterGranularity : viewMode === "overlay" ? (overlayData.granularity ?? granularity) : granularity;
   const isLargeRange = effectiveGranularity !== "daily";
-  const tickInterval = getTickInterval(effectiveGranularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
+  const effectiveDataLength = viewMode === "counter" ? counterAdaptiveData.length : viewMode === "overlay" ? overlayData.data.length : chartData.length;
+  const tickInterval = getTickInterval(effectiveGranularity, effectiveDataLength);
 
+  const fmtCounter = (n: number) => Math.round(n).toString();
   const fmt = (n: number) => {
+    if (viewMode === "counter") return fmtCounter(n);
     if (Math.abs(n) >= 1000) return n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return n.toFixed(2);
   };
@@ -328,7 +398,9 @@ const Progress = () => {
       {areas.length > 0 && (
         <div className="flex items-center justify-between px-4 pb-2">
           <div className="flex flex-col">
-            <span className="text-2xl font-bold text-foreground tabular-nums">{fmt(lastScore)}</span>
+            <span className="text-2xl font-bold text-foreground tabular-nums">
+              {fmt(lastScore)}{viewMode === "counter" && filteredAreas[0]?.unit_label ? ` ${filteredAreas[0].unit_label}` : ""}
+            </span>
             {hasData && (
               <span className={`text-xs font-medium tabular-nums ${diffColor}`}>
                 {diffSign}{fmt(scoreDiff)}{pctStr} · {locale === "it" ? "Dall'inizio" : "From start"}
@@ -352,6 +424,16 @@ const Progress = () => {
               <Layers size={13} />
               <span>{t("progress.view.overlay")}</span>
             </button>
+            {showCounterTab && (
+              <button
+                onClick={() => setViewMode("counter")}
+                className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors min-h-[32px] ${viewMode === "counter" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                title={t("progress.view.counter")}
+              >
+                <Hash size={13} />
+                <span>{t("progress.view.counter")}</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -391,11 +473,14 @@ const Progress = () => {
   const yPadding = (maxScore - minScore) * 0.15 || 1;
   const yDomainMin = minScore - yPadding;
   const yDomainMax = maxScore + yPadding;
-  const lastPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
+  const lastPoint = viewMode === "counter"
+    ? (counterAdaptiveData.length > 0 ? counterAdaptiveData[counterAdaptiveData.length - 1] : null)
+    : (chartData.length > 0 ? chartData[chartData.length - 1] : null);
 
   // Determine which data/chart to use
   const isOverlay = viewMode === "overlay";
-  const chartDataSource = isOverlay ? overlayData.data : chartData;
+  const isCounter = viewMode === "counter";
+  const chartDataSource = isCounter ? counterAdaptiveData : isOverlay ? overlayData.data : chartData;
 
   return (
     <div className="flex flex-col min-h-full">
@@ -454,6 +539,26 @@ const Progress = () => {
                         return (
                           <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
                             <p className="text-muted-foreground tabular-nums">{label}</p>
+                          </div>
+                        );
+                      }}
+                      cursor={{ stroke: "hsl(190, 5%, 75%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                    />
+                  ) : isCounter ? (
+                    <Tooltip
+                      content={(props: any) => {
+                        if (!props.active || !props.payload?.length) return null;
+                        const point = props.payload[0]?.payload;
+                        if (!point) return null;
+                        const label = formatTooltipLabel(point.date, effectiveGranularity, locale);
+                        // Get unit label from first filtered area
+                        const unitLabel = filteredAreas[0]?.unit_label || "";
+                        return (
+                          <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
+                            <p className="text-muted-foreground tabular-nums">{label}</p>
+                            <p className="text-foreground font-medium mt-0.5 tabular-nums">
+                              {Math.round(point.score)} {unitLabel}
+                            </p>
                           </div>
                         );
                       }}
