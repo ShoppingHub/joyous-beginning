@@ -379,6 +379,7 @@ const translations = {
   "progress.filter.byActivity": { en: "By activity", it: "Per attività" },
   "progress.view.total": { en: "Total", it: "Totale" },
   "progress.view.overlay": { en: "Overlay", it: "Sovrapposizione" },
+  "progress.view.counter": { en: "Counter", it: "Contatore" },
 
   // Diet Card
   "diet.wizard.title": { en: "Set up your diet plan", it: "Configura la tua dieta" },
