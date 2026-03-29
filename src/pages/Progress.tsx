@@ -62,6 +62,7 @@ const Progress = () => {
   const [loading, setLoading] = useState(true);
   const [activeDate, setActiveDate] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [quantityData, setQuantityData] = useState<Record<string, { date: string; quantity: number }[]>>({});
 
   const fetchData = useCallback(async () => {
     if (isDemo) {
