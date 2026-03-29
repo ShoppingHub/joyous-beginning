@@ -9,6 +9,7 @@ import { useUserCards } from "@/hooks/useUserCards";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Plus, ChevronRight, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase, MoreVertical, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
 import { AVAILABLE_CARDS } from "@/lib/cards";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { getDemoAreas } from "@/lib/demoData";
