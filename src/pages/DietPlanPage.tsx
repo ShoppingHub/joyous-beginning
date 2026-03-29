@@ -49,7 +49,7 @@ const DietPlanPage = () => {
   const [loading, setLoading] = useState(true);
   const [freeMeals, setFreeMeals] = useState(0);
   const [editingItem, setEditingItem] = useState<{ mealId: string; item?: DietMealItem } | null>(null);
-  const [itemForm, setItemForm] = useState({ name: "", maxPerWeek: "" });
+  const [itemForm, setItemForm] = useState({ name: "", maxPerWeek: "", grams: "" });
 
   const title = locale === "it" ? "Schema dieta" : "Diet plan";
 
@@ -101,17 +101,18 @@ const DietPlanPage = () => {
 
   const openItemForm = (mealId: string, item?: DietMealItem) => {
     setEditingItem({ mealId, item });
-    setItemForm({ name: item?.name || "", maxPerWeek: item?.max_per_week != null ? String(item.max_per_week) : "" });
+    setItemForm({ name: item?.name || "", maxPerWeek: item?.max_per_week != null ? String(item.max_per_week) : "", grams: item?.grams != null ? String(item.grams) : "" });
   };
 
   const handleSaveItem = async () => {
     if (!editingItem || !itemForm.name.trim()) return;
     const maxPW = itemForm.maxPerWeek ? parseInt(itemForm.maxPerWeek) : null;
+    const gramsVal = itemForm.grams ? parseInt(itemForm.grams) : null;
     if (editingItem.item) {
-      await supabase.from("diet_meal_items" as any).update({ name: itemForm.name.trim(), max_per_week: maxPW } as any).eq("id", editingItem.item.id);
+      await supabase.from("diet_meal_items" as any).update({ name: itemForm.name.trim(), max_per_week: maxPW, grams: gramsVal } as any).eq("id", editingItem.item.id);
     } else {
       const currentItems = meals.find(m => m.id === editingItem.mealId)?.items.length || 0;
-      await supabase.from("diet_meal_items" as any).insert({ meal_id: editingItem.mealId, name: itemForm.name.trim(), max_per_week: maxPW, order: currentItems } as any);
+      await supabase.from("diet_meal_items" as any).insert({ meal_id: editingItem.mealId, name: itemForm.name.trim(), max_per_week: maxPW, grams: gramsVal, order: currentItems } as any);
     }
     setEditingItem(null);
     if (program) await fetchMeals(program.id);
