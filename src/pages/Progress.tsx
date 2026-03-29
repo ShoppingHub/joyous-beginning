@@ -286,13 +286,16 @@ const Progress = () => {
     };
   }, [chartData, granularity, viewMode, overlayData, counterAdaptiveData, counterGranularity]);
 
-  const hasData = viewMode === "overlay"
-    ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
-    : chartData.length > 0 && chartData.some((d) => d.score !== 0);
+  const hasData = viewMode === "counter"
+    ? counterAdaptiveData.length > 0
+    : viewMode === "overlay"
+      ? overlayData.data.length > 0 && overlayData.areaKeys.length > 0
+      : chartData.length > 0 && chartData.some((d) => d.score !== 0);
 
-  const effectiveGranularity = viewMode === "overlay" ? (overlayData.granularity ?? granularity) : granularity;
+  const effectiveGranularity = viewMode === "counter" ? counterGranularity : viewMode === "overlay" ? (overlayData.granularity ?? granularity) : granularity;
   const isLargeRange = effectiveGranularity !== "daily";
-  const tickInterval = getTickInterval(effectiveGranularity, viewMode === "overlay" ? overlayData.data.length : chartData.length);
+  const effectiveDataLength = viewMode === "counter" ? counterAdaptiveData.length : viewMode === "overlay" ? overlayData.data.length : chartData.length;
+  const tickInterval = getTickInterval(effectiveGranularity, effectiveDataLength);
 
   const fmt = (n: number) => {
     if (Math.abs(n) >= 1000) return n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
