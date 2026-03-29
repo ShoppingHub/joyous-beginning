@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +8,7 @@ import { useUserCards } from "@/hooks/useUserCards";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Plus, ChevronRight, Heart, Brain, SlidersHorizontal, TrendingUp, Briefcase, MoreVertical, LayoutGrid, Repeat, CalendarDays } from "lucide-react";
+import { AVAILABLE_CARDS } from "@/lib/cards";
 import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
@@ -47,8 +48,20 @@ const Areas = () => {
   const { user } = useAuth();
   const { isDemo } = useDemo();
   const { t } = useI18n();
-  const { enabledCards } = useUserCards();
+  const { enabledCards, allUserCards } = useUserCards();
   const isMobile = useIsMobile();
+
+  // Map area_id → card icon for linked cards
+  const areaCardIconMap = useMemo(() => {
+    const map: Record<string, typeof Heart> = {};
+    for (const uc of allUserCards) {
+      if (uc.area_id && uc.enabled) {
+        const cardDef = AVAILABLE_CARDS.find(c => c.id === uc.card_type);
+        if (cardDef) map[uc.area_id] = cardDef.icon;
+      }
+    }
+    return map;
+  }, [allUserCards]);
   const navigate = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,11 +165,13 @@ const Areas = () => {
               {items.map((area) => {
                 const isQuantity = area.tracking_mode === "quantity_reduce";
                 const qty = todayQuantities[area.id] ?? 0;
+                const CardIcon = areaCardIconMap[area.id];
                 return (
                   <div key={area.id} className="flex items-center gap-1">
                     <button onClick={() => navigate(`/activities/${area.id}`)}
                       className="flex-1 flex items-center justify-between rounded-lg bg-card px-4 min-h-[48px] hover:opacity-90 transition-opacity">
                       <div className="flex items-center gap-2 truncate mr-3">
+                        {CardIcon && <CardIcon size={16} strokeWidth={1.5} className="text-primary flex-shrink-0" />}
                         <span className="text-base text-foreground truncate">{area.name}</span>
                         {(area as any).recurrence_type === "biweekly" && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-medium flex-shrink-0">
