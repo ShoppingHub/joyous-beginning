@@ -40,13 +40,13 @@ export function DietWizard({ areaId, onCreated }: DietWizardProps) {
   const hasAtLeastOneMeal = MEAL_ORDER.some(m => activeMeals[m]);
 
   const addItem = (meal: MealType) => {
-    setMealItems(prev => ({ ...prev, [meal]: [...prev[meal], ""] }));
+    setMealItems(prev => ({ ...prev, [meal]: [...prev[meal], { name: "", grams: "" }] }));
   };
 
-  const updateItem = (meal: MealType, idx: number, value: string) => {
+  const updateItem = (meal: MealType, idx: number, field: "name" | "grams", value: string) => {
     setMealItems(prev => ({
       ...prev,
-      [meal]: prev[meal].map((v, i) => (i === idx ? value : v)),
+      [meal]: prev[meal].map((v, i) => (i === idx ? { ...v, [field]: value } : v)),
     }));
   };
 
