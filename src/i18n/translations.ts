@@ -275,7 +275,7 @@ const translations = {
   // Reduce tracking
   "reduce.trackingLabel": { en: "How do you want to track this?", it: "Come vuoi tracciare?" },
   "reduce.modeBinary": { en: "Simple (done / not done)", it: "Semplice (fatto / non fatto)" },
-  "reduce.modeQuantity": { en: "Count occurrences", it: "Conta occorrenze" },
+  "reduce.modeQuantity": { en: "Counter", it: "Contatore" },
   "reduce.unitLabelLabel": { en: "What are you counting?", it: "Cosa stai contando?" },
   "reduce.unitLabelPlaceholder": { en: "e.g. cigarettes", it: "es. sigarette" },
   "reduce.baselineLabel": { en: "Typical daily amount (your starting reference)", it: "Quantità giornaliera tipica (riferimento iniziale)" },
