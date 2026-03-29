@@ -155,6 +155,35 @@ const Progress = () => {
     return allWithRetained;
   }, [areas, archivedRetainedAreas, filterMode, selectedType, selectedAreaId]);
 
+  // Check if counter tab should be visible: all filtered areas must be reduce+quantity_reduce
+  const showCounterTab = useMemo(() => {
+    if (filteredAreas.length === 0) return false;
+    return filteredAreas.every(a => a.type === "reduce" && a.tracking_mode === "quantity_reduce");
+  }, [filteredAreas]);
+
+  // When counter tab is not available but selected, reset to total
+  useEffect(() => {
+    if (viewMode === "counter" && !showCounterTab) setViewMode("total");
+  }, [showCounterTab, viewMode]);
+
+  // Counter chart data: averaged quantity per day across filtered areas
+  const counterChartData = useMemo(() => {
+    if (!showCounterTab || viewMode !== "counter") return [];
+    const dateMap: Record<string, number[]> = {};
+    for (const area of filteredAreas) {
+      const areaQ = quantityData[area.id] || [];
+      for (const q of areaQ) {
+        if (!dateMap[q.date]) dateMap[q.date] = [];
+        dateMap[q.date].push(q.quantity);
+      }
+    }
+    return Object.entries(dateMap)
+      .map(([date, values]) => ({ date, score: values.reduce((a, b) => a + b, 0) / values.length }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [showCounterTab, viewMode, filteredAreas, quantityData]);
+
+  const { chartData: counterAdaptiveData, granularity: counterGranularity } = useAdaptiveChart(counterChartData);
+
   // For "total" view: averaged data
   const rawAveraged = useMemo(() => {
     if (filteredAreas.length === 0) return [];
